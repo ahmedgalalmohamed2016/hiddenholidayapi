@@ -63,7 +63,7 @@ exports.merchants = async (req, res) => {
         return res.send(err.message);
     }
 };
-
+//
 exports.updateMerchant = async (req, res) => {
     try {
         let _merchants = await merchant.updateMany({ cat_name: "Sports & Activities" } , {cat_name: "Sports" }).lean();
