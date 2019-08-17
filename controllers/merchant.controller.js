@@ -56,7 +56,7 @@ exports.merchants = async (req, res) => {
 
         if (req.query.page)
             _skip = req.query.page * 10;
-        let _merchants = await merchant.find(_query).limit(10).skip(_skip);
+        let _merchants = await merchant.find(_query,null, {sort: {clean_name: 1}}).limit(10).skip(_skip);
 
         return res.send(_merchants);
     } catch (err) {
