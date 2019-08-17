@@ -10,7 +10,7 @@ const middleware  = require('../middleware/auth');
 router.get('/prepare', merchant_controller.merchant_prepare);
 router.get('/maps', merchant_controller.maps);
 router.get('/merchantsById', merchant_controller.merchantById);
-router.get('/merchants', merchant_controller.merchants);
+router.get('/', merchant_controller.merchants);
 // router.get('/update', merchant_controller.updateMerchant);
 // update
 
