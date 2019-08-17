@@ -2,7 +2,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const merchant = require('./routes/merchant.route'); // Imports routes for the products
+const merchant = require('./routes/merchant.route'); 
+const user = require('./routes/user.route'); 
 const app = express();
 // Set up mongoose connection
 const mongoose = require('mongoose');
@@ -21,6 +22,7 @@ app.use(function (req, res, next) {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/merchants', merchant);
+app.use('/user', user);
 
 let port = 1337;
 
