@@ -2,6 +2,7 @@ const merchant = require('../models/merchant.model');
 const _ = require("lodash");
 const request = require("superagent");
 var fs = require("fs");
+const mongoose = require('mongoose');
 
 exports.merchant_prepare = async (req, res) => {
     try {
@@ -49,27 +50,47 @@ exports.merchants = async (req, res) => {
         let _skip = 0;
         //
         if (req.query.name)
-            _query.clean_name = { $regex:  req.query.name , $options: "i" }//{ contains: req.query.name };
+            _query.clean_name = { $regex: req.query.name, $options: "i" }//{ contains: req.query.name };
 
         if (req.query.category)
             _query.cat_name = req.query.category;
 
         if (req.query.page)
             _skip = req.query.page * 10;
-        let _merchants = await merchant.find(_query,null, {sort: {clean_name: 1}}).limit(10).skip(_skip);
+        let _merchants = await merchant.find(_query, null, { sort: { clean_name: 1 } }).limit(10).skip(_skip);
 
         return res.send(_merchants);
     } catch (err) {
         return res.send(err.message);
+    }
+};
+
+exports.merchants_favourites = async (req, res) => {
+    try {
+        if(!req.body.merchants || req.body.merchants.length <1)
+        return res.status(405).send("Please enter valid favourites data");
+
+        let data = [];
+        console.log(typeof req.body);
+        console.log(typeof req.body.merchants);
+       // return res.send(req.body);
+        for(let x= 0;x <=req.body.merchants.length;x++){
+            let d = mongoose.Types.ObjectId(req.body.merchants[x]);
+           data.push(d);
+        }
+        let _merchants = await merchant.find({ _id: { $in: data } }, null, { sort: { clean_name: 1 } });
+        return res.send(_merchants);
+    } catch (err) {
+        return res.send(err);
     }
 };
 //
-exports.updateMerchant = async (req, res) => {
-    try {
-        let _merchants = await merchant.updateMany({ cat_name: "Sports & Activities" } , {cat_name: "Sports" }).lean();
+// exports.updateMerchant = async (req, res) => {
+//     try {
+//         let _merchants = await merchant.updateMany({ cat_name: "Sports & Activities" } , {cat_name: "Sports" }).lean();
 
-        return res.send(_merchants);
-    } catch (err) {
-        return res.send(err.message);
-    }
-};
+//         return res.send(_merchants);
+//     } catch (err) {
+//         return res.send(err.message);
+//     }
+// };
