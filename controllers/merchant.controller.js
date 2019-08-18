@@ -26,7 +26,7 @@ exports.merchant_prepare = async (req, res) => {
 
 exports.maps = async (req, res) => {
     try {
-        let result = await merchant.find({}, 'clean_name cat_name location_long location_lat');
+        let result = await merchant.find({}, 'clean_name cat_name location_long location_lat _id');
         return res.send(result);
     } catch (err) {
         return res.send(err.message);
