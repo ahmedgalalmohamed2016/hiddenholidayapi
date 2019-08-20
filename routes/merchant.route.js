@@ -12,6 +12,9 @@ router.get('/maps', merchant_controller.maps);
 router.get('/merchantsById', merchant_controller.merchantById);
 router.get('/', merchant_controller.merchants);
 router.post('/favourites', merchant_controller.merchants_favourites);
+router.post('/updates', merchant_controller.updateMerchant);
+router.post('/updates/promotions', merchant_controller.updateDummyMerchant);
+
 
 // update
 

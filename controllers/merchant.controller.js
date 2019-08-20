@@ -84,13 +84,23 @@ exports.merchants_favourites = async (req, res) => {
         return res.send(err);
     }
 };
-//
-// exports.updateMerchant = async (req, res) => {
-//     try {
-//         let _merchants = await merchant.updateMany({ cat_name: "Sports & Activities" } , {cat_name: "Sports" }).lean();
 
-//         return res.send(_merchants);
-//     } catch (err) {
-//         return res.send(err.message);
-//     }
-// };
+exports.updateMerchant = async (req, res) => {
+    try {
+        let _merchants = await merchant.updateMany({} , {country: "Jordan" }).lean();
+
+        return res.send(_merchants);
+    } catch (err) {
+        return res.send(err.message);
+    }
+};
+
+exports.updateDummyMerchant = async (req, res) => {
+    try {
+        let _merchants = await merchant.updateMany({} , {country: "Jordan" }).lean();
+
+        return res.send(_merchants);
+    } catch (err) {
+        return res.send(err.message);
+    }
+};
