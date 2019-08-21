@@ -97,6 +97,9 @@ exports.updateMerchant = async (req, res) => {
 
 exports.updateDummyMerchant = async (req, res) => {
     try {
+
+// let du
+
         let _merchants = await merchant.updateMany({} , {country: "Jordan" }).lean();
 
         return res.send(_merchants);

@@ -8,5 +8,4 @@ const middleware = require('../middleware/auth');
 router.post('/register', user_controller.register);
 router.post('/profile', middleware.mainAuth, user_controller.getUserData);
 
-
 module.exports = router;

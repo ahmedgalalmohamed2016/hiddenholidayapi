@@ -5,7 +5,6 @@ const router = express.Router();
 const merchant_controller = require('../controllers/merchant.controller');
 const middleware  = require('../middleware/auth');
 
-
 // a simple test url to check that all of our files are communicating correctly.
 router.get('/prepare', merchant_controller.merchant_prepare);
 router.get('/maps', merchant_controller.maps);
@@ -14,10 +13,5 @@ router.get('/', merchant_controller.merchants);
 router.post('/favourites', merchant_controller.merchants_favourites);
 router.post('/updates', merchant_controller.updateMerchant);
 router.post('/updates/promotions', merchant_controller.updateDummyMerchant);
-
-
-// update
-
-
 
 module.exports = router;
