@@ -24,7 +24,13 @@ exports.register = async(req, res) => {
         const usersNamedFinn = await UserModel.find({
             $or: [{ mobileNumber: req.body.mobileNumber }, { email: req.body.email }]
         });
-        if (usersNamedFinn.length > 0)
+        if (usersNamedFinn.length > 0 && req.body.mobileNumber == usersNamedFinn[0].mobileNumber)
+            return res.send("mobile number is not available try another one");
+
+        else if (usersNamedFinn.length > 0 && req.body.email == usersNamedFinn[0].email)
+            return res.send("mobile number is not available try another one");
+
+        else if (usersNamedFinn.length > 0)
             return res.send("mobile number or email is duplicated");
 
         // Generate Password
@@ -59,7 +65,14 @@ exports.register = async(req, res) => {
         verificationData.userDevice = userDevice;
         verificationData.mobileNumber = req.body.mobileNumber;
         verificationData.verificationType = 'register';
-        let verificationCode = Math.floor(Math.random() * 90000000) + 1000000;
+
+
+        let _a = String(Math.floor(Math.random() * 10));
+        let _b = String(Math.floor(Math.random() * 10));
+        let _c = String(Math.floor(Math.random() * 10));
+        let _d = String(Math.floor(Math.random() * 10));
+        let verificationCode = _a + _b + _c + _d;
+
         verificationData.verificationCode = await passwordService.generatePassword(verificationCode, saveData.mobileNumber);
         verificationData.isVerified = false;
         let verfificationCreated = await Verifications.create(verificationData);
@@ -112,5 +125,15 @@ exports.login = async(req, res) => {
     } catch (err) {
         return res.send(err);
     }
+}
 
+exports.logout = async(req, res) => {
+    try {
+        //req.userData
+        const updatedUser = await UserModel.findByIdAndUpdate(req.userData._id, { userToken: null }).lean();
+        if (_.isNil(_user))
+            return res.status(401).send("Token is not valid");
+    } catch (err) {
+        return res.send(err);
+    }
 }

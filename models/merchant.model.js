@@ -30,7 +30,7 @@ let MerchantSchema = new Schema({
     preference: { type: String },
     // promotion
     promotion_type: { type: String },
-    promotion_amount: { type: Mixed },
+    promotion_amount: { type: String },
     promotion_start_date: { type: Date },
     promotion_end_date: { type: Date },
     promotion_for: { type: String },
