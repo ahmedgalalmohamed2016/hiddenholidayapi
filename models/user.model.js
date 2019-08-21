@@ -6,7 +6,8 @@ let UserSchema = new Schema({
     userNumber: { type: String, unique: true, required: [true, 'user number is required'] },
     role: { type: String, required: true },
     firstName: {
-        type: String, required: [true, 'First name is required.'],
+        type: String,
+        required: [true, 'First name is required.'],
         // validate: {
         //     validator: function (v) {
         //         return _.validation.name.test(v);
@@ -15,7 +16,8 @@ let UserSchema = new Schema({
         // },
     },
     lastName: {
-        type: String, required: [true, 'Last name is required.'],
+        type: String,
+        required: [true, 'Last name is required.'],
         // validate: {
         //     validator: function (v) {
         //         return _.validation.name.test(v);
@@ -38,7 +40,7 @@ let UserSchema = new Schema({
     isLockedOut: { type: Boolean, default: false },
     lastPasswordChangedDate: { type: String },
     failedPasswordAttepmtCount: { type: Number, default: 0 },
-    lastLoginDate: { type: String },
+    lastLoginDate: { type: Date },
     verifiedUserName: { type: Boolean, default: true },
     verifiedMobileNumber: { type: Boolean, default: false },
     verifiedEmail: { type: Boolean, default: false },

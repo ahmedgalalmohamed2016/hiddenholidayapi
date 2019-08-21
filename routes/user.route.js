@@ -6,6 +6,8 @@ const user_controller = require('../controllers/user.controller');
 const middleware = require('../middleware/auth');
 
 router.post('/register', user_controller.register);
+router.post('/login', user_controller.login);
 router.post('/profile', middleware.mainAuth, user_controller.getUserData);
 
 module.exports = router;
+//

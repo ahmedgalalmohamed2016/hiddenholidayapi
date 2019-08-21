@@ -12,7 +12,7 @@ const mongoose = require('mongoose');
 const uuidv4 = require('uuid/v4');
 // const 
 
-exports.register = async (req, res) => {
+exports.register = async(req, res) => {
     try {
 
         if (!req.body.mobileNumber || !req.body.email || !req.body.firstName || !req.body.lastName)
@@ -22,8 +22,7 @@ exports.register = async (req, res) => {
         saveData.userDevice = uuidv4();
         const userDevice = saveData.userDevice;
         const usersNamedFinn = await UserModel.find({
-            $or: [{ mobileNumber: req.body.mobileNumber }
-                , { email: req.body.email }]
+            $or: [{ mobileNumber: req.body.mobileNumber }, { email: req.body.email }]
         });
         if (usersNamedFinn.length > 0)
             return res.send("mobile number or email is duplicated");
@@ -37,7 +36,6 @@ exports.register = async (req, res) => {
         const token = await tokenService.generateLoginToken(saveData.userDevice, saveData._id, req.body.mobileNumber, 'user');
         if (_.isNil(token) || token == false)
             return res.send("error Happened");
-
 
         saveData.password = password;
         saveData.role = 'user';
@@ -74,11 +72,45 @@ exports.register = async (req, res) => {
     }
 }
 
-exports.getUserData = async (req, res) => {
+exports.getUserData = async(req, res) => {
     try {
         //console.log(req.userData);
         return res.send(req.userData);
     } catch (err) {
         return res.send(err);
     }
+}
+
+exports.login = async(req, res) => {
+    try {
+        const usersNamedFinn = await UserModel.find({
+            $or: [{ mobileNumber: req.body.mobileNumber }, { email: req.body.email }]
+        });
+        if (usersNamedFinn.length < 1)
+            return res.status(405).send("Please enter valid username / password");
+
+        const password = await passwordService.comparePassword(req.body.password, usersNamedFinn[0].password, usersNamedFinn[0]._id);
+        if (_.isNil(password) || password != true)
+            return res.status(405).send("Please enter valid username / password");
+
+        // Generate Token
+        let saveData = {};
+        saveData.userDevice = uuidv4();
+
+        // Generate Token
+        const userToken = await tokenService.generateLoginToken(saveData.userDevice, usersNamedFinn[0]._id, usersNamedFinn[0].mobileNumber, usersNamedFinn[0].role);
+        if (_.isNil(userToken) || userToken == false)
+            return res.status(405).send("Please enter valid username / password");
+
+        saveData.userToken = userToken;
+        saveData.lastLoginDate = new Date();
+
+        const updatedUser = await UserModel.findByIdAndUpdate(usersNamedFinn[0]._id, saveData).lean();
+        if (_.isNil(updatedUser) || updatedUser.length < 1)
+            return res.status(405).send("Please enter valid username / password");
+        return res.send(updatedUser);
+    } catch (err) {
+        return res.send(err);
+    }
+
 }
