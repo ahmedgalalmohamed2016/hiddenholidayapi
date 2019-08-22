@@ -8,7 +8,7 @@ exports.mainAuth = async function (req, res, next) {
     } else if (req.body.userDevice && req.body.mauth) {
 
         try {
-            let _user = await UserModel.findOne({ userToken: req.body.mauth },'-password -userToken -userDevice');
+            let _user = await UserModel.findOne({ userToken: req.body.mauth });
             if (_.isNil(_user))
                 return res.status(401).send("Token is not valid");
             if (_user.isLocked)

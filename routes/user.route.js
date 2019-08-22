@@ -10,6 +10,9 @@ router.post('/login', user_controller.login);
 router.post('/logout', middleware.mainAuth, user_controller.logout);
 
 router.post('/profile', middleware.mainAuth, user_controller.getUserData);
+router.post('/verifyPhone', middleware.mainAuth, user_controller.verifyPhone);
+router.post('/verifyPhone/resendSms', middleware.mainAuth, user_controller.resendSms);
+
 
 module.exports = router;
 //

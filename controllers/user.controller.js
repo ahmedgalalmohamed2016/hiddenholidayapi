@@ -1,6 +1,6 @@
 const merchant = require('../models/merchant.model');
 const UserModel = require('../models/user.model');
-const Verifications = require('../models/verification.model');
+const VerificationModel = require('../models/verification.model');
 const passwordService = require('../services/passwordService');
 const sendSmsService = require('../services/sendSmsService');
 const tokenService = require('../services/tokenService');
@@ -12,10 +12,10 @@ const mongoose = require('mongoose');
 const uuidv4 = require('uuid/v4');
 // const 
 
-exports.register = async(req, res) => {
+exports.register = async (req, res) => {
     try {
 
-        if (!req.body.mobileNumber || !req.body.email || !req.body.firstName || !req.body.lastName)
+        if (!req.body.mobileNumber || !req.body.firstName || !req.body.lastName || !req.body.password)
             return res.send('Please enter required fields.');
         let saveData = {};
         saveData._id = new mongoose.Types.ObjectId;
@@ -28,7 +28,7 @@ exports.register = async(req, res) => {
             return res.send("mobile number is not available try another one");
 
         else if (usersNamedFinn.length > 0 && req.body.email == usersNamedFinn[0].email)
-            return res.send("mobile number is not available try another one");
+            return res.send("email is not available try another one");
 
         else if (usersNamedFinn.length > 0)
             return res.send("mobile number or email is duplicated");
@@ -75,17 +75,94 @@ exports.register = async(req, res) => {
 
         verificationData.verificationCode = await passwordService.generatePassword(verificationCode, saveData.mobileNumber);
         verificationData.isVerified = false;
-        let verfificationCreated = await Verifications.create(verificationData);
+        let verfificationCreated = await VerificationModel.create(verificationData);
         if (_.isNil(verfificationCreated))
             return res.send("error Happened");
         await sendSmsService.sendActivationAccountsms(req, saveData.mobileNumber, verificationCode);
+        user._verificationCode = verificationCode;
+        console.log(verificationCode);
         return res.send(user);
     } catch (err) {
         return res.send({ data: "error" });
     }
 }
 
-exports.getUserData = async(req, res) => {
+exports.resendSms = async (req, res) => {
+    try {
+
+
+        const _getVerifications = await VerificationModel.find({
+            mobileNumber: req.userData.mobileNumber,
+            isVerified: false
+        });
+        if (_getVerifications && _getVerifications.length > 3)
+            return res.status(401).send("Sms sent maximum exceeded.contact our support.");
+
+        let verificationData = {};
+        verificationData.userId = req.userData._id;
+        //  verificationData.id = uuidv4();
+        verificationData.userDevice = req.body.userDevice;
+        verificationData.mobileNumber = req.userData.mobileNumber;
+        verificationData.verificationType = 'register';
+
+
+        let _a = String(Math.floor(Math.random() * 10));
+        let _b = String(Math.floor(Math.random() * 10));
+        let _c = String(Math.floor(Math.random() * 10));
+        let _d = String(Math.floor(Math.random() * 10));
+        let verificationCode = _a + _b + _c + _d;
+        console.log(verificationCode);
+        verificationData.verificationCode = await passwordService.generatePassword(verificationCode, req.userData.mobileNumber);
+        verificationData.isVerified = false;
+        let verfificationCreated = await VerificationModel.create(verificationData);
+        if (_.isNil(verfificationCreated))
+            return res.send("error Happened");
+        sendSmsService.sendActivationAccountsms(req, req.userData.mobileNumber, verificationCode);
+        return res.send("message send success to your mobile phone");
+    } catch (err) {
+        return res.send(err);
+    }
+}
+
+exports.verifyPhone = async (req, res) => {
+    try {
+
+        if (req.userData.verifiedMobileNumber == true)
+           return res.send("Your Phone number already verified before");
+
+        if (!req.body.code || req.body.code.length != 4)
+            return res.status(401).send("Please enter valid code");
+        let _verificationCode = await passwordService.generatePassword(req.body.code, req.userData.mobileNumber);
+
+        const _getVerification = await VerificationModel.findOne({
+            mobileNumber: req.userData.mobileNumber,
+            verificationCode: _verificationCode,
+            isVerified: false
+        }).lean();
+        if (_.isNil(_getVerification))
+            return res.status(401).send("Please Enter Valid Code.");
+
+        const updatedVerify = await VerificationModel.findByIdAndUpdate(_getVerification._id, { isVerified: true }).lean();
+        if (_.isNil(updatedVerify))
+            return res.status(401).send("Error Happened ,contact our support.");
+
+        // enc code
+        //find with phone in verification
+        // same data update verification
+        // update user
+
+
+        //req.userData
+        const updatedUser = await UserModel.findByIdAndUpdate(req.userData._id, { verifiedMobileNumber: true }).lean();
+        if (_.isNil(updatedUser))
+            return res.status(401).send("Error Happened ,contact our support.");
+        return res.send("Mobile Verified Successfull.");
+    } catch (err) {
+        return res.send(err);
+    }
+}
+
+exports.getUserData = async (req, res) => {
     try {
         //console.log(req.userData);
         return res.send(req.userData);
@@ -94,10 +171,10 @@ exports.getUserData = async(req, res) => {
     }
 }
 
-exports.login = async(req, res) => {
+exports.login = async (req, res) => {
     try {
         const usersNamedFinn = await UserModel.find({
-            $or: [{ mobileNumber: req.body.mobileNumber }, { email: req.body.email }]
+            $or: [{ mobileNumber: req.body.username }, { email: req.body.username }]
         });
         if (usersNamedFinn.length < 1)
             return res.status(405).send("Please enter valid username / password");
@@ -118,21 +195,27 @@ exports.login = async(req, res) => {
         saveData.userToken = userToken;
         saveData.lastLoginDate = new Date();
 
-        const updatedUser = await UserModel.findByIdAndUpdate(usersNamedFinn[0]._id, saveData).lean();
+        const updatedUser = await UserModel.updateOne({ _id: usersNamedFinn[0]._id },
+            { $set: saveData });
         if (_.isNil(updatedUser) || updatedUser.length < 1)
             return res.status(405).send("Please enter valid username / password");
-        return res.send(updatedUser);
+
+        let getUser = await UserModel.findOne({ _id: usersNamedFinn[0]._id }).lean();
+        if (_.isNil(getUser))
+            return res.status(405).send("Please enter valid username / password");
+        return res.send(getUser);
     } catch (err) {
         return res.send(err);
     }
 }
 
-exports.logout = async(req, res) => {
+exports.logout = async (req, res) => {
     try {
         //req.userData
         const updatedUser = await UserModel.findByIdAndUpdate(req.userData._id, { userToken: null }).lean();
-        if (_.isNil(_user))
-            return res.status(401).send("Token is not valid");
+        if (_.isNil(updatedUser))
+            return res.status(401).send("Error Happened ,contact our support.");
+        return res.send("logout successful");
     } catch (err) {
         return res.send(err);
     }
