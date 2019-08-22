@@ -4,6 +4,7 @@ const VerificationModel = require('../models/verification.model');
 const passwordService = require('../services/passwordService');
 const sendSmsService = require('../services/sendSmsService');
 const tokenService = require('../services/tokenService');
+const superagent = require('superagent');
 
 const _ = require("lodash");
 const request = require("superagent");
@@ -128,7 +129,7 @@ exports.verifyPhone = async (req, res) => {
     try {
 
         if (req.userData.verifiedMobileNumber == true)
-           return res.send("Your Phone number already verified before");
+            return res.send("Your Phone number already verified before");
 
         if (!req.body.code || req.body.code.length != 4)
             return res.status(401).send("Please enter valid code");
@@ -167,6 +168,24 @@ exports.getUserData = async (req, res) => {
         //console.log(req.userData);
         return res.send(req.userData);
     } catch (err) {
+        return res.send(err);
+    }
+}
+
+exports.loginFB = async (req, res) => {
+    try {
+        //get accessstokn
+        //  get datafrombacebook & checked
+        // create user with data
+//https://graph.facebook.com/debug_token?input_token=EAAC3370LuD0BAKg4yLKGxFQpD8QAOGcZCFNKjwAn0ogkTnkoYoSeMODldjOzw7OjZALJZCAe9yGm06YlJjb9JzbblqG4cCnJv2mhzoWeuZCfZB1XskEohMUnnYZBTvlTMVRSp1QZCkh7s69g5UEceMqTTvVthASR6PwiZAQhRGmaeeCA4qpLjAFVmVInTclrFlRllv7PHZC25XQZDZD&access_token=202171577251901|HMB7pcYCVXlcs1h9BSJjOgQ-iZE
+        // https://graph.facebook.com/oauth/access_token?client_id=your-app-id&client_secret=your-app-secret&grant_type=client_credentials"202171577251901|HMB7pcYCVXlcs1h9BSJjOgQ-iZE 
+        //https://graph.facebook.com/968200400056370?fields=id,name,email&access_token=EAAC3370LuD0BAKg4yLKGxFQpD8QAOGcZCFNKjwAn0ogkTnkoYoSeMODldjOzw7OjZALJZCAe9yGm06YlJjb9JzbblqG4cCnJv2mhzoWeuZCfZB1XskEohMUnnYZBTvlTMVRSp1QZCkh7s69g5UEceMqTTvVthASR6PwiZAQhRGmaeeCA4qpLjAFVmVInTclrFlRllv7PHZC25XQZDZD
+        if(!req.body.accessToken)
+        return res.status(401).send("Enter Valid token");
+        let result = await superagent.get('https://graph.facebook.com/me').query({ access_token: req.body.accessToken });
+        return res.send(result);
+    }
+    catch (err) {
         return res.send(err);
     }
 }

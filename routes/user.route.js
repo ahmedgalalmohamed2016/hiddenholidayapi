@@ -12,7 +12,16 @@ router.post('/logout', middleware.mainAuth, user_controller.logout);
 router.post('/profile', middleware.mainAuth, user_controller.getUserData);
 router.post('/verifyPhone', middleware.mainAuth, user_controller.verifyPhone);
 router.post('/verifyPhone/resendSms', middleware.mainAuth, user_controller.resendSms);
+router.post('/login/facebook', user_controller.loginFB);
 
+//forget password
+// reset password
+// change password
+//  facebook login
+
+//create deal
+//update deal
+// get my deals
 
 module.exports = router;
 //
