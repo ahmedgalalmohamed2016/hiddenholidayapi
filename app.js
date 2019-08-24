@@ -35,21 +35,19 @@ app.use('/merchants', merchant);
 app.use('/user', user);
 app.use('/deal', deal);
 
-io.on("connection", socket => {
-  // Log whenever a user connects
-  console.log("user connected");
-
-  // Log whenever a client disconnects from our websocket server
-  socket.on("disconnect", function() {
-    console.log("user disconnected");
+io.on('connection', (socket) => {
+  
+  socket.on('disconnect', function(){
+    io.emit('users-changed', {user: socket.nickname, event: 'left'});   
   });
-
-  // When we receive a 'message' event from our client, print out
-  // the contents of that message and then echo it back to our client
-  // using `io.emit()`
-  socket.on("message", message => {
-    console.log("Message Received: " + message);
-    io.emit("message", { type: "new-message", text: message });
+ 
+  socket.on('set-nickname', (nickname) => {
+    socket.nickname = nickname;
+    io.emit('users-changed', {user: nickname, event: 'joined'});    
+  });
+  
+  socket.on('add-message', (message) => {
+    io.emit('message', {text: message.text, from: socket.nickname, created: new Date()});    
   });
 });
 
