@@ -14,6 +14,22 @@ const mongoose = require('mongoose');
 let dev_db_url = 'mongodb://admin:2wGnLj9ayKfeZLCQaVgy5WvBW4nuQemsy977BvdbJykmjq4c@ds045679.mlab.com:45679/hiddenholidaydb';
 
 
+io.on('connection', (socket) => {
+  socket.on('disconnect', function(){
+    io.emit('users-changed', {user: socket.nickname, event: 'left'});   
+  });
+ 
+  socket.on('set-nickname', (nickname) => {
+    socket.nickname = nickname;
+    console.log("set nickname " + nickname);
+    io.emit('usersJoin',"Welcome ahmed" );    
+  });
+  
+  socket.on('add-message', (message) => {
+    io.emit('message', {text: message.text, from: socket.nickname, created: new Date()});    
+  });
+});
+
 const mongoDB = process.env.MONGODB_URI || dev_db_url;
 mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
@@ -35,24 +51,10 @@ app.use('/merchants', merchant);
 app.use('/user', user);
 app.use('/deal', deal);
 
-io.on('connection', (socket) => {
-  
-  socket.on('disconnect', function(){
-    io.emit('users-changed', {user: socket.nickname, event: 'left'});   
-  });
- 
-  socket.on('set-nickname', (nickname) => {
-    socket.nickname = nickname;
-    io.emit('users-changed', {user: nickname, event: 'joined'});    
-  });
-  
-  socket.on('add-message', (message) => {
-    io.emit('message', {text: message.text, from: socket.nickname, created: new Date()});    
-  });
-});
+
 
 let port = 1337;
 
-app.listen(port, () => {
+http.listen(port, () => {
   console.log('Server is up and running on port numner ' + port);
 });
