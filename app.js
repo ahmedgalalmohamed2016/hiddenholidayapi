@@ -2,11 +2,8 @@
 let app = require('express')();
 let http = require('http').Server(app);
 let io = require('socket.io')(http);
-const cors = require('cors');
 
 const bodyParser = require('body-parser');
-app.use(cors());
-app.options('*', cors());
 
 const merchant = require('./routes/merchant.route'); 
 const user = require('./routes/user.route'); 
@@ -22,6 +19,7 @@ mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
