@@ -19,6 +19,7 @@
     "fs": "0.0.1-security",
     "lodash": "^4.17.15",
     "mongoose": "^5.6.9",
+    "socket.io": "^2.2.0",
     "superagent": "^5.1.0",
     "twilio": "^3.33.3",
     "uuid": "^3.3.2"
