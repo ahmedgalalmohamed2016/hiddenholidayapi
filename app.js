@@ -2,8 +2,11 @@
 let app = require('express')();
 let http = require('http').Server(app);
 let io = require('socket.io')(http);
+const cors = require('cors');
 
 const bodyParser = require('body-parser');
+app.use(cors());
+app.options('*', cors());
 
 const merchant = require('./routes/merchant.route'); 
 const user = require('./routes/user.route'); 
