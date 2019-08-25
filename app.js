@@ -48,7 +48,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/merchants', merchant);
 app.use('/user', user);
-app.use('/deal', deal);
+app.use('/deals', deal);
 
 
 

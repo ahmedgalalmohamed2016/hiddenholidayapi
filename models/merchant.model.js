@@ -28,18 +28,19 @@ let MerchantSchema = new Schema({
     video_thumb: { type: String },
     operational_hours_description: { type: String },
     preference: { type: String },
+    promotion: { type: mongoose.Schema.Types.Mixed }
     // promotion
-    promotion_title: { type: String },
-    promotion_description: { type: String },
-    promotion_type: { type: String },
-    promotion_amount: { type: String },
-    promotion_start_date: { type: Date },
-    promotion_end_date: { type: Date },
-    promotion_for: { type: String },
-    promotion_subscription_fees: { type: Number },
-    promotion_share_percentage: { type: String },
-    
-    
+    // promotion_title: { type: String },
+    // promotion_description: { type: String },
+    // promotion_type: { type: String },
+    // promotion_amount: { type: String },
+    // promotion_start_date: { type: Date },
+    // promotion_end_date: { type: Date },
+    // promotion_for: { type: String },
+    // promotion_subscription_fees: { type: Number },
+    // promotion_share_percentage: { type: String },
+
+
 
 });
 
