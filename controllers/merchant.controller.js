@@ -37,7 +37,8 @@ exports.merchantById = async (req, res) => {
     try {
         console.log(req.query.id);
         let _merchants = await merchant.findById({ _id: req.query.id });
-
+        if (!_merchants)
+            return res.status(405).send("Please enter valid merchant data");
         return res.send(_merchants);
     } catch (err) {
         return res.send(err.message);
@@ -58,7 +59,7 @@ exports.merchants = async (req, res) => {
         if (req.query.page)
             _skip = req.query.page * 10;
         let _merchants = await merchant.find(_query, null, { sort: { clean_name: 1 } }).limit(10).skip(_skip);
-        req.io.emit('newMessage', "welcome dodo" );   
+        req.io.emit('newMessage', "welcome dodo");
         return res.send(_merchants);
     } catch (err) {
         return res.send(err.message);
@@ -67,16 +68,16 @@ exports.merchants = async (req, res) => {
 
 exports.merchants_favourites = async (req, res) => {
     try {
-        if(!req.body.merchants || req.body.merchants.length <1)
-        return res.status(405).send("Please enter valid favourites data");
+        if (!req.body.merchants || req.body.merchants.length < 1)
+            return res.status(405).send("Please enter valid favourites data");
 
         let data = [];
         console.log(typeof req.body);
         console.log(typeof req.body.merchants);
-       // return res.send(req.body);
-        for(let x= 0;x <=req.body.merchants.length;x++){
+        // return res.send(req.body);
+        for (let x = 0; x <= req.body.merchants.length; x++) {
             let d = mongoose.Types.ObjectId(req.body.merchants[x]);
-           data.push(d);
+            data.push(d);
         }
         let _merchants = await merchant.find({ _id: { $in: data } }, null, { sort: { clean_name: 1 } });
         return res.send(_merchants);
@@ -87,7 +88,7 @@ exports.merchants_favourites = async (req, res) => {
 
 exports.updateMerchant = async (req, res) => {
     try {
-        let _merchants = await merchant.updateMany({} , {country: "Jordan" }).lean();
+        let _merchants = await merchant.updateMany({}, { country: "Jordan" }).lean();
 
         return res.send(_merchants);
     } catch (err) {
@@ -98,9 +99,9 @@ exports.updateMerchant = async (req, res) => {
 exports.updateDummyMerchant = async (req, res) => {
     try {
 
-// let du
+        // let du
 
-        let _merchants = await merchant.updateMany({} , {country: "Jordan" }).lean();
+        let _merchants = await merchant.updateMany({}, { country: "Jordan" }).lean();
 
         return res.send(_merchants);
     } catch (err) {

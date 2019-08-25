@@ -60,12 +60,41 @@ exports.deals = async (req, res) => {
 
 exports.request = async (req, res) => {
     try {
-        // request deal id
-        // get deal from merchant 
-        // create deal in db
-        // send notification
+        if (!req.body.id)
+            res.status(405).send("please enter valid data");
+
+        let _merchant = await MerchantModel.findById({ _id: req.body.id });
+        if (!_merchant)
+            return res.status(405).send("Please enter valid merchant data");
+        if (!_merchant.promotion)
+            res.status(405).send("Merchant doe not have any pormotion");
+
+        let _checkDeal = await DealModel.findOne({ userId: req.userData._id, merchantId: _merchant._id });
+        if (_checkDeal)
+            return res.send({ deal: _checkDeal, requested: "you can not request deal multible time" });
+
+        let dealObj = {};
+        dealObj.endData = _merchant.promotion.promotion_title;
+        dealObj.creationDate = new Date();
+        dealObj.merchantId = _merchant._id;
+        dealObj.userId = req.userData._id;
+
+        let _a = String(Math.floor(Math.random() * 10));
+        let _b = String(Math.floor(Math.random() * 10));
+        let _c = String(Math.floor(Math.random() * 10));
+        let _d = String(Math.floor(Math.random() * 10));
+        let verificationCode = _a + _b + _c + _d;
+
+        dealObj.verificationCode = verificationCode;
+        dealObj.comment = req.body.comment || null;
+        dealObj.status = "pending";
+
+        let _deal = await DealModel.create(dealObj);
+        if (_.isNil(_deal))
+            return res.status(405).send("error Happened");
+        return res.send(_deal);
     } catch (err) {
-        return res.send({ data: "error" });
+        return res.send({ data: err });
     }
 }
 
