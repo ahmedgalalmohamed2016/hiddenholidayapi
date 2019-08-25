@@ -98,6 +98,57 @@ exports.request = async (req, res) => {
     }
 }
 
+exports.DealByMerchantById = async (req, res) => {
+    try {
+        console.log(req.query.id);
+        let _merchants = await MerchantModel.findById({ _id: req.query.id });
+        if (!_merchants)
+            return res.status(405).send("Please enter valid merchant data");
+        return res.send(_merchants);
+    } catch (err) {
+        return res.send(err.message);
+    }
+};
+
+exports.DealData = async (req, res) => {
+    try {
+        if (!req.body.id)
+            res.status(405).send("please enter valid data");
+
+        let _merchant = await MerchantModel.findById({ _id: req.body.id });
+        if (!_merchant)
+            return res.status(405).send("Please enter valid merchant data");
+        if (!_merchant.promotion)
+            res.status(405).send("Merchant doe not have any pormotion");
+
+        let _checkDeal = await DealModel.findOne({ userId: req.userData._id, merchantId: _merchant._id });
+        if (_checkDeal)
+            return res.send(_checkDeal);
+        return res.send({});
+    } catch (err) {
+        return res.send("Error Happened");
+    }
+}
+
+exports.cancel = async (req, res) => {
+    try {
+        if (!req.body.id)
+            res.status(405).send("please enter valid data");
+
+        let _merchant = await MerchantModel.findById({ _id: req.body.id });
+        if (!_merchant)
+            return res.status(405).send("Please enter valid merchant data");
+
+         await DealModel.remove({ userId: req.userData._id, merchantId: _merchant._id })
+       // if (!_deal)
+        //    return res.status(405).send("Please enter valid merchant data");
+        return res.send({data:"Deal Canceled Successfully."})
+    } catch (err) {
+        return res.send("Error Happened");
+    }
+}
+
+
 exports.update = async (req, res) => {
     try {
 
