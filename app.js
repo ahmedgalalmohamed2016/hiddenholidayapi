@@ -5,28 +5,27 @@ let io = require('socket.io')(http);
 
 const bodyParser = require('body-parser');
 
-const merchant = require('./routes/merchant.route'); 
-const user = require('./routes/user.route'); 
-const deal = require('./routes/deal.route'); 
+const merchant = require('./routes/merchant.route');
+const user = require('./routes/user.route');
+const deal = require('./routes/deal.route');
 // const app = express();
 // Set up mongoose connection
 const mongoose = require('mongoose');
 let dev_db_url = 'mongodb://admin:2wGnLj9ayKfeZLCQaVgy5WvBW4nuQemsy977BvdbJykmjq4c@ds045679.mlab.com:45679/hiddenholidaydb';
 
+app.use(function (req, res, next) {
+  req.io = io;
+  next();
+});
 
 io.on('connection', (socket) => {
-  socket.on('disconnect', function(){
-    io.emit('users-changed', {user: socket.nickname, event: 'left'});   
+  socket.on('disconnect', function () {
+    io.emit('users-changed', { user: socket.nickname, event: 'left' });
   });
- 
-  socket.on('set-nickname', (nickname) => {
-    socket.nickname = nickname;
-    console.log("set nickname " + nickname);
-    io.emit('usersJoin',"Welcome ahmed" );    
-  });
-  
-  socket.on('add-message', (message) => {
-    io.emit('message', {text: message.text, from: socket.nickname, created: new Date()});    
+
+  socket.on('newMessage', (message) => {
+    io.emit('newMessage', "welcome " + message);
+    // io.emit('message', {text: message.text, from: socket.nickname, created: new Date()});    
   });
 });
 
