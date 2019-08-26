@@ -177,11 +177,11 @@ exports.loginFB = async (req, res) => {
         //get accessstokn
         //  get datafrombacebook & checked
         // create user with data
-//https://graph.facebook.com/debug_token?input_token=EAAC3370LuD0BAKg4yLKGxFQpD8QAOGcZCFNKjwAn0ogkTnkoYoSeMODldjOzw7OjZALJZCAe9yGm06YlJjb9JzbblqG4cCnJv2mhzoWeuZCfZB1XskEohMUnnYZBTvlTMVRSp1QZCkh7s69g5UEceMqTTvVthASR6PwiZAQhRGmaeeCA4qpLjAFVmVInTclrFlRllv7PHZC25XQZDZD&access_token=202171577251901|HMB7pcYCVXlcs1h9BSJjOgQ-iZE
+        //https://graph.facebook.com/debug_token?input_token=EAAC3370LuD0BAKg4yLKGxFQpD8QAOGcZCFNKjwAn0ogkTnkoYoSeMODldjOzw7OjZALJZCAe9yGm06YlJjb9JzbblqG4cCnJv2mhzoWeuZCfZB1XskEohMUnnYZBTvlTMVRSp1QZCkh7s69g5UEceMqTTvVthASR6PwiZAQhRGmaeeCA4qpLjAFVmVInTclrFlRllv7PHZC25XQZDZD&access_token=202171577251901|HMB7pcYCVXlcs1h9BSJjOgQ-iZE
         // https://graph.facebook.com/oauth/access_token?client_id=your-app-id&client_secret=your-app-secret&grant_type=client_credentials"202171577251901|HMB7pcYCVXlcs1h9BSJjOgQ-iZE 
         //https://graph.facebook.com/968200400056370?fields=id,name,email&access_token=EAAC3370LuD0BAKg4yLKGxFQpD8QAOGcZCFNKjwAn0ogkTnkoYoSeMODldjOzw7OjZALJZCAe9yGm06YlJjb9JzbblqG4cCnJv2mhzoWeuZCfZB1XskEohMUnnYZBTvlTMVRSp1QZCkh7s69g5UEceMqTTvVthASR6PwiZAQhRGmaeeCA4qpLjAFVmVInTclrFlRllv7PHZC25XQZDZD
-        if(!req.body.accessToken)
-        return res.status(401).send("Enter Valid token");
+        if (!req.body.accessToken)
+            return res.status(401).send("Enter Valid token");
         let result = await superagent.get('https://graph.facebook.com/me').query({ access_token: req.body.accessToken });
         return res.send(result);
     }
@@ -196,11 +196,11 @@ exports.login = async (req, res) => {
             $or: [{ mobileNumber: req.body.username }, { email: req.body.username }]
         });
         if (usersNamedFinn.length < 1)
-            return res.status(405).send("Please enter valid username / password");
+            return res.send({ error: "Please enter valid username and password" });
 
         const password = await passwordService.comparePassword(req.body.password, usersNamedFinn[0].password, usersNamedFinn[0]._id);
         if (_.isNil(password) || password != true)
-            return res.status(405).send("Please enter valid username / password");
+            return res.send({ error: "Please enter valid username and password" });
 
         // Generate Token
         let saveData = {};
@@ -209,7 +209,7 @@ exports.login = async (req, res) => {
         // Generate Token
         const userToken = await tokenService.generateLoginToken(saveData.userDevice, usersNamedFinn[0]._id, usersNamedFinn[0].mobileNumber, usersNamedFinn[0].role);
         if (_.isNil(userToken) || userToken == false)
-            return res.status(405).send("Please enter valid username / password");
+            return res.send({ error: "Please enter valid username and password" });
 
         saveData.userToken = userToken;
         saveData.lastLoginDate = new Date();
@@ -217,11 +217,11 @@ exports.login = async (req, res) => {
         const updatedUser = await UserModel.updateOne({ _id: usersNamedFinn[0]._id },
             { $set: saveData });
         if (_.isNil(updatedUser) || updatedUser.length < 1)
-            return res.status(405).send("Please enter valid username / password");
+            return res.send({ error: "Please enter valid username and password" });
 
         let getUser = await UserModel.findOne({ _id: usersNamedFinn[0]._id }).lean();
         if (_.isNil(getUser))
-            return res.status(405).send("Please enter valid username / password");
+            return res.send({ error: "Please enter valid username and password" });
         return res.send(getUser);
     } catch (err) {
         return res.send(err);
