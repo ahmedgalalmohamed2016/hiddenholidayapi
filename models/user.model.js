@@ -28,7 +28,7 @@ let UserSchema = new Schema({
     address: { type: String },
     profileImage: { type: String },
     password: { type: String },
-    userToken: { type: String, unique: true },
+    userToken: { type: String },
     email: { type: String, unique: true },
     mobileNumber: { type: String, unique: true },
     gender: { type: String },
