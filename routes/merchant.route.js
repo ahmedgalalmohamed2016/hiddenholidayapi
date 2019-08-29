@@ -7,6 +7,7 @@ const middleware  = require('../middleware/auth');
 
 // a simple test url to check that all of our files are communicating correctly.
 router.get('/prepare', merchant_controller.merchant_prepare);
+router.get('/home', merchant_controller.home);
 router.get('/maps', merchant_controller.maps);
 router.get('/merchantsById', merchant_controller.merchantById);
 router.get('/', merchant_controller.merchants);

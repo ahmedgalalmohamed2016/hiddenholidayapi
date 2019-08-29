@@ -239,3 +239,64 @@ exports.logout = async (req, res) => {
         return res.send(err);
     }
 }
+
+exports.updateProfile = async (req, res) => {
+    try {
+        //req.userData
+
+        var data = {}
+        var verificationData = {}
+
+        data.notificationEmail = req.body.notificationEmail;
+        data.notificationMobile = req.body.notificationMobile;
+
+
+        if (req.body.mobileNumber != req.userData.mobileNumber || req.body.email != req.userData.email) {
+            const usersNamedFinn = await UserModel.find({
+                $or: [{ mobileNumber: req.body.mobileNumber }, { email: req.body.email }]
+            });
+            if (usersNamedFinn.length > 0 && req.body.mobileNumber == usersNamedFinn[0].mobileNumber)
+                return res.send("mobile number is not available try another one");
+
+            else if (usersNamedFinn.length > 0 && req.body.email == usersNamedFinn[0].email)
+                return res.send("email is not available try another one");
+
+            else if (usersNamedFinn.length > 0)
+                return res.send("mobile number or email is duplicated");
+        }
+
+        if (req.body.mobileNumber != req.userData.mobileNumber) {
+            data.mobileNumber = req.body.mobileNumber;
+            data.verifiedMobileNumber = false;
+            verificationData.verificationType = 'update';
+
+            let _a = String(Math.floor(Math.random() * 10));
+            let _b = String(Math.floor(Math.random() * 10));
+            let _c = String(Math.floor(Math.random() * 10));
+            let _d = String(Math.floor(Math.random() * 10));
+            let verificationCode = _a + _b + _c + _d;
+
+            verificationData.verificationCode = await passwordService.generatePassword(verificationCode, req.body.mobileNumber);
+            verificationData.isVerified = false;
+            let verfificationCreated = await VerificationModel.create(verificationData);
+            if (_.isNil(verfificationCreated))
+                return res.send("error Happened");
+            await sendSmsService.sendActivationAccountsms(req, req.body.mobileNumber, verificationCode);
+            user._verificationCode = verificationCode;
+        } else {
+            data.mobileNumber = req.userData.mobileNumber;
+        }
+
+        if (req.body.email != req.userData.email)
+            data.email = req.body.email;
+        else
+            data.eamil = req.userData.email;
+
+        const updatedUser = await UserModel.findByIdAndUpdate(req.userData._id, data).lean();
+        if (_.isNil(updatedUser))
+            return res.status(401).send("Error Happened ,contact our support.");
+        return res.send(updatedUser);
+    } catch (err) {
+        return res.send(err);
+    }
+}

@@ -45,6 +45,34 @@ exports.merchantById = async (req, res) => {
     }
 };
 
+
+exports.home = async (req, res) => {
+    try {
+        let data = {};
+        let _skip = getRandomArbitrary(1, 30);
+        data._foods = await merchant.find({ cat_name: "Foods" }).limit(5).skip(_skip).orFail((err) => Error(err));
+        _skip = getRandomArbitrary(1, 30);
+        data.discover = await merchant.find({ cat_name: "Discover Jordan" }).limit(5).skip(_skip).orFail((err) => Error(err));
+        _skip = getRandomArbitrary(1, 30);
+        data.around_town = await merchant.find({ cat_name: "Around Town" }).limit(5).skip(_skip).orFail((err) => Error(err));
+        _skip = getRandomArbitrary(1, 20);
+        data._coffe = await merchant.find({ cat_name: "Coffee" }).limit(5).skip(_skip).orFail((err) => Error(err));
+
+        _skip = getRandomArbitrary(1, 10);
+        data._night_life = await merchant.find({ cat_name: "Nightlife" }).limit(5).skip(_skip).orFail((err) => Error(err));
+
+        data._deals = await merchant.find({ promotion: { $ne: null } }).limit(5).orFail((err) => Error(err));
+
+        return res.send(data);
+    } catch (err) {
+        return res.send(err.message);
+    }
+};
+
+function getRandomArbitrary(min, max) {
+    return parseInt((Math.random() * (max - min) + min));
+}
+
 exports.merchants = async (req, res) => {
     try {
         let _query = {};
@@ -59,7 +87,7 @@ exports.merchants = async (req, res) => {
         if (req.query.page)
             _skip = req.query.page * 10;
         let _merchants = await merchant.find(_query, null, { sort: { clean_name: 1 } }).limit(10).skip(_skip);
-    //    req.io.emit('newMessage', "welcome dodo");
+        //    req.io.emit('newMessage', "welcome dodo");
         return res.send(_merchants);
     } catch (err) {
         return res.send(err.message);
