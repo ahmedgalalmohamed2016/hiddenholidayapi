@@ -49,12 +49,16 @@ exports.merchantById = async (req, res) => {
 exports.home = async (req, res) => {
     try {
         let data = {};
+        
         let _skip = getRandomArbitrary(1, 30);
         data._foods = await merchant.find({ cat_name: "Foods" }).limit(5).skip(_skip).orFail((err) => Error(err));
+      
         _skip = getRandomArbitrary(1, 30);
-        data.discover = await merchant.find({ cat_name: "Discover Jordan" }).limit(5).skip(_skip).orFail((err) => Error(err));
+        data._discover = await merchant.find({ cat_name: "Discover Jordan" }).limit(5).skip(_skip).orFail((err) => Error(err));
+      
         _skip = getRandomArbitrary(1, 30);
-        data.around_town = await merchant.find({ cat_name: "Around Town" }).limit(5).skip(_skip).orFail((err) => Error(err));
+        data._around_town = await merchant.find({ cat_name: "Around Town" }).limit(5).skip(_skip).orFail((err) => Error(err));
+      
         _skip = getRandomArbitrary(1, 20);
         data._coffe = await merchant.find({ cat_name: "Coffee" }).limit(5).skip(_skip).orFail((err) => Error(err));
 
