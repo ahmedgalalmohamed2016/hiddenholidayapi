@@ -51,21 +51,21 @@ exports.home = async (req, res) => {
         let data = {};
         
         let _skip = getRandomArbitrary(1, 30);
-        data._foods = await merchant.find({ cat_name: "Foods" }).limit(5).skip(_skip).orFail((err) => Error(err));
+        data._foods = await merchant.find({ cat_name: "Foods" }).limit(8).skip(_skip).orFail((err) => Error(err));
       
         _skip = getRandomArbitrary(1, 30);
-        data._discover = await merchant.find({ cat_name: "Discover Jordan" }).limit(5).skip(_skip).orFail((err) => Error(err));
+        data._discover = await merchant.find({ cat_name: "Discover Jordan" }).limit(8).skip(_skip).orFail((err) => Error(err));
       
         _skip = getRandomArbitrary(1, 30);
-        data._around_town = await merchant.find({ cat_name: "Around Town" }).limit(5).skip(_skip).orFail((err) => Error(err));
+        data._around_town = await merchant.find({ cat_name: "Around Town" }).limit(8).skip(_skip).orFail((err) => Error(err));
       
         _skip = getRandomArbitrary(1, 20);
-        data._coffe = await merchant.find({ cat_name: "Coffee" }).limit(5).skip(_skip).orFail((err) => Error(err));
+        data._coffe = await merchant.find({ cat_name: "Coffee" }).limit(8).skip(_skip).orFail((err) => Error(err));
 
         _skip = getRandomArbitrary(1, 10);
-        data._night_life = await merchant.find({ cat_name: "Nightlife" }).limit(5).skip(_skip).orFail((err) => Error(err));
+        data._night_life = await merchant.find({ cat_name: "Nightlife" }).limit(8).skip(_skip).orFail((err) => Error(err));
 
-        data._deals = await merchant.find({ promotion: { $ne: null } }).limit(5).orFail((err) => Error(err));
+        data._deals = await merchant.find({ promotion: { $ne: null } }).limit(8).orFail((err) => Error(err));
 
         return res.send(data);
     } catch (err) {
