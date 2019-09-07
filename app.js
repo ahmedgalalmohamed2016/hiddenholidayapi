@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const merchant = require('./routes/merchant.route');
 const user = require('./routes/user.route');
 const deal = require('./routes/deal.route');
+const merchantUser = require('./routes/merchantUser.route');
 // const app = express();
 // Set up mongoose connection
 const mongoose = require('mongoose');
@@ -48,7 +49,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/merchants', merchant);
 app.use('/user', user);
-app.use('/deals', deal);
+app.use('/merchant/user', merchantUser);
 
 
 

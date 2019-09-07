@@ -139,10 +139,10 @@ exports.cancel = async (req, res) => {
         if (!_merchant)
             return res.status(405).send("Please enter valid merchant data");
 
-         await DealModel.remove({ userId: req.userData._id, merchantId: _merchant._id })
-       // if (!_deal)
+        await DealModel.remove({ userId: req.userData._id, merchantId: _merchant._id })
+        // if (!_deal)
         //    return res.status(405).send("Please enter valid merchant data");
-        return res.send({data:"Deal Canceled Successfully."})
+        return res.send({ data: "Deal Canceled Successfully." })
     } catch (err) {
         return res.send("Error Happened");
     }
@@ -159,8 +159,11 @@ exports.update = async (req, res) => {
 
 exports.history = async (req, res) => {
     try {
-
+        let _checkDeal = await DealModel.find({ userId: req.userData._id }).populate('merchants');
+        if (_checkDeal)
+            return res.send(_checkDeal);
+        return res.send({});
     } catch (err) {
-        return res.send({ data: "error" });
+        return res.send("Error Happened");
     }
 }
