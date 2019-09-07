@@ -26,8 +26,19 @@ io.on('connection', (socket) => {
 
   socket.on('newMessage', (message) => {
     io.emit('newMessage', "welcome " + message);
-    // io.emit('message', {text: message.text, from: socket.nickname, created: new Date()});    
   });
+
+  socket.on('checkSocket', (message) => {
+    console.log(socket.id);
+    io.emit('sendSocketId', socket.id);
+  });
+
+
+});
+
+io.sockets.on('connect', function (socket) {
+  console.log(socket.id);
+  io.emit('sendSocketId', socket.id);
 });
 
 const mongoDB = process.env.MONGODB_URI || dev_db_url;

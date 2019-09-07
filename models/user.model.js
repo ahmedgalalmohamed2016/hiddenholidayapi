@@ -46,6 +46,7 @@ let UserSchema = new Schema({
     verifiedEmail: { type: Boolean, default: false },
     notificationEmail: { type: Boolean, default: true },
     notificationMobile: { type: Boolean, default: true },
+    socketId: { type: String },
 
 });
 module.exports = mongoose.model('User', UserSchema);

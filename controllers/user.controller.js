@@ -300,3 +300,17 @@ exports.updateProfile = async (req, res) => {
         return res.send(err);
     }
 }
+
+exports.updateSocket = async (req, res) => {
+    try {
+        if (!req.body.socketId)
+            return res.send("enter valid socket id")
+
+        const updatedUser = await UserModel.findByIdAndUpdate(req.userData._id, { socketId: req.body.socketId }).lean();
+        if (_.isNil(updatedUser))
+            return res.status(401).send("Error Happened ,contact our support.");
+        return res.send(updatedUser);
+    } catch (err) {
+        return res.send(err);
+    }
+}
