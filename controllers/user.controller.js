@@ -13,26 +13,30 @@ const mongoose = require('mongoose');
 const uuidv4 = require('uuid/v4');
 // const 
 
+exports.getCountries = async (req, res) => {
+    try {
+        let rawdata = fs.readFileSync('./json/countries.json');
+        let _cresult = JSON.parse(rawdata);
+
+        let x = _cresult.sort((a, b) => (a.name > b.name) ? 1 : -1)
+        return res.send(x);
+    } catch (err) {
+        return res.send({ data: "error" });
+    }
+}
+
 exports.register = async (req, res) => {
     try {
 
-        if (!req.body.mobileNumber || !req.body.firstName || !req.body.lastName || !req.body.password)
+        if (!req.body.mobileNumber || !req.body.password)
             return res.send('Please enter required fields.');
         let saveData = {};
         saveData._id = new mongoose.Types.ObjectId;
         saveData.userDevice = uuidv4();
         const userDevice = saveData.userDevice;
-        const usersNamedFinn = await UserModel.find({
-            $or: [{ mobileNumber: req.body.mobileNumber }, { email: req.body.email }]
-        });
+        const usersNamedFinn = await UserModel.find({ mobileNumber: req.body.mobileNumber });
         if (usersNamedFinn.length > 0 && req.body.mobileNumber == usersNamedFinn[0].mobileNumber)
             return res.send("mobile number is not available try another one");
-
-        else if (usersNamedFinn.length > 0 && req.body.email == usersNamedFinn[0].email)
-            return res.send("email is not available try another one");
-
-        else if (usersNamedFinn.length > 0)
-            return res.send("mobile number or email is duplicated");
 
         // Generate Password
         const password = await passwordService.generatePassword(req.body.password, saveData._id);
@@ -47,12 +51,9 @@ exports.register = async (req, res) => {
         saveData.password = password;
         saveData.role = 'user';
 
-        saveData.firstName = req.body.firstName;
-        saveData.lastName = req.body.lastName;
         saveData.mobileNumber = req.body.mobileNumber;
-        saveData.email = req.body.email;
         saveData.lastLoginDate = new Date();
-        saveData.userNumber = Math.floor(Math.random() * 90000000) + 1000000;
+        saveData.userNumber = makeUserCode(10);
         saveData.userToken = token;
 
         const user = await UserModel.create(saveData);
@@ -62,11 +63,9 @@ exports.register = async (req, res) => {
         // Verification Number
         let verificationData = {};
         verificationData.userId = saveData._id;
-        //  verificationData.id = uuidv4();
         verificationData.userDevice = userDevice;
         verificationData.mobileNumber = req.body.mobileNumber;
         verificationData.verificationType = 'register';
-
 
         let _a = String(Math.floor(Math.random() * 10));
         let _b = String(Math.floor(Math.random() * 10));
@@ -84,14 +83,12 @@ exports.register = async (req, res) => {
         console.log(verificationCode);
         return res.send(user);
     } catch (err) {
-        return res.send({ data: "error" });
+        return res.send({ data:err || "error" });
     }
 }
 
 exports.resendSms = async (req, res) => {
     try {
-
-
         const _getVerifications = await VerificationModel.find({
             mobileNumber: req.userData.mobileNumber,
             isVerified: false
@@ -313,4 +310,14 @@ exports.updateSocket = async (req, res) => {
     } catch (err) {
         return res.send(err);
     }
+}
+
+function makeUserCode(length) {
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
 }

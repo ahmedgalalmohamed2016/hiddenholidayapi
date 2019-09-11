@@ -7,23 +7,9 @@ let UserSchema = new Schema({
     role: { type: String, required: true },
     firstName: {
         type: String,
-        required: [true, 'First name is required.'],
-        // validate: {
-        //     validator: function (v) {
-        //         return _.validation.name.test(v);
-        //     },
-        //     message: props => `${props.value} is not a valid first name!`
-        // },
     },
     lastName: {
         type: String,
-        required: [true, 'Last name is required.'],
-        // validate: {
-        //     validator: function (v) {
-        //         return _.validation.name.test(v);
-        //     },
-        //     message: props => `${props.value} is not a valid last name!`
-        // },
     },
     address: { type: String },
     profileImage: { type: String },

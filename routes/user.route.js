@@ -9,7 +9,7 @@ router.post('/register', user_controller.register);
 router.post('/login', user_controller.login);
 router.post('/logout', middleware.mainAuth, user_controller.logout);
 router.post('/updatesocket', middleware.mainAuth, user_controller.updateSocket);
-
+router.get('/countries', user_controller.getCountries);
 
 router.post('/profile', middleware.mainAuth, user_controller.getUserData);
 router.post('/verifyPhone', middleware.mainAuth, user_controller.verifyPhone);

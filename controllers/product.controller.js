@@ -1,4 +1,5 @@
 const Product = require('../models/product.model');
+const fs = require('fs');
 
 // controllers/products.js
 exports.product_create = async  (req, res) => {
