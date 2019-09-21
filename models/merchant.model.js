@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 let MerchantSchema = new Schema({
+    is_active: { type: Boolean, default: false },
     favorite: { type: String },
     categories: { type: String },
     country: { type: String },
@@ -28,6 +29,7 @@ let MerchantSchema = new Schema({
     video_thumb: { type: String },
     operational_hours_description: { type: String },
     preference: { type: String },
+    address: { typ: String },
     promotion: { type: mongoose.Schema.Types.Mixed }
     // promotion
     // promotion_title: { type: String },

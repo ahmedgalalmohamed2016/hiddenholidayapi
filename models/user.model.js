@@ -15,11 +15,12 @@ let UserSchema = new Schema({
     profileImage: { type: String },
     password: { type: String },
     userToken: { type: String },
-    email: { type: String, unique: true },
+    email: { type: String},
     mobileNumber: { type: String, unique: true },
     gender: { type: String },
     userDevice: { type: String },
     merchant: { type: mongoose.Schema.Types.ObjectId, ref: 'Merchant' },
+    merchantData: { type: mongoose.Schema.Types.Mixed },
     //verificarions
     isApproved: { type: Boolean, default: true },
     isVisible: { type: Boolean, default: true },

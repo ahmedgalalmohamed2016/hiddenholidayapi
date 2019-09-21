@@ -7,6 +7,7 @@ const sendSmsService = require('../services/sendSmsService');
 const tokenService = require('../services/tokenService');
 const superagent = require('superagent');
 
+
 const _ = require("lodash");
 const request = require("superagent");
 const fs = require("fs");
@@ -38,6 +39,34 @@ exports.Demodeals = async (req, res) => {
         if (_.isNil(updatedUser) || updatedUser.length < 1)
             return res.status(405).send("Please enter data");
         return res.send(updatedUser);
+    } catch (err) {
+        return res.send({ data: "error" });
+    }
+}
+
+exports.createDeal = async (req, res) => {
+    try {
+        let deal = {};
+        deal.promotion_title = req.body.promotion_title;
+        deal.promotion_description =  req.body.promotion_description;
+        //percentage fixed
+        deal.promotion_type = req.body.promotion_type;
+        deal.promotion_amount = req.body.promotion_amount;
+        deal.promotion_start_date = new Date(req.body.start_date);
+        // var d = new Date();
+        // d.setMonth(11);
+        deal.promotion_end_date = new Date(req.body.end_date);;
+
+        deal.promotion_for = req.body.promotion_for;//"individuals";
+        deal.promotion_subscription_fees = req.body.promotion_subscription_fees;
+        deal.promotion_share_percentage = req.body.promotion_share_percentage;
+        //   delete deal._id;
+
+        const updatedMerchant = await MerchantModel.updateOne({ clean_name: req.merchantData.name },
+            { $set: { promotion: deal } }, { new: true });
+        if (_.isNil(updatedMerchant) || updatedMerchant.length < 1)
+            return res.status(405).send("We can not add your deal now.try in another time.");
+        return res.send(updatedMerchant);
     } catch (err) {
         return res.send({ data: "error" });
     }

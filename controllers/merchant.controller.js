@@ -1,11 +1,18 @@
 const merchant = require('../models/merchant.model');
+const UserModel = require('../models/user.model');
+const DealModel = require('../models/deal.model');
+const VerificationModel = require('../models/verification.model');
+const passwordService = require('../services/passwordService');
+const sendSmsService = require('../services/sendSmsService');
+const tokenService = require('../services/tokenService');
 const AirportModel = require('../models/airport.model');
 const _ = require("lodash");
 const request = require("superagent");
 var fs = require("fs");
 const mongoose = require('mongoose');
+const uuidv4 = require('uuid/v4');
 
-exports.merchant_prepare = async(req, res) => {
+exports.merchant_prepare = async (req, res) => {
     try {
         let rawdata = fs.readFileSync("items.json");
         let data = JSON.parse(rawdata);
@@ -25,7 +32,99 @@ exports.merchant_prepare = async(req, res) => {
     }
 };
 
-exports.getAirports = async(req, res) => {
+
+exports.create = async (req, res) => {
+    try {
+
+        //  return res.send(req.body);
+
+        if (!req.body.mobileNumber || !req.body.password)
+            return res.send('Please enter required fields.');
+        let saveData = {};
+        saveData._id = new mongoose.Types.ObjectId;
+        saveData.userDevice = uuidv4();
+        const userDevice = saveData.userDevice;
+
+
+        const usersNamedFinn = await UserModel.find({ mobileNumber: req.body.mobileNumber }).lean();
+
+        if (usersNamedFinn.length > 0 && req.body.mobileNumber == usersNamedFinn[0].mobileNumber)
+            return res.send("mobile number is not available try another one");
+
+        const merchantFinn = await merchant.find({ name: req.body.merchant.name });
+        if (merchantFinn.length > 0)
+            return res.send("please choose another merchant name");
+
+        // Generate Password
+        const password = await passwordService.generatePassword(req.body.password, saveData._id);
+        if (_.isNil(password) || password == false)
+            return res.send("error Happened");
+
+        // Generate Token
+        const token = await tokenService.generateLoginToken(saveData.userDevice, saveData._id, req.body.mobileNumber, 'merchant');
+        if (_.isNil(token) || token == false)
+            return res.send("error Happened");
+
+        saveData.password = password;
+        saveData.role = 'merchant';
+
+        saveData.mobileNumber = req.body.mobileNumber;
+        saveData.firstName = req.body.firstName;
+        saveData.lastName = req.body.lastName;
+        saveData.lastLoginDate = new Date();
+        saveData.userNumber = makeUserCode(10);
+        saveData.userToken = token;
+        saveData.merchant = new mongoose.Types.ObjectId;
+        saveData.isApproved = false;
+
+        let merchantData = {};
+        merchantData._id = saveData.merchant;
+        merchantData.country = req.body.merchant.country;
+        merchantData.clean_name = req.body.merchant.merchantName;
+        merchantData.name = req.body.merchant.merchantName;
+        merchantData.contact_person = req.body.firstName + ' ' + req.body.lastName;
+        merchantData.emails = req.body.merchant.email;
+        merchantData.main_phone_number = req.body.merchant.mobileNumber;
+        merchantData.address = req.body.merchant.fullAddress;
+
+        const _merchant = await merchant.create(merchantData);
+        if (_.isNil(_merchant))
+            return res.send("error Happened while create merchant account");
+
+        const user = await UserModel.create(saveData);
+        if (_.isNil(user))
+            return res.send("error Happened while create user account");
+
+
+        // Verification Number
+        let verificationData = {};
+        verificationData.userId = saveData._id;
+        verificationData.userDevice = userDevice;
+        verificationData.mobileNumber = req.body.mobileNumber;
+        verificationData.verificationType = 'register';
+
+        let _a = String(Math.floor(Math.random() * 10));
+        let _b = String(Math.floor(Math.random() * 10));
+        let _c = String(Math.floor(Math.random() * 10));
+        let _d = String(Math.floor(Math.random() * 10));
+        let verificationCode = _a + _b + _c + _d;
+
+        verificationData.verificationCode = await passwordService.generatePassword(verificationCode, saveData.mobileNumber);
+        verificationData.isVerified = false;
+        let verfificationCreated = await VerificationModel.create(verificationData);
+        if (_.isNil(verfificationCreated))
+            return res.send("error Happened");
+        await sendSmsService.sendActivationAccountsms(req, saveData.mobileNumber, verificationCode);
+        user._verificationCode = verificationCode;
+        console.log(verificationCode);
+        return res.send({ user: user, merchant: _merchant });
+    } catch (err) {
+        return res.send({ data: err || "error" });
+    }
+};
+
+
+exports.getAirports = async (req, res) => {
     try {
         let _query = {};
         let _skip = 0;
@@ -33,11 +132,11 @@ exports.getAirports = async(req, res) => {
         if (req.query.name)
             _query.name = { $regex: req.query.name, $options: "i" }
 
-            if (req.query.country)
+        if (req.query.country)
             _query.iso_country = { $regex: req.query.country, $options: "i" }
 
         let _airports = await AirportModel.find(_query, null, { sort: { name: 1 } });
-      
+
         return res.send(_airports);
     } catch (err) {
 
@@ -72,7 +171,7 @@ exports.registerMerchant = async (req, res) => {
             return res.send("error Happened");
 
         // Generate Token
-        const token = await tokenService.generateLoginToken(saveData.userDevice, saveData._id, req.body.mobileNumber, 'user');
+        const token = await tokenService.generateLoginToken(saveData.userDevice, saveData._id, req.body.mobileNumber, 'merchant');
         if (_.isNil(token) || token == false)
             return res.send("error Happened");
 
@@ -99,7 +198,6 @@ exports.registerMerchant = async (req, res) => {
         verificationData.mobileNumber = req.body.mobileNumber;
         verificationData.verificationType = 'register';
 
-
         let _a = String(Math.floor(Math.random() * 10));
         let _b = String(Math.floor(Math.random() * 10));
         let _c = String(Math.floor(Math.random() * 10));
@@ -120,7 +218,7 @@ exports.registerMerchant = async (req, res) => {
     }
 }
 
-exports.maps = async(req, res) => {
+exports.maps = async (req, res) => {
     try {
         let result = await merchant.find({}, 'clean_name cat_name location_long location_lat _id');
         return res.send(result);
@@ -129,7 +227,7 @@ exports.maps = async(req, res) => {
     }
 };
 
-exports.merchantById = async(req, res) => {
+exports.merchantById = async (req, res) => {
     try {
         console.log(req.query.id);
         let _merchants = await merchant.findById({ _id: req.query.id });
@@ -141,8 +239,21 @@ exports.merchantById = async(req, res) => {
     }
 };
 
+exports.me = async (req, res) => {
+    try {
+        let _merchants = await merchant.findById({ _id: req.merchantData._id });
+        if (!_merchants)
+            return res.status(405).send("Please enter valid merchant data");
+        req.userData.merchant = _merchants;
+        return res.send(req.userData);
+    } catch (err) {
+        return res.send(err.message);
+    }
+};
 
-exports.home = async(req, res) => {
+
+
+exports.home = async (req, res) => {
     try {
         let data = {};
 
@@ -173,7 +284,7 @@ function getRandomArbitrary(min, max) {
     return parseInt((Math.random() * (max - min) + min));
 }
 
-exports.merchants = async(req, res) => {
+exports.merchants = async (req, res) => {
     try {
         let _query = {};
         let _skip = 0;
@@ -194,7 +305,7 @@ exports.merchants = async(req, res) => {
     }
 };
 
-exports.merchants_favourites = async(req, res) => {
+exports.merchants_favourites = async (req, res) => {
     try {
         if (!req.body.merchants || req.body.merchants.length < 1)
             return res.status(405).send("Please enter valid favourites data");
@@ -214,7 +325,7 @@ exports.merchants_favourites = async(req, res) => {
     }
 };
 
-exports.updateMerchant = async(req, res) => {
+exports.updateMerchant = async (req, res) => {
     try {
         let _merchants = await merchant.updateMany({}, { country: "Jordan" }).lean();
 
@@ -224,12 +335,12 @@ exports.updateMerchant = async(req, res) => {
     }
 };
 
-exports.updateDummyMerchant = async(req, res) => {
+exports.updateDummyMerchant = async (req, res) => {
     try {
 
         // let du
 
-        let _merchants = await merchant.updateMany({}, { country: "Jordan" }).lean();
+        let _merchants = await merchant.updateMany({}, { is_active: true }).lean();
 
         return res.send(_merchants);
     } catch (err) {
@@ -239,18 +350,18 @@ exports.updateDummyMerchant = async(req, res) => {
 
 // exports.getAirports = async(req, res) => {
 //     try {
-        // let rawdata = fs.readFileSync("json/airports.json");
-        // let data = JSON.parse(rawdata);
-        // console.log(data.length);
+// let rawdata = fs.readFileSync("json/airports.json");
+// let data = JSON.parse(rawdata);
+// console.log(data.length);
 
-        // let dd = [];
-        // for (let x = 0; x < 10000; x++) {
-        //    dd.push(data[x]);
-        // }
-        // const _merchants = await Merchants.createEach(data).fetch();
-        // if (_.isNil(_merchants)) return 404;
-        // return res.send(data);
-        // let merchantdata = new merchant(data);
+// let dd = [];
+// for (let x = 0; x < 10000; x++) {
+//    dd.push(data[x]);
+// }
+// const _merchants = await Merchants.createEach(data).fetch();
+// if (_.isNil(_merchants)) return 404;
+// return res.send(data);
+// let merchantdata = new merchant(data);
 //         let result = await AirportModel.insertMany(dd);
 //         return res.send(result);
 //     } catch (err) {
@@ -258,3 +369,13 @@ exports.updateDummyMerchant = async(req, res) => {
 //         return res.send(err.message);
 //     }
 // };
+
+function makeUserCode(length) {
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}

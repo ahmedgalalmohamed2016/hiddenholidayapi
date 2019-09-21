@@ -27,7 +27,6 @@ exports.getCountries = async (req, res) => {
 
 exports.register = async (req, res) => {
     try {
-
         if (!req.body.mobileNumber || !req.body.password)
             return res.send('Please enter required fields.');
         let saveData = {};
