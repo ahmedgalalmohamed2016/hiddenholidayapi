@@ -124,6 +124,10 @@ exports.request = async (req, res) => {
         let _deal = await DealModel.create(dealObj);
         if (_.isNil(_deal))
             return res.status(405).send("error Happened");
+        let _merchantSocket = UserModel.findOne({ merchant: _merchant._id, role: "merchant" });
+        console.log(_merchantSocket.socketId);
+        socket.to(_merchantSocket.socketId).emit('newMessage', req.userData.firstName + ' ' + req.userData.lastName + 'New Deal Request');
+
         return res.send(_deal);
     } catch (err) {
         return res.send({ data: err });
@@ -165,7 +169,7 @@ exports.DealData = async (req, res) => {
 exports.DealRequests = async (req, res) => {
     try {
 
-        let _checkDeal = await DealModel.find({ merchantId: req.merchantData._id }).populate('userId');
+        let _checkDeal = await DealModel.find({ merchantId: req.merchantData._id }).sort('-creationDate').populate('userId');
         if (_checkDeal)
             return res.send(_checkDeal);
         return res.send([]);
