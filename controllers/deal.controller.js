@@ -125,11 +125,9 @@ exports.request = async (req, res) => {
         if (_.isNil(_deal))
             return res.status(405).send("error Happened");
 
-        //     console.log('_merchant._id ' +_merchant._id);
-
-        // console.log(_merchant.userId.firstName);
-        // console.log('socketid ' +_merchant.userId.socketId);
-        socket.to(_merchant.userId.socketId).emit('newMessage', req.userData.firstName + ' ' + req.userData.lastName + 'New Deal Request');
+        console.log('socketid ' +_merchant.userId.socketId);
+        req.io.to(_merchant.userId.socketId).emit('newMessage', req.userData.firstName + ' ' + req.userData.lastName + 'New Deal Request');
+        req.io.emit('newMessage', req.userData.firstName + ' ' + req.userData.lastName + 'New Deal Request');
 
         return res.send(_deal);
     } catch (err) {
