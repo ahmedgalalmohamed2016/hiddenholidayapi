@@ -3,8 +3,6 @@ const Schema = mongoose.Schema;
 
 let DealSchema = new Schema({
     creationDate: { type: Date },
-    startDate: { type: Date },
-    endDate: { type: Date },
     merchantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Merchant' },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     verificationCode: { type: String },
@@ -16,7 +14,6 @@ let DealSchema = new Schema({
     subscriptionFees : {type : String},
     sharePercentage : {type : String},
     comment: { type: String },
-    isActive: { type: Boolean },
     status: { type: String } //pending approved canceled 
 });
 

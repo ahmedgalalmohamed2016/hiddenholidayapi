@@ -6,8 +6,6 @@ const passwordService = require('../services/passwordService');
 const sendSmsService = require('../services/sendSmsService');
 const tokenService = require('../services/tokenService');
 const superagent = require('superagent');
-
-
 const _ = require("lodash");
 const request = require("superagent");
 const fs = require("fs");
@@ -47,23 +45,21 @@ exports.Demodeals = async (req, res) => {
 exports.createDeal = async (req, res) => {
     try {
         let deal = {};
-        deal.promotion_title = req.body.promotion_title;
-        deal.promotion_description =  req.body.promotion_description;
+        deal.title = req.body.title;
+        deal.description = req.body.description;
         //percentage fixed
-        deal.promotion_type = req.body.promotion_type;
-        deal.promotion_amount = req.body.promotion_amount;
-        deal.promotion_start_date = new Date(req.body.start_date);
-        // var d = new Date();
-        // d.setMonth(11);
-        deal.promotion_end_date = new Date(req.body.end_date);;
+        deal.type = req.body.type;
+        deal.amount = req.body.amount;
 
-        deal.promotion_for = req.body.promotion_for;//"individuals";
-        deal.promotion_subscription_fees = req.body.promotion_subscription_fees;
-        deal.promotion_share_percentage = req.body.promotion_share_percentage;
-        //   delete deal._id;
+        deal.usersType = req.body.usersType;//"individual" "group";
+        deal.subscriptionFees = req.body.subscriptionFees;
+        deal.sharePercentage = req.body.sharePercentage;
+
+        if (req.merchantData.promotion)
+            return res.status(402).send("You already have a deal contact support to modify it for you");
 
         const updatedMerchant = await MerchantModel.updateOne({ clean_name: req.merchantData.name },
-            { $set: { promotion: deal } }, { new: true });
+            { $set: { promotion: deal, isActivePromotion: true, isVerifiedPromotion: false } }, { new: true });
         if (_.isNil(updatedMerchant) || updatedMerchant.length < 1)
             return res.status(405).send("We can not add your deal now.try in another time.");
         return res.send(updatedMerchant);
@@ -103,7 +99,14 @@ exports.request = async (req, res) => {
             return res.send({ deal: _checkDeal, requested: "you can not request deal multible time" });
 
         let dealObj = {};
-        dealObj.endData = _merchant.promotion.promotion_title;
+        dealObj.title = _merchant.promotion.title;
+        dealObj.description = _merchant.promotion.description;
+        dealObj.type = _merchant.promotion.type;
+        dealObj.amount = _merchant.promotion.amount;
+        dealObj.usersType = _merchant.promotion.usersType;
+        dealObj.subscriptionFees = _merchant.promotion.subscriptionFees;
+        dealObj.sharePercentage = _merchant.promotion.sharePercentage;
+
         dealObj.creationDate = new Date();
         dealObj.merchantId = _merchant._id;
         dealObj.userId = req.userData._id;
@@ -154,6 +157,18 @@ exports.DealData = async (req, res) => {
         if (_checkDeal)
             return res.send(_checkDeal);
         return res.send({});
+    } catch (err) {
+        return res.send("Error Happened");
+    }
+}
+
+exports.DealRequests = async (req, res) => {
+    try {
+
+        let _checkDeal = await DealModel.find({ merchantId: req.merchantData._id }).populate('userId');
+        if (_checkDeal)
+            return res.send(_checkDeal);
+        return res.send([]);
     } catch (err) {
         return res.send("Error Happened");
     }
