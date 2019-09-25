@@ -88,7 +88,7 @@ exports.request = async (req, res) => {
         if (!req.body.id)
             res.status(405).send("please enter valid data");
 
-        let _merchant = await MerchantModel.findById({ _id: req.body.id });
+        let _merchant = await MerchantModel.findById({ _id: req.body.id }).populate('userId');
         if (!_merchant)
             return res.status(405).send("Please enter valid merchant data");
         if (!_merchant.promotion)
@@ -124,9 +124,12 @@ exports.request = async (req, res) => {
         let _deal = await DealModel.create(dealObj);
         if (_.isNil(_deal))
             return res.status(405).send("error Happened");
-        let _merchantSocket = UserModel.findOne({ merchant: _merchant._id, role: "merchant" });
-        console.log(_merchantSocket.socketId);
-        socket.to(_merchantSocket.socketId).emit('newMessage', req.userData.firstName + ' ' + req.userData.lastName + 'New Deal Request');
+
+            console.log('_merchant._id ' +_merchant._id);
+
+        console.log(_merchant.userId.firstName);
+        console.log('socketid ' +_merchant.userId.socketId);
+        socket.to(_merchant.userId.socketId).emit('newMessage', req.userData.firstName + ' ' + req.userData.lastName + 'New Deal Request');
 
         return res.send(_deal);
     } catch (err) {

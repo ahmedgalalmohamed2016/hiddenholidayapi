@@ -45,7 +45,6 @@ exports.create = async (req, res) => {
         saveData.userDevice = uuidv4();
         const userDevice = saveData.userDevice;
 
-
         const usersNamedFinn = await UserModel.find({ mobileNumber: req.body.mobileNumber }).lean();
 
         if (usersNamedFinn.length > 0 && req.body.mobileNumber == usersNamedFinn[0].mobileNumber)
@@ -79,6 +78,7 @@ exports.create = async (req, res) => {
 
         let merchantData = {};
         merchantData._id = saveData.merchant;
+        merchantData.userId = saveData._id;
         merchantData.country = req.body.merchant.country;
         merchantData.clean_name = req.body.merchant.merchantName;
         merchantData.name = req.body.merchant.merchantName;
