@@ -35,7 +35,6 @@ exports.merchant_prepare = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-
         //  return res.send(req.body);
 
         if (!req.body.mobileNumber || !req.body.password)

@@ -125,7 +125,7 @@ exports.request = async (req, res) => {
         if (_.isNil(_deal))
             return res.status(405).send("error Happened");
 
-        console.log('socketid ' +_merchant.userId.socketId);
+        console.log('socketid ' + _merchant.userId.socketId);
         req.io.to(_merchant.userId.socketId).emit('newMessage', req.userData.firstName + ' ' + req.userData.lastName + 'New Deal Request');
         req.io.emit('newMessage', req.userData.firstName + ' ' + req.userData.lastName + 'New Deal Request');
 
@@ -169,8 +169,15 @@ exports.DealData = async (req, res) => {
 
 exports.DealRequests = async (req, res) => {
     try {
+        let _query = {};
+        _query.merchantId = req.merchantData._id;
+        if (req.body.dealsType == 'pending')
+            _query.status = 'pending';
+        else {
+            _query.status = { $ne: 'pending' }
+        }
 
-        let _checkDeal = await DealModel.find({ merchantId: req.merchantData._id }).sort('-creationDate').populate('userId');
+        let _checkDeal = await DealModel.find(_query).sort('-creationDate').populate('userId');
         if (_checkDeal)
             return res.send(_checkDeal);
         return res.send([]);
@@ -189,22 +196,32 @@ exports.cancel = async (req, res) => {
             return res.status(405).send("Please enter valid merchant data");
 
         await DealModel.remove({ userId: req.userData._id, merchantId: _merchant._id })
-        // if (!_deal)
-        //    return res.status(405).send("Please enter valid merchant data");
+
         return res.send({ data: "Deal Canceled Successfully." })
     } catch (err) {
         return res.send("Error Happened");
     }
 }
 
-
 exports.update = async (req, res) => {
     try {
+        if (!req.body.id || !req.body.status)
+            res.status(405).send("please enter valid data");
 
+        if (["accept", "decline"].indexOf(req.body.status) <= -1)
+            res.status(405).send("please enter valid data");
+
+        const updatedDeal = await DealModel.updateOne({ _id: req.body.id, merchantId: _merchant._id },
+            { $set: { status: req.body.status } }, { new: true });
+        if (_.isNil(updatedDeal) || updatedDeal.length < 1)
+            return res.status(405).send("Please enter data");
+
+        return res.send({ data: "Deal updated Successfully." })
     } catch (err) {
-        return res.send({ data: "error" });
+        return res.send("Error Happened");
     }
 }
+
 
 exports.history = async (req, res) => {
     try {
