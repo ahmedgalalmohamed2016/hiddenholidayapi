@@ -245,14 +245,14 @@ exports.totalDeals = async (req, res) => {
         data.bidsRequests = 0;
 
         for (let x = 0; x < _Deals.length; x++) {
-            if (_Deals[x].type == 'fixed'&&_Deals[x].status=='accept') {
-                data.totalEarn = data.totalEarn + (_Deals[x].price - _Deals[x].amount);
-                data.totalPay = data.totalPay +( _Deals[x].amount);
+            if (_Deals[x].type == 'fixed' && _Deals[x].status == 'accept') {
+                data.totalEarn = data.totalEarn + (parseInt(_Deals[x].price) - parseInt(_Deals[x].amount));
+                data.totalPay = data.totalPay + (parseInt(_Deals[x].amount));
             }
-            if (_Deals[x].type == 'percentage'&&_Deals[x].status=='accept') {
-                let _p = _Deals[x].price - _Deals[x].price * (_Deals[x].amount / 100);
+            if (_Deals[x].type == 'percentage' && _Deals[x].status == 'accept') {
+                let _p = parseInt(_Deals[x].price) - parseInt(_Deals[x].price) * (parseInt(_Deals[x].amount) / 100);
                 data.totalEarn = data.totalEarn + _p;
-                data.totalPay = data.totalPay + (_Deals[x].price - _p);
+                data.totalPay = data.totalPay + (parseInt(_Deals[x].price) - _p);
             }
         }
 
