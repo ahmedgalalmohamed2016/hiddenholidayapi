@@ -191,7 +191,7 @@ exports.DealData = async (req, res) => {
         if (!_merchant.promotion)
             res.status(405).send("Merchant doe not have any pormotion");
 
-        let _checkDeal = await DealModel.findOne({ userId: req.userData._id, merchantId: _merchant._id });
+        let _checkDeal = await DealModel.findOne({ userId: req.userData._id, merchantId: _merchant._id, status: "pending" });
         if (_checkDeal)
             return res.send(_checkDeal);
         return res.send({});
