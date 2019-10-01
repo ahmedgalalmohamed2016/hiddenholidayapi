@@ -21,7 +21,19 @@ exports.getCountries = async (req, res) => {
         let x = _cresult.sort((a, b) => (a.name > b.name) ? 1 : -1)
         return res.send(x);
     } catch (err) {
-        return res.send({ data: "error" });
+        return res.send({ data: "Try in another time." });
+    }
+}
+
+exports.getCategories = async (req, res) => {
+    try {
+        let rawdata = fs.readFileSync('./json/categories.json');
+        let _cresult = JSON.parse(rawdata);
+
+        let x = _cresult.sort((a, b) => (a.name > b.name) ? 1 : -1)
+        return res.send(x);
+    } catch (err) {
+        return res.send({ data: "Try in another time." });
     }
 }
 

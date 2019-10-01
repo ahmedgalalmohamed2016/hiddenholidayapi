@@ -50,6 +50,7 @@ exports.createDeal = async (req, res) => {
         //percentage fixed
         deal.type = req.body.type;
         deal.amount = req.body.amount;
+        deal.price = req.body.price;
 
         deal.usersType = req.body.usersType;//"individual" "group";
         deal.subscriptionFees = "0";
@@ -64,7 +65,34 @@ exports.createDeal = async (req, res) => {
             return res.status(405).send("We can not add your deal now.try in another time.");
         return res.send(updatedMerchant);
     } catch (err) {
-        return res.send({ data: "error" });
+        return res.send({ data: "Please Try in another time" });
+    }
+}
+
+exports.updateDeal = async (req, res) => {
+    try {
+        let deal = {};
+        deal.title = req.body.title;
+        deal.description = req.body.description;
+        //percentage fixed
+        deal.type = req.body.type;
+        deal.amount = req.body.amount;
+        deal.price = req.body.price;
+
+        deal.usersType = req.body.usersType;//"individual" "group";
+        deal.subscriptionFees = "0";
+        deal.sharePercentage = "0";
+
+        if (!req.merchantData.promotion)
+            return res.status(402).send("You don't have any deal you add first one now.");
+
+        const updatedMerchant = await MerchantModel.updateOne({ clean_name: req.merchantData.name },
+            { $set: { promotion: deal, isActivePromotion: true, isVerifiedPromotion: false } }, { new: true });
+        if (_.isNil(updatedMerchant) || updatedMerchant.length < 1)
+            return res.status(405).send("We can not update your deal.Try in another time.");
+        return res.send(updatedMerchant);
+    } catch (err) {
+        return res.send({ data: "Please Try in another time" });
     }
 }
 
@@ -95,7 +123,7 @@ exports.request = async (req, res) => {
             res.status(405).send("Merchant doe not have any pormotion");
 
         let _checkDeal = await DealModel.findOne({ userId: req.userData._id, merchantId: _merchant._id });
-        if (_checkDeal)
+        if (_checkDeal && _checkDeal.status == 'pending')
             return res.send({ deal: _checkDeal, requested: "you can not request deal multible time" });
 
         let dealObj = {};
@@ -103,6 +131,7 @@ exports.request = async (req, res) => {
         dealObj.description = _merchant.promotion.description;
         dealObj.type = _merchant.promotion.type;
         dealObj.amount = _merchant.promotion.amount;
+        dealObj.price = _merchant.promotion.price;
         dealObj.usersType = _merchant.promotion.usersType;
         dealObj.subscriptionFees = _merchant.promotion.subscriptionFees;
         dealObj.sharePercentage = _merchant.promotion.sharePercentage;
@@ -183,7 +212,7 @@ exports.DealRequests = async (req, res) => {
 
         let _checkDeal = await DealModel.find(_query).sort('-creationDate').populate('userId');
         if (_checkDeal)
-            return res.send(_checkDeal);
+            return res.send({ deal: _checkDeal, merchant: req.merchantData });
         return res.send([]);
     } catch (err) {
         return res.send("Error Happened");
@@ -203,8 +232,8 @@ exports.cancel = async (req, res) => {
         if (_.isNil(_checkDeal))
             return res.status(405).send("You can not cancel this request at this time");
 
-            if(_checkDeal.status!= "pending")
-            return res.status(405).send("This Deal already " + _checkDeal.status+ " you can not cancel.");
+        if (_checkDeal.status != "pending")
+            return res.status(405).send("This Deal already " + _checkDeal.status + " you can not cancel.");
 
         await DealModel.remove({ userId: req.userData._id, merchantId: _merchant._id });
 
@@ -222,16 +251,84 @@ exports.cancel = async (req, res) => {
     }
 }
 
-exports.update = async (req, res) => {
-    try {
-        if (_.isNil(req.body.id) || _.isNil(req.body.status))
-            return res.status(405).send("please enter valid data");
 
-        if (["accept", "decline"].indexOf(req.body.status) <= -1)
+exports.cancel = async (req, res) => {
+    try {
+        if (!req.body.id)
+            res.status(405).send("please enter valid data");
+
+        let _merchant = await MerchantModel.findById({ _id: req.body.id }).populate('userId');;
+        if (!_merchant)
+            return res.status(405).send("Please enter valid merchant data");
+
+        let _checkDeal = await DealModel.findOne({ userId: req.userData._id, merchantId: _merchant._id });
+        if (_.isNil(_checkDeal))
+            return res.status(405).send("You can not cancel this request at this time");
+
+        if (_checkDeal.status != "pending")
+            return res.status(405).send("This Deal already " + _checkDeal.status + " you can not cancel.");
+
+        await DealModel.remove({ userId: req.userData._id, merchantId: _merchant._id });
+
+
+        let _socketObj = {};
+        _socketObj.title = req.userData.firstName + ' ' + req.userData.lastName + 'cancel Deal';
+        _socketObj.data = 'canceled';
+        console.log("here is canceled");
+        console.log(_merchant.userId.socketId);
+        req.io.to(_merchant.userId.socketId).emit('newMessage', _socketObj);
+
+        return res.send({ data: "Deal Canceled Successfully." })
+    } catch (err) {
+        return res.send("Error Happened");
+    }
+}
+
+exports.accept = async (req, res) => {
+    try {
+        if (!req.body.id)
+            res.status(405).send("please enter valid data");
+
+        let _merchant = await MerchantModel.findById({ _id: req.body.id }).populate('userId');;
+        if (!_merchant)
+            return res.status(405).send("Please enter valid merchant data");
+
+        let _checkDeal = await DealModel.findOne({ userId: req.userData._id, merchantId: _merchant._id });
+        if (_.isNil(_checkDeal))
+            return res.status(405).send("You can not cancel this request at this time");
+
+        if (_checkDeal.status != "pending")
+            return res.status(405).send("This Deal already " + _checkDeal.status + " you can not cancel.");
+
+        if (_checkDeal.verificationCode != req.body.code)
+            return res.status(405).send("Code that you entered is not valid.");
+
+        const updatedDeal = await DealModel.findOneAndUpdate({ _id: req.body.id, merchantId: req.merchantData.id },
+            { $set: { status: 'accept' } }, { new: true });
+        if (_.isNil(updatedDeal) || updatedDeal.length < 1)
+            return res.status(405).send("Please enter data");
+
+
+        let _socketObj = {};
+        _socketObj.title = req.userData.firstName + ' ' + req.userData.lastName + 'cancel Deal';
+        _socketObj.data = 'accept';
+        console.log("here is accept");
+        console.log(_merchant.userId.socketId);
+        req.io.to(_merchant.userId.socketId).emit('newMessage', _socketObj);
+
+        return res.send({ data: "Deal accepted Successfully." })
+    } catch (err) {
+        return res.send("Error Happened");
+    }
+}
+
+exports.decline = async (req, res) => {
+    try {
+        if (_.isNil(req.body.id))
             return res.status(405).send("please enter valid data");
 
         const updatedDeal = await DealModel.findOneAndUpdate({ _id: req.body.id, merchantId: req.merchantData.id },
-            { $set: { status: req.body.status } }, { new: true });
+            { $set: { status: 'decline' } }, { new: true });
         if (_.isNil(updatedDeal) || updatedDeal.length < 1)
             return res.status(405).send("Please enter data");
 
@@ -240,6 +337,8 @@ exports.update = async (req, res) => {
         return res.send("Error Happened");
     }
 }
+
+
 
 
 exports.history = async (req, res) => {

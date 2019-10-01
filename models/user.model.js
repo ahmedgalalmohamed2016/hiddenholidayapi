@@ -5,20 +5,17 @@ const _ = require('../configs/validation');
 let UserSchema = new Schema({
     userNumber: { type: String, unique: true, required: [true, 'user number is required'] },
     role: { type: String, required: true },
-    firstName: {
-        type: String,
-    },
-    lastName: {
-        type: String,
-    },
+    firstName: { type: String, },
+    lastName: { type: String, },
     address: { type: String },
     profileImage: { type: String },
     password: { type: String },
     userToken: { type: String },
-    email: { type: String},
+    email: { type: String },
     mobileNumber: { type: String, unique: true },
     gender: { type: String },
     userDevice: { type: String },
+    country: { type: String },
     merchant: { type: mongoose.Schema.Types.ObjectId, ref: 'Merchant' },
     merchantData: { type: mongoose.Schema.Types.Mixed },
     //verificarions

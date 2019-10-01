@@ -11,8 +11,10 @@ let MerchantSchema = new Schema({
     cat_name: { type: String },
     clean_name: { type: String },
     name: { type: String },
-    isActivePromotion: { type: String },
-    isVerifiedPromotion: { type: String },
+    isActivePromotion: { type: Boolean, default: true },
+    isActiveMerchant: { type: Boolean, default: true },
+    isActiveBids: { type: Boolean, default: true },
+
     contact_person: { type: String },
     emails: { type: String },
     cover_photo: { type: String },

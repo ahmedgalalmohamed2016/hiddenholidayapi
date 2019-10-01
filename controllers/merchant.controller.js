@@ -12,26 +12,6 @@ var fs = require("fs");
 const mongoose = require('mongoose');
 const uuidv4 = require('uuid/v4');
 
-exports.merchant_prepare = async (req, res) => {
-    try {
-        let rawdata = fs.readFileSync("items.json");
-        let data = JSON.parse(rawdata);
-
-        // for (let x = 0; x < data.length; x++) {
-        //     data[x].id = uuidv4();
-        // }
-        // const _merchants = await Merchants.createEach(data).fetch();
-        // if (_.isNil(_merchants)) return 404;
-        // return res.send(data);
-        // let merchantdata = new merchant(data);
-        let result = await merchant.insertMany(data);
-        return res.send(result);
-    } catch (err) {
-
-        return res.send(err.message);
-    }
-};
-
 
 exports.create = async (req, res) => {
     try {
@@ -51,7 +31,7 @@ exports.create = async (req, res) => {
 
         const merchantFinn = await merchant.find({ name: req.body.merchant.name });
         if (merchantFinn.length > 0)
-            return res.send("please choose another merchant name");
+            return res.send("Merchant common name is not available try another one");
 
         // Generate Password
         const password = await passwordService.generatePassword(req.body.password, saveData._id);
@@ -72,6 +52,7 @@ exports.create = async (req, res) => {
         saveData.lastLoginDate = new Date();
         saveData.userNumber = makeUserCode(10);
         saveData.userToken = token;
+        saveData.country = req.body.country;
         saveData.merchant = new mongoose.Types.ObjectId;
         saveData.isApproved = false;
 
@@ -82,8 +63,7 @@ exports.create = async (req, res) => {
         merchantData.clean_name = req.body.merchant.merchantName;
         merchantData.name = req.body.merchant.merchantName;
         merchantData.contact_person = req.body.firstName + ' ' + req.body.lastName;
-        merchantData.emails = req.body.merchant.email;
-        merchantData.main_phone_number = req.body.merchant.mobileNumber;
+        merchantData.cat_name = req.body.merchant.category;
         merchantData.address = req.body.merchant.fullAddress;
 
         const _merchant = await merchant.create(merchantData);
@@ -250,6 +230,75 @@ exports.me = async (req, res) => {
     }
 };
 
+exports.totalDeals = async (req, res) => {
+    try {
+        let data = {};
+
+        data.totalEarn = 0;
+        data.totalPay = 0;
+
+        let _Deals = await DealModel.find({ merchantId: req.merchantData._id });
+        if (!_Deals)
+            return res.status(405).send("Please enter valid merchant data");
+
+        data.dealRequests = _Deals.length;
+        data.bidsRequests = 0;
+
+        for (let x = 0; x < _Deals.length; x++) {
+            if (_Deals[x].type == 'fixed'&&_Deals[x].status=='accept') {
+                data.totalEarn = data.totalEarn + (_Deals[x].price - _Deals[x].amount);
+                data.totalPay = data.totalPay +( _Deals[x].amount);
+            }
+            if (_Deals[x].type == 'percentage'&&_Deals[x].status=='accept') {
+                let _p = _Deals[x].price - _Deals[x].price * (_Deals[x].amount / 100);
+                data.totalEarn = data.totalEarn + _p;
+                data.totalPay = data.totalPay + (_Deals[x].price - _p);
+            }
+        }
+
+
+        return res.send(data);
+    } catch (err) {
+        return res.send(err.message);
+    }
+};
+
+exports.update = async (req, res) => {
+    try {
+        let _query = {};
+        if (req.body.merchant.isActiveMerchant) {
+            if (req.body.merchant.isActiveMerchant == 'true')
+                _query.isActiveMerchant = true;
+            else
+                _query.isActiveMerchant = false;
+        }
+
+
+        if (req.body.merchant.isActivePromotion) {
+            if (req.body.merchant.isActivePromotion == 'true')
+                _query.isActivePromotion = true;
+            else
+                _query.isActivePromotion = false;
+        }
+
+
+        if (req.body.merchant.isActiveBids) {
+            if (req.body.merchant.isActiveBids == 'true')
+                _query.isActiveBids = true;
+            else
+                _query.isActiveBids = false;
+        }
+
+        const updatedMerchant = await merchant.updateOne({ clean_name: req.merchantData.name },
+            { $set: _query }, { new: true });
+        if (_.isNil(updatedMerchant))
+            return res.status(405).send({ message: "We can not update merchant.Try in another time." });
+        return res.send({ message: "Updated Success." });
+    }
+    catch (err) {
+        return res.send(err.message || "We can not update merchant.Try in another time.");
+    }
+};
 
 
 exports.home = async (req, res) => {
@@ -324,25 +373,45 @@ exports.merchants_favourites = async (req, res) => {
     }
 };
 
-exports.updateMerchant = async (req, res) => {
+// exports.updateMerchant = async (req, res) => {
+//     try {
+//         let _merchants = await merchant.updateMany({}, { country: "Jordan" }).lean();
+
+//         return res.send(_merchants);
+//     } catch (err) {
+//         return res.send(err.message);
+//     }
+// };
+
+// exports.updateDummyMerchant = async (req, res) => {
+//     try {
+
+//         // let du
+
+//         let _merchants = await merchant.updateMany({}, { is_active: true }).lean();
+
+//         return res.send(_merchants);
+//     } catch (err) {
+//         return res.send(err.message);
+//     }
+// };
+
+exports.merchant_prepare = async (req, res) => {
     try {
-        let _merchants = await merchant.updateMany({}, { country: "Jordan" }).lean();
+        let rawdata = fs.readFileSync("items.json");
+        let data = JSON.parse(rawdata);
 
-        return res.send(_merchants);
+        // for (let x = 0; x < data.length; x++) {
+        //     data[x].id = uuidv4();
+        // }
+        // const _merchants = await Merchants.createEach(data).fetch();
+        // if (_.isNil(_merchants)) return 404;
+        // return res.send(data);
+        // let merchantdata = new merchant(data);
+        let result = await merchant.insertMany(data);
+        return res.send(result);
     } catch (err) {
-        return res.send(err.message);
-    }
-};
 
-exports.updateDummyMerchant = async (req, res) => {
-    try {
-
-        // let du
-
-        let _merchants = await merchant.updateMany({}, { is_active: true }).lean();
-
-        return res.send(_merchants);
-    } catch (err) {
         return res.send(err.message);
     }
 };

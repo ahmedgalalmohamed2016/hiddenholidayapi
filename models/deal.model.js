@@ -10,6 +10,7 @@ let DealSchema = new Schema({
     description: { type: String },
     type: { type: String },
     amount  :{type : String},
+    price  :{type : String},
     usersType : {type : String},
     subscriptionFees : {type : String},
     sharePercentage : {type : String},
