@@ -228,7 +228,7 @@ exports.cancel = async (req, res) => {
         if (!_merchant)
             return res.status(405).send("Please enter valid merchant data");
 
-        let _checkDeal = await DealModel.findOne({ userId: req.userData._id, merchantId: _merchant._id });
+        let _checkDeal = await DealModel.findOne({ userId: req.userData._id, merchantId: _merchant._id,status : "pending" });
         if (_.isNil(_checkDeal))
             return res.status(405).send("You can not cancel this request at this time");
 

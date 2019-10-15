@@ -9,6 +9,10 @@ const merchant = require('./routes/merchant.route');
 const user = require('./routes/user.route');
 const deal = require('./routes/deal.route');
 const merchantUser = require('./routes/merchantUser.route');
+const adminRoutes = require('./routes/admin.route');
+const countriesRoutes = require('./routes/country.route');
+const currenciesRoutes = require('./routes/currency.route');
+
 // const app = express();
 // Set up mongoose connection
 const mongoose = require('mongoose');
@@ -64,6 +68,10 @@ app.use('/merchants', merchant);
 app.use('/user', user);
 app.use('/merchant/user', merchantUser);
 app.use('/deals', deal);
+app.use('/api/admin', adminRoutes);
+app.use('/api/countries', countriesRoutes);
+app.use('/api/currencies', currenciesRoutes);
+
 
 
 
