@@ -35,8 +35,18 @@ module.exports = {
         if (!check)
             return false;
         return JSON.parse(dec);
-    }
+    },
 
+    generateToken: function (dataEncrypt) {
+        let cipher = crypto.createCipher(algorithm, secretKey)
+
+        let crypted = cipher.update(dataEncrypt, 'utf8', 'hex')
+        crypted += cipher.final('hex');
+
+        if (!crypted)
+            return false;
+        return crypted;
+    },
 }
 
 function IsJsonString(str) {

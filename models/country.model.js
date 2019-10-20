@@ -3,11 +3,15 @@ const Schema = mongoose.Schema;
 
 let CountrySchema = new Schema({
     enName: { type: String, unique: true },
-    arName: { type: String, unique: true },
+    arName: { type: String },
     code: { type: String, unique: true },
-    isActive: { type: Boolean },
-    initBalance: { type: mongoose.Schema.Types.Mixed } // {categoryName : "", balance:""}
+    phone :  { type: String  },
+    currency :{ type: String },
+    isActive: { type: Boolean , default : true },
+    exRate : {type : Number},
+    encExRate : {type : String}
 });
+
 
 
 // Export the model

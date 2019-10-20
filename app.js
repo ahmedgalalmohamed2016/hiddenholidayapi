@@ -4,6 +4,7 @@ let http = require('http').Server(app);
 let io = require('socket.io')(http);
 
 const bodyParser = require('body-parser');
+const config = require('./configs/main');
 
 const merchant = require('./routes/merchant.route');
 const user = require('./routes/user.route');
@@ -11,7 +12,7 @@ const deal = require('./routes/deal.route');
 const merchantUser = require('./routes/merchantUser.route');
 const adminRoutes = require('./routes/admin.route');
 const countriesRoutes = require('./routes/country.route');
-const currenciesRoutes = require('./routes/currency.route');
+
 
 // const app = express();
 // Set up mongoose connection
@@ -70,8 +71,6 @@ app.use('/merchant/user', merchantUser);
 app.use('/deals', deal);
 app.use('/api/admin', adminRoutes);
 app.use('/api/countries', countriesRoutes);
-app.use('/api/currencies', currenciesRoutes);
-
 
 
 

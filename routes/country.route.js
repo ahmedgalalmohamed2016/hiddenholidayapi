@@ -7,7 +7,13 @@ const merchantMiddleware = require('../middleware/merchant');
 const superAdminMiddleware = require('../middleware/superAdmin');
 const countryController = require('../controllers/country.controller');
 
+router.get('/list', countryController.getCountries);
 router.post('/admin/create',countryController.create);
-router.post('/admin/get', middleware.mainAuth, superAdminMiddleware.superAdminAuth, countryController.getCountries);
+router.post('/admin/list', countryController.adminGetCountries);
+
+router.post('/admin/country', countryController.getCountry);
+router.post('/admin/update', countryController.updateCountry);
+
+
 
 module.exports = router;
