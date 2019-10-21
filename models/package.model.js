@@ -2,18 +2,17 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 let PackageSchema = new Schema({
-    creationDate: { type: Date },
-    enTitle: { type: String },
-    enDescription: { type: String },
-    initBalance: { type: Number },
-    arTitle: { type: String },
-    arDescription: { type: String },
-    initBalance: { type: Number },
-    maxDeals: { type: Number },
-    maxBids: { type: String },
-    maxDealRequests: { type: Number },
-    maxBidRequests: { type: String },
-    isActive : { type: Boolean },
+    creationDate: { type: Date, required: true },
+    enName: { type: String, required: true, unique: true },
+    enDescription: { type: String, required: true },
+    arName: { type: String, required: true, unique: true },
+    arDescription: { type: String, required: true },
+    initBalance: { type: Number, required: true },
+    maxDeals: { type: Number, required: true },
+    maxBids: { type: Number, required: true },
+    maxDealRequests: { type: Number, required: true },
+    maxBidRequests: { type: Number, required: true },
+    isActive: { type: Boolean, required: true },
 });
 
 

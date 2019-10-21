@@ -12,6 +12,7 @@ const deal = require('./routes/deal.route');
 const merchantUser = require('./routes/merchantUser.route');
 const adminRoutes = require('./routes/admin.route');
 const countriesRoutes = require('./routes/country.route');
+const packageRoutes = require('./routes/package.route');
 
 
 // const app = express();
@@ -71,6 +72,8 @@ app.use('/merchant/user', merchantUser);
 app.use('/deals', deal);
 app.use('/api/admin', adminRoutes);
 app.use('/api/countries', countriesRoutes);
+app.use('/api/packages', packageRoutes);
+
 
 
 
