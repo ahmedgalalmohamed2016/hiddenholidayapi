@@ -8,12 +8,10 @@ const superAdminMiddleware = require('../middleware/superAdmin');
 const packageController = require('../controllers/package.controller');
 
 router.get('/list', packageController.getPackage);
-router.post('/admin/create',packageController.create);
+router.post('/admin/create', packageController.create);
 router.post('/admin/list', packageController.adminGetPackages);
 
-router.post('/admin/country', packageController.getPackage);
+router.post('/admin/package', packageController.getPackage);
 router.post('/admin/update', packageController.updatePackage);
-
-
 
 module.exports = router;

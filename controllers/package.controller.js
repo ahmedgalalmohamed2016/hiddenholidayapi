@@ -7,7 +7,7 @@ var fs = require("fs");
 const mongoose = require('mongoose');
 const uuidv4 = require('uuid/v4');
 
-exports.getPackage = async (req, res) => {
+exports.getPackage = async(req, res) => {
     try {
         let countries = await country.find({ isActive: true }, '-encExRate');
         return res.send(countries);
@@ -17,14 +17,14 @@ exports.getPackage = async (req, res) => {
     }
 }
 
-exports.adminGetPackages = async (req, res) => {
+exports.adminGetPackages = async(req, res) => {
     try {
         let _query = {};
         if (req.body.name)
             _query.enName = { $regex: req.body.name, $options: "i" }
 
-        let countries = await country.find(_query, '-encExRate');
-        return res.send(countries);
+        let packagesData = await PackageModel.find(_query, '-encExRate');
+        return res.send(packagesData);
 
     } catch (err) {
         return res.send(err || { data: "Try in another time." });
@@ -32,40 +32,39 @@ exports.adminGetPackages = async (req, res) => {
 }
 
 
-exports.getPackage = async (req, res) => {
+exports.getPackage = async(req, res) => {
     try {
 
-        let countries = await country.findById({ _id: req.body.id }, '-encExRate');
+        let countries = await PackageModel.findById({ _id: req.body.id }, '-encExRate');
         return res.send(countries);
 
     } catch (err) {
-        return res.send(err || { data: "No country find with this data." });
+        return res.send(err || { data: "No package find with this data." });
     }
 }
 
 
 
-exports.updatePackage = async (req, res) => {
+exports.updatePackage = async(req, res) => {
     try {
 
-        let countries = await country.findById({ _id: req.body.id }, '-encExRate');
-        if (!countries || countries.length > 1)
-            return res.status(405).send("no country found with this data");
+        let packages = await PackageModel.findById({ _id: req.body.id }, '-encExRate');
+        if (!packages || packages.length > 1)
+            return res.status(405).send("no package found with this data");
         let _data = req.body;
 
-        let updatedCountry = await country.findByIdAndUpdate({ _id: req.body.id },
-            { $set: _data }, { new: true });
-        if (_.isNil(updatedCountry) || updatedCountry.length < 1)
-            return res.status(405).send("We can not update country.Try in another time.");
+        let updatedPackage = await PackageModel.findByIdAndUpdate({ _id: req.body.id }, { $set: _data }, { new: true });
+        if (_.isNil(updatedPackage) || updatedPackage.length < 1)
+            return res.status(405).send("We can not update package.Try in another time.");
 
-        return res.send(updatedCountry);
+        return res.send(updatedPackage);
 
     } catch (err) {
-        return res.send(err || { data: "No country find with this data." });
+        return res.send(err || { data: "No package find with this data." });
     }
 }
 
-exports.create = async (req, res) => {
+exports.create = async(req, res) => {
     try {
         let packageData = req.body;
         const createdPackage = await PackageModel.create(packageData);
@@ -73,6 +72,6 @@ exports.create = async (req, res) => {
             return res.status(405).send("We can not create package for now.Please try in another time.");
         return res.send(createdPackage);
     } catch (err) {
-        return res.send({ data: "We can not create package for now.Please try in another time." });
+        return res.send({ err: err, data: "We can not create package for now.Please try in another time." });
     }
 };
