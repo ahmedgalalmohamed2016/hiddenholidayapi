@@ -7,6 +7,7 @@ const middleware = require('../middleware/auth');
 
 router.post('/register', user_controller.register);
 router.post('/login', user_controller.login);
+router.post('/login/admin', user_controller.loginAdmin);
 router.post('/logout', middleware.mainAuth, user_controller.logout);
 router.post('/updatesocket', middleware.mainAuth, user_controller.updateSocket);
 router.get('/countries', user_controller.getCountries);

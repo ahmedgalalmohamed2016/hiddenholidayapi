@@ -1,4 +1,5 @@
 const merchant = require('../models/merchant.model');
+const countryModel = require('../models/country.model');
 const UserModel = require('../models/user.model');
 const DealModel = require('../models/deal.model');
 const VerificationModel = require('../models/verification.model');
@@ -13,7 +14,7 @@ const mongoose = require('mongoose');
 const uuidv4 = require('uuid/v4');
 
 
-exports.create = async (req, res) => {
+exports.create = async(req, res) => {
     try {
         //  return res.send(req.body);
 
@@ -103,7 +104,7 @@ exports.create = async (req, res) => {
 };
 
 
-exports.getAirports = async (req, res) => {
+exports.getAirports = async(req, res) => {
     try {
         let _query = {};
         let _skip = 0;
@@ -123,7 +124,7 @@ exports.getAirports = async (req, res) => {
     }
 };
 
-exports.registerMerchant = async (req, res) => {
+exports.registerMerchant = async(req, res) => {
     try {
 
         if (!req.body.mobileNumber || !req.body.firstName || !req.body.lastName || !req.body.password)
@@ -197,7 +198,7 @@ exports.registerMerchant = async (req, res) => {
     }
 }
 
-exports.maps = async (req, res) => {
+exports.maps = async(req, res) => {
     try {
         let result = await merchant.find({}, 'clean_name cat_name location_long location_lat _id');
         return res.send(result);
@@ -206,7 +207,7 @@ exports.maps = async (req, res) => {
     }
 };
 
-exports.merchantById = async (req, res) => {
+exports.merchantById = async(req, res) => {
     try {
         console.log(req.query.id);
         let _merchants = await merchant.findById({ _id: req.query.id });
@@ -218,7 +219,7 @@ exports.merchantById = async (req, res) => {
     }
 };
 
-exports.me = async (req, res) => {
+exports.me = async(req, res) => {
     try {
         let _merchants = await merchant.findById({ _id: req.merchantData._id });
         if (!_merchants)
@@ -230,7 +231,7 @@ exports.me = async (req, res) => {
     }
 };
 
-exports.totalDeals = async (req, res) => {
+exports.totalDeals = async(req, res) => {
     try {
         let data = {};
 
@@ -263,7 +264,7 @@ exports.totalDeals = async (req, res) => {
     }
 };
 
-exports.update = async (req, res) => {
+exports.update = async(req, res) => {
     try {
         let _query = {};
         if (req.body.merchant.isActiveMerchant) {
@@ -289,19 +290,17 @@ exports.update = async (req, res) => {
                 _query.isActiveBids = false;
         }
 
-        const updatedMerchant = await merchant.updateOne({ clean_name: req.merchantData.name },
-            { $set: _query }, { new: true });
+        const updatedMerchant = await merchant.updateOne({ clean_name: req.merchantData.name }, { $set: _query }, { new: true });
         if (_.isNil(updatedMerchant))
             return res.status(405).send({ message: "We can not update merchant.Try in another time." });
         return res.send({ message: "Updated Success." });
-    }
-    catch (err) {
+    } catch (err) {
         return res.send(err.message || "We can not update merchant.Try in another time.");
     }
 };
 
 
-exports.home = async (req, res) => {
+exports.home = async(req, res) => {
     try {
         let data = {};
 
@@ -332,7 +331,7 @@ function getRandomArbitrary(min, max) {
     return parseInt((Math.random() * (max - min) + min));
 }
 
-exports.merchants = async (req, res) => {
+exports.merchants = async(req, res) => {
     try {
         let _query = {};
         let _skip = 0;
@@ -353,7 +352,18 @@ exports.merchants = async (req, res) => {
     }
 };
 
-exports.merchants_favourites = async (req, res) => {
+exports.merchantsDummy = async(req, res) => {
+    try {
+        let rawdata = fs.readFileSync('./json/dummy.json');
+        let _cresult = JSON.parse(rawdata);
+        let _merchants = await merchant.create(_cresult);
+        return res.send(_merchants);
+    } catch (err) {
+        return res.send(err.message);
+    }
+};
+
+exports.merchants_favourites = async(req, res) => {
     try {
         if (!req.body.merchants || req.body.merchants.length < 1)
             return res.status(405).send("Please enter valid favourites data");
@@ -396,7 +406,7 @@ exports.merchants_favourites = async (req, res) => {
 //     }
 // };
 
-exports.merchant_prepare = async (req, res) => {
+exports.merchant_prepare = async(req, res) => {
     try {
         let rawdata = fs.readFileSync("items.json");
         let data = JSON.parse(rawdata);

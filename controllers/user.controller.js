@@ -13,7 +13,7 @@ const mongoose = require('mongoose');
 const uuidv4 = require('uuid/v4');
 // const 
 
-exports.getCountries = async (req, res) => {
+exports.getCountries = async(req, res) => {
     try {
         let rawdata = fs.readFileSync('./json/countries.json');
         let _cresult = JSON.parse(rawdata);
@@ -25,7 +25,7 @@ exports.getCountries = async (req, res) => {
     }
 }
 
-exports.getCategories = async (req, res) => {
+exports.getCategories = async(req, res) => {
     try {
         let rawdata = fs.readFileSync('./json/categories.json');
         let _cresult = JSON.parse(rawdata);
@@ -37,7 +37,7 @@ exports.getCategories = async (req, res) => {
     }
 }
 
-exports.register = async (req, res) => {
+exports.register = async(req, res) => {
     try {
         if (!req.body.mobileNumber || !req.body.password)
             return res.send('Please enter required fields.');
@@ -94,11 +94,11 @@ exports.register = async (req, res) => {
         console.log(verificationCode);
         return res.send(user);
     } catch (err) {
-        return res.send({ data:err || "error" });
+        return res.send({ data: err || "error" });
     }
 }
 
-exports.resendSms = async (req, res) => {
+exports.resendSms = async(req, res) => {
     try {
         const _getVerifications = await VerificationModel.find({
             mobileNumber: req.userData.mobileNumber,
@@ -133,7 +133,7 @@ exports.resendSms = async (req, res) => {
     }
 }
 
-exports.verifyPhone = async (req, res) => {
+exports.verifyPhone = async(req, res) => {
     try {
 
         if (req.userData.verifiedMobileNumber == true)
@@ -171,7 +171,7 @@ exports.verifyPhone = async (req, res) => {
     }
 }
 
-exports.getUserData = async (req, res) => {
+exports.getUserData = async(req, res) => {
     try {
         //console.log(req.userData);
         return res.send(req.userData);
@@ -180,7 +180,7 @@ exports.getUserData = async (req, res) => {
     }
 }
 
-exports.loginFB = async (req, res) => {
+exports.loginFB = async(req, res) => {
     try {
         //get accessstokn
         //  get datafrombacebook & checked
@@ -192,13 +192,12 @@ exports.loginFB = async (req, res) => {
             return res.status(401).send("Enter Valid token");
         let result = await superagent.get('https://graph.facebook.com/me').query({ access_token: req.body.accessToken });
         return res.send(result);
-    }
-    catch (err) {
+    } catch (err) {
         return res.send(err);
     }
 }
 
-exports.login = async (req, res) => {
+exports.login = async(req, res) => {
     try {
         const usersNamedFinn = await UserModel.find({
             $or: [{ mobileNumber: req.body.username }, { email: req.body.username }]
@@ -222,8 +221,7 @@ exports.login = async (req, res) => {
         saveData.userToken = userToken;
         saveData.lastLoginDate = new Date();
 
-        const updatedUser = await UserModel.updateOne({ _id: usersNamedFinn[0]._id },
-            { $set: saveData });
+        const updatedUser = await UserModel.updateOne({ _id: usersNamedFinn[0]._id }, { $set: saveData });
         if (_.isNil(updatedUser) || updatedUser.length < 1)
             return res.send({ error: "Please enter valid username and password" });
 
@@ -236,7 +234,48 @@ exports.login = async (req, res) => {
     }
 }
 
-exports.logout = async (req, res) => {
+exports.loginAdmin = async(req, res) => {
+    try {
+        const usersNamedFinn = await UserModel.find({
+            $or: [{ mobileNumber: req.body.username }, { email: req.body.username }]
+        });
+        if (usersNamedFinn.length < 1)
+            return res.status(405).send({ error: "Please enter valid username and password 1" });
+        console.log(usersNamedFinn[0]._id);
+        const password = await passwordService.comparePassword(req.body.password, usersNamedFinn[0].password, usersNamedFinn[0]._id);
+
+        if (_.isNil(password) || password != true)
+            return res.status(405).send({ error: "Please enter valid username and password 2" });
+
+        // Generate Token
+        let saveData = {};
+        saveData.userDevice = uuidv4();
+
+        // Generate Token.
+        const userToken = await tokenService.generateLoginToken(saveData.userDevice, usersNamedFinn[0]._id, usersNamedFinn[0].mobileNumber, usersNamedFinn[0].role);
+        if (_.isNil(userToken) || userToken == false)
+            return res.status(405).send({ error: "Please enter valid username and password 3" });
+
+        saveData.userToken = userToken;
+        saveData.lastLoginDate = new Date();
+
+        const updatedUser = await UserModel.updateOne({ _id: usersNamedFinn[0]._id }, { $set: saveData });
+        if (_.isNil(updatedUser) || updatedUser.length < 1)
+            return res.status(405).send({ error: "Please enter valid username and password 4" });
+
+        let getUser = await UserModel.findOne({ _id: usersNamedFinn[0]._id }).lean();
+        if (_.isNil(getUser))
+            return res.status(405).send({ error: "Please enter valid username and password 5" });
+
+        if (getUser.role != 'admin')
+            return res.status(405).send({ error: "Only Admin can access this portal 6" });
+        return res.send(getUser);
+    } catch (err) {
+        return res.send(err);
+    }
+}
+
+exports.logout = async(req, res) => {
     try {
         //req.userData
         const updatedUser = await UserModel.findByIdAndUpdate(req.userData._id, { userToken: null }).lean();
@@ -248,7 +287,7 @@ exports.logout = async (req, res) => {
     }
 }
 
-exports.updateProfile = async (req, res) => {
+exports.updateProfile = async(req, res) => {
     try {
         //req.userData
 
@@ -309,7 +348,7 @@ exports.updateProfile = async (req, res) => {
     }
 }
 
-exports.updateSocket = async (req, res) => {
+exports.updateSocket = async(req, res) => {
     try {
         if (!req.body.socketId)
             return res.send("enter valid socket id")
