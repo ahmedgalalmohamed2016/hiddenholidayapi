@@ -5,14 +5,15 @@ const router = express.Router();
 const middleware = require('../middleware/auth');
 const merchantMiddleware = require('../middleware/merchant');
 const superAdminMiddleware = require('../middleware/superAdmin');
-const categoryController = require('../controllers/category.controller');
+const adminMiddleware = require('../middleware/admin');
+const categoryController = require('../controllers/admin/categories.controller');
 
-router.get('/list', categoryController.getCategories);
-router.post('/admin/create', categoryController.create);
-router.post('/admin/list', categoryController.adminGetCategories);
+// router.get('/list', categoryController.getCategories);
+router.post('/admin/create', middleware.mainAuth, adminMiddleware.adminAuth, categoryController.create);
+router.post('/admin/list', middleware.mainAuth, adminMiddleware.adminAuth, categoryController.adminGetCategories);
 
 router.post('/admin/category', categoryController.getCategory);
-router.post('/admin/update', categoryController.updateCategory);
+router.post('/admin/update', middleware.mainAuth, adminMiddleware.adminAuth, categoryController.updateCategory);
 
 
 

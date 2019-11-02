@@ -1,4 +1,4 @@
-const merchant = require('../../models/merchant.model');
+const CategoryModel = require('../../models/categories.model');
 const UserModel = require('../../models/user.model');
 const DealModel = require('../../models/deal.model');
 const VerificationModel = require('../../models/verification.model');
@@ -11,20 +11,64 @@ var fs = require("fs");
 const mongoose = require('mongoose');
 const uuidv4 = require('uuid/v4');
 
-exports.create = async (req, res) => {
+exports.create = async(req, res) => {
     try {
-        let data = {};
+        let Categories = await CategoryModel.find({ enName: req.body.enName }, '-encExRate');
+        if (!Categories || Categories.length > 1)
+            return res.status(405).send("This category name already created before");
+        let _data = req.body;
 
-        let _skip = 0;
-        data.merchants = await merchant.find({}).limit(16).skip(_skip).orFail((err) => Error(err));
+        let createdCategory = await CategoryModel.create(_data);
+        if (_.isNil(createdCategory) || createdCategory.length < 1)
+            return res.status(405).send("We can not create country.Try in another time.");
 
-        data.totalMerchants = await merchant.count({}).orFail((err) => Error(err));
-        data.totalSuccessDeals = await DealModel.count({status : 'accept'}).orFail((err) => Error(err));
-        data.totalPendingDeals = await DealModel.count({status : 'pending'}).orFail((err) => Error(err));
-        // data._deals = await merchant.find({ promotion: { $ne: null } }).limit(8).orFail((err) => Error(err));
+        return res.send(createdCategory);
 
-        return res.send(data);
     } catch (err) {
-        return res.send(err.message);
+        return res.send(err || { data: "We can not create country.Try in another time." });
     }
 };
+
+exports.adminGetCategories = async(req, res) => {
+    try {
+        let _query = {};
+        if (req.body.name)
+            _query.enName = { $regex: req.body.name, $options: "i" }
+
+        let categoriesData = await CategoryModel.find(_query);
+        return res.send(categoriesData);
+
+    } catch (err) {
+        return res.send(err || { data: "Try in another time." });
+    }
+}
+
+exports.getCategory = async(req, res) => {
+    try {
+
+        let categoryData = await CategoryModel.findById({ _id: req.body.id });
+        return res.send(categoryData);
+
+    } catch (err) {
+        return res.send(err || { data: "No Category find with this data." });
+    }
+}
+
+exports.updateCategory = async(req, res) => {
+    try {
+
+        let categories = await CategoryModel.findById({ _id: req.body.id });
+        if (!categories || categories.length > 1)
+            return res.status(405).send("no category found with this data");
+        let _data = req.body;
+
+        let updatedCategory = await CategoryModel.findByIdAndUpdate({ _id: req.body.id }, { $set: _data }, { new: true });
+        if (_.isNil(updatedCategory) || updatedCategory.length < 1)
+            return res.status(405).send("We can not update category.Try in another time.");
+
+        return res.send(updatedCategory);
+
+    } catch (err) {
+        return res.send(err || { data: "No category find with this data." });
+    }
+}

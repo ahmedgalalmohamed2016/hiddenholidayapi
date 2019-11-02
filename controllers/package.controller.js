@@ -69,9 +69,9 @@ exports.create = async(req, res) => {
         let packageData = req.body;
         const createdPackage = await PackageModel.create(packageData);
         if (_.isNil(createdPackage) || createdPackage.length < 1)
-            return res.status(405).send("We can not create package for now.Please try in another time.");
+            return res.status(405).send("Can not create package for now.Please try in another time.");
         return res.send(createdPackage);
     } catch (err) {
-        return res.send({ err: err, data: "We can not create package for now.Please try in another time." });
+        return res.send({ err: err, data: "can not create package for now.Please try in another time." });
     }
 };

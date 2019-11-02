@@ -13,6 +13,8 @@ const merchantUser = require('./routes/merchantUser.route');
 const adminRoutes = require('./routes/admin.route');
 const countriesRoutes = require('./routes/country.route');
 const packageRoutes = require('./routes/package.route');
+const categoriesRoutes = require('./routes/categories.route');
+const transactionRoutes = require('./routes/transaction.route');
 
 
 // const app = express();
@@ -74,6 +76,11 @@ app.use('/deals', deal);
 app.use('/api/admin', adminRoutes);
 app.use('/api/countries', countriesRoutes);
 app.use('/api/packages', packageRoutes);
+app.use('/api/categories', categoriesRoutes);
+app.use('/api/transactions', transactionRoutes);
+
+
+
 
 
 

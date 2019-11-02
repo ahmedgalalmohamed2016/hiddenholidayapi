@@ -12,6 +12,7 @@ let PackageSchema = new Schema({
     maxDealRequests: { type: Number, required: true },
     maxBidRequests: { type: Number, required: true },
     isActive: { type: Boolean, required: true },
+    isDefault: { type: Boolean, default: false },
 });
 
 function creationDate() {

@@ -1,5 +1,8 @@
 const merchant = require('../models/merchant.model');
 const UserModel = require('../models/user.model');
+const CountryModel = require('../models/country.model');
+const CategoryModel = require('../models/categories.model');
+
 const VerificationModel = require('../models/verification.model');
 const passwordService = require('../services/passwordService');
 const sendSmsService = require('../services/sendSmsService');
@@ -15,23 +18,19 @@ const uuidv4 = require('uuid/v4');
 
 exports.getCountries = async(req, res) => {
     try {
-        let rawdata = fs.readFileSync('./json/countries.json');
-        let _cresult = JSON.parse(rawdata);
+        let countries = await CountryModel.find({ isActive: true }, '-encExRate').sort('enName');
+        return res.send(countries);
 
-        let x = _cresult.sort((a, b) => (a.name > b.name) ? 1 : -1)
-        return res.send(x);
     } catch (err) {
-        return res.send({ data: "Try in another time." });
+        return res.send(err || { data: "Try in another time." });
     }
 }
 
 exports.getCategories = async(req, res) => {
     try {
-        let rawdata = fs.readFileSync('./json/categories.json');
-        let _cresult = JSON.parse(rawdata);
+        let categoriesData = await CategoryModel.find({ isActive: true });
+        return res.send(categoriesData);
 
-        let x = _cresult.sort((a, b) => (a.name > b.name) ? 1 : -1)
-        return res.send(x);
     } catch (err) {
         return res.send({ data: "Try in another time." });
     }

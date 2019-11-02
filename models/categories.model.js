@@ -5,8 +5,9 @@ let CategoriesSchema = new Schema({
     creationDate: { type: Date },
     enName: { type: String },
     arName: { type: String },
+    icon: { type: String },
     initBalance: { type: Number },
-    isActive: { type: String }
+    isActive: { type: Boolean }
 });
 
 
