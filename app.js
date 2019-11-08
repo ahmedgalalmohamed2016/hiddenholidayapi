@@ -85,7 +85,7 @@ app.use('/api/transactions', transactionRoutes);
 
 
 
-let port = 1337;
+let port = 8086;
 
 http.listen(port, () => {
     console.log('Server is up and running on port numner ' + port);
