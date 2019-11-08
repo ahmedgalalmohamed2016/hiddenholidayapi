@@ -8,7 +8,7 @@ const config = require('./configs/main');
 
 const merchant = require('./routes/merchant.route');
 const user = require('./routes/user.route');
-const deal = require('./routes/deal.route');
+const dealRoutes = require('./routes/deal.route');
 const merchantUser = require('./routes/merchantUser.route');
 const adminRoutes = require('./routes/admin.route');
 const countriesRoutes = require('./routes/country.route');
@@ -72,7 +72,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/merchants', merchant);
 app.use('/user', user);
 app.use('/merchant/user', merchantUser);
-app.use('/deals', deal);
+app.use('/deals', dealRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/countries', countriesRoutes);
 app.use('/api/packages', packageRoutes);
@@ -85,7 +85,7 @@ app.use('/api/transactions', transactionRoutes);
 
 
 
-let port = 1338;
+let port = 1337;
 
 http.listen(port, () => {
     console.log('Server is up and running on port numner ' + port);

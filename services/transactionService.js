@@ -7,13 +7,16 @@ const secretKey = 'asjhut^tg*(2@EASFQ!_+"?]>,nvgfQMIZK#$,Zx[]iwQUsjJ~+-o+ujlcH^^
 const TransactionModel = require('../models/transaction.model');
 
 module.exports = {
-    createTransaction: function (data) {
+    createTransaction: function(transactionData) {
+        const _transaction = TransactionModel.create(transactionData);
+        if (_.isNil(_transaction))
+            return false;
+        return _transaction;
+    },
+    getTransaction: function(data) {
 
     },
-    getTransaction: function (data) {
-
-    },
-    updateTransaction: function (data) {
+    updateTransaction: function(data) {
 
     }
 }

@@ -9,6 +9,7 @@ const VerificationModel = require('../models/verification.model');
 const passwordService = require('../services/passwordService');
 const sendSmsService = require('../services/sendSmsService');
 const tokenService = require('../services/tokenService');
+const TransactionService = require('../services/transactionService');
 const AirportModel = require('../models/airport.model');
 const _ = require("lodash");
 const request = require("superagent");
@@ -106,9 +107,11 @@ exports.create = async(req, res) => {
         transactionData.paymentMethod = "cash";
         transactionData.code = makeUserCode(10);
 
-        const _transaction = await TransactionModel.create(transactionData);
-        if (_.isNil(_transaction))
-            return res.send("error Happened while create merchant transction");
+        let transactionResult = await TransactionService.createTransaction(transactionData);
+        if (transactionResult == false)
+            return res.send("error Happened while create transaction");
+
+
 
         // Verification Number
         let verificationData = {};

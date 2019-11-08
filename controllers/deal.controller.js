@@ -12,7 +12,7 @@ const fs = require("fs");
 const mongoose = require('mongoose');
 const uuidv4 = require('uuid/v4');
 
-exports.Demodeals = async (req, res) => {
+exports.Demodeals = async(req, res) => {
     try {
         let deal = {};
         // deal._id = "5d5737feac9c1a5e17a081d5";
@@ -32,8 +32,7 @@ exports.Demodeals = async (req, res) => {
         deal.promotion_share_percentage = 10;
         //   delete deal._id;
 
-        const updatedUser = await MerchantModel.updateOne({ clean_name: "Jordan Bowling" },
-            { $set: { promotion: deal } }, { new: true });
+        const updatedUser = await MerchantModel.updateOne({ clean_name: "Jordan Bowling" }, { $set: { promotion: deal } }, { new: true });
         if (_.isNil(updatedUser) || updatedUser.length < 1)
             return res.status(405).send("Please enter data");
         return res.send(updatedUser);
@@ -42,7 +41,7 @@ exports.Demodeals = async (req, res) => {
     }
 }
 
-exports.createDeal = async (req, res) => {
+exports.createDeal = async(req, res) => {
     try {
         let deal = {};
         deal.title = req.body.title;
@@ -52,15 +51,14 @@ exports.createDeal = async (req, res) => {
         deal.amount = req.body.amount;
         deal.price = req.body.price;
 
-        deal.usersType = req.body.usersType;//"individual" "group";
+        deal.usersType = req.body.usersType; //"individual" "group";
         deal.subscriptionFees = "0";
         deal.sharePercentage = "0";
 
         if (req.merchantData.promotion)
             return res.status(402).send("You already have a deal contact support to modify it for you");
 
-        const updatedMerchant = await MerchantModel.updateOne({ clean_name: req.merchantData.name },
-            { $set: { promotion: deal, isActivePromotion: true, isVerifiedPromotion: false } }, { new: true });
+        const updatedMerchant = await MerchantModel.updateOne({ clean_name: req.merchantData.name }, { $set: { promotion: deal, isActivePromotion: true, isVerifiedPromotion: false } }, { new: true });
         if (_.isNil(updatedMerchant) || updatedMerchant.length < 1)
             return res.status(405).send("We can not add your deal now.try in another time.");
         return res.send(updatedMerchant);
@@ -69,7 +67,7 @@ exports.createDeal = async (req, res) => {
     }
 }
 
-exports.updateDeal = async (req, res) => {
+exports.updateDeal = async(req, res) => {
     try {
         let deal = {};
         deal.title = req.body.title;
@@ -79,15 +77,14 @@ exports.updateDeal = async (req, res) => {
         deal.amount = req.body.amount;
         deal.price = req.body.price;
 
-        deal.usersType = req.body.usersType;//"individual" "group";
+        deal.usersType = req.body.usersType; //"individual" "group";
         deal.subscriptionFees = "0";
         deal.sharePercentage = "0";
 
         if (!req.merchantData.promotion)
             return res.status(402).send("You don't have any deal you add first one now.");
 
-        const updatedMerchant = await MerchantModel.updateOne({ clean_name: req.merchantData.name },
-            { $set: { promotion: deal, isActivePromotion: true, isVerifiedPromotion: false } }, { new: true });
+        const updatedMerchant = await MerchantModel.updateOne({ clean_name: req.merchantData.name }, { $set: { promotion: deal, isActivePromotion: true, isVerifiedPromotion: false } }, { new: true });
         if (_.isNil(updatedMerchant) || updatedMerchant.length < 1)
             return res.status(405).send("We can not update your deal.Try in another time.");
         return res.send(updatedMerchant);
@@ -96,7 +93,7 @@ exports.updateDeal = async (req, res) => {
     }
 }
 
-exports.deals = async (req, res) => {
+exports.deals = async(req, res) => {
     try {
         // get deals
         let _skip = 0;
@@ -111,7 +108,7 @@ exports.deals = async (req, res) => {
     }
 }
 
-exports.request = async (req, res) => {
+exports.request = async(req, res) => {
     try {
         if (!req.body.id)
             res.status(405).send("please enter valid data");
@@ -167,7 +164,7 @@ exports.request = async (req, res) => {
     }
 }
 
-exports.DealByMerchantById = async (req, res) => {
+exports.DealByMerchantById = async(req, res) => {
     try {
         console.log(req.query.id);
         let _merchants = await MerchantModel.findById({ _id: req.query.id });
@@ -180,7 +177,7 @@ exports.DealByMerchantById = async (req, res) => {
 };
 
 
-exports.DealData = async (req, res) => {
+exports.DealData = async(req, res) => {
     try {
         if (!req.body.id)
             res.status(405).send("please enter valid data");
@@ -200,7 +197,27 @@ exports.DealData = async (req, res) => {
     }
 }
 
-exports.DealRequests = async (req, res) => {
+exports.AdminDealData = async(req, res) => {
+    try {
+        if (!req.body.id)
+            res.status(405).send("please enter valid data");
+
+        let _merchant = await MerchantModel.findById({ _id: req.body.id });
+        console.log(_merchant);
+        if (!_merchant)
+            return res.status(405).send("Please enter valid merchant data");
+
+        if (!_merchant.promotion)
+            res.status(405).send("Merchant doe not have any pormotion");
+
+
+        return res.send(_merchant);
+    } catch (err) {
+        return res.send("Error Happened");
+    }
+}
+
+exports.DealRequests = async(req, res) => {
     try {
         let _query = {};
         _query.merchantId = req.merchantData._id;
@@ -219,7 +236,7 @@ exports.DealRequests = async (req, res) => {
     }
 }
 
-exports.cancel = async (req, res) => {
+exports.cancel = async(req, res) => {
     try {
         if (!req.body.id)
             res.status(405).send("please enter valid data");
@@ -228,7 +245,7 @@ exports.cancel = async (req, res) => {
         if (!_merchant)
             return res.status(405).send("Please enter valid merchant data");
 
-        let _checkDeal = await DealModel.findOne({ userId: req.userData._id, merchantId: _merchant._id,status : "pending" });
+        let _checkDeal = await DealModel.findOne({ userId: req.userData._id, merchantId: _merchant._id, status: "pending" });
         if (_.isNil(_checkDeal))
             return res.status(405).send("You can not cancel this request at this time");
 
@@ -253,7 +270,7 @@ exports.cancel = async (req, res) => {
 
 
 
-exports.accept = async (req, res) => {
+exports.accept = async(req, res) => {
     try {
         if (!req.body.id)
             res.status(405).send("please enter valid data");
@@ -262,7 +279,7 @@ exports.accept = async (req, res) => {
         if (!_merchant)
             return res.status(405).send("Please enter valid merchant data");
 
-        let _checkDeal = await DealModel.findOne({ userId: req.userData._id, merchantId: _merchant._id ,status : "pending"});
+        let _checkDeal = await DealModel.findOne({ userId: req.userData._id, merchantId: _merchant._id, status: "pending" });
         if (_.isNil(_checkDeal))
             return res.status(405).send("You can not cancel this request at this time");
 
@@ -272,8 +289,7 @@ exports.accept = async (req, res) => {
         if (_checkDeal.verificationCode != req.body.code)
             return res.status(405).send("Code that you entered is not valid.");
 
-        let updatedDeal = await DealModel.findOneAndUpdate({ _id: _checkDeal._id},
-            { $set: { status: 'accept' } }, { new: true });
+        let updatedDeal = await DealModel.findOneAndUpdate({ _id: _checkDeal._id }, { $set: { status: 'accept' } }, { new: true });
         if (_.isNil(updatedDeal) || updatedDeal.length < 1)
             return res.status(405).send("Please enter data");
 
@@ -291,13 +307,12 @@ exports.accept = async (req, res) => {
     }
 }
 
-exports.decline = async (req, res) => {
+exports.decline = async(req, res) => {
     try {
         if (_.isNil(req.body.id))
             return res.status(405).send("please enter valid data");
 
-        const updatedDeal = await DealModel.findOneAndUpdate({ _id: req.body.id, merchantId: req.merchantData.id },
-            { $set: { status: 'decline' } }, { new: true });
+        const updatedDeal = await DealModel.findOneAndUpdate({ _id: req.body.id, merchantId: req.merchantData.id }, { $set: { status: 'decline' } }, { new: true });
         if (_.isNil(updatedDeal) || updatedDeal.length < 1)
             return res.status(405).send("Please enter data");
 
@@ -310,7 +325,7 @@ exports.decline = async (req, res) => {
 
 
 
-exports.history = async (req, res) => {
+exports.history = async(req, res) => {
     try {
         let _checkDeal = await DealModel.find({ userId: req.userData._id }).populate('merchants');
         if (_checkDeal)

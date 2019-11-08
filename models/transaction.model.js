@@ -2,17 +2,19 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 let TransactionSchema = new Schema({
-    creationDate: { type: Date },
-    from_userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    to_userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    amount: { type: Number },
-    currency: { type: String },
-    status: { type: String },
-    sourceType: { type: String }, // Deal , Bid , Init
+    creationDate: { type: Date, required: true },
+    from_userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    to_userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    amount: { type: Number, required: true },
+    currency: { type: String, required: true },
+    status: { type: String, required: true },
+    sourceType: { type: String, required: true }, // Deal , Bid , Init
+    sourceId: { type: mongoose.Schema.Types.ObjectId },
+    sourceData: { type: mongoose.Schema.Types.Mixed },
     comment: { type: String },
-    paymentMethod: { type: String },
-    isActive: { type: Boolean },
-    code: { type: String },
+    paymentMethod: { type: String, required: true },
+    isActive: { type: Boolean, required: true },
+    code: { type: String, required: true },
 });
 
 
