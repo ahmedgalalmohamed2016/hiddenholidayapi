@@ -202,11 +202,11 @@ exports.login = async(req, res) => {
             $or: [{ mobileNumber: req.body.username }, { email: req.body.username }]
         });
         if (usersNamedFinn.length < 1)
-            return res.send({ error: "Please enter valid username and password" });
+            return res.status(405).send({ error: "Please enter valid username and password" });
 
         const password = await passwordService.comparePassword(req.body.password, usersNamedFinn[0].password, usersNamedFinn[0]._id);
         if (_.isNil(password) || password != true)
-            return res.send({ error: "Please enter valid username and password" });
+            return res.status(405).send({ error: "Please enter valid username and password" });
 
         // Generate Token
         let saveData = {};
@@ -215,21 +215,21 @@ exports.login = async(req, res) => {
         // Generate Token
         const userToken = await tokenService.generateLoginToken(saveData.userDevice, usersNamedFinn[0]._id, usersNamedFinn[0].mobileNumber, usersNamedFinn[0].role);
         if (_.isNil(userToken) || userToken == false)
-            return res.send({ error: "Please enter valid username and password" });
+            return res.status(405).send({ error: "Please enter valid username and password" });
 
         saveData.userToken = userToken;
         saveData.lastLoginDate = new Date();
 
         const updatedUser = await UserModel.updateOne({ _id: usersNamedFinn[0]._id }, { $set: saveData });
         if (_.isNil(updatedUser) || updatedUser.length < 1)
-            return res.send({ error: "Please enter valid username and password" });
+            return res.status(405).send({ error: "Please enter valid username and password" });
 
         let getUser = await UserModel.findOne({ _id: usersNamedFinn[0]._id }).lean();
         if (_.isNil(getUser))
-            return res.send({ error: "Please enter valid username and password" });
+            return res.status(405).send({ error: "Please enter valid username and password" });
         return res.send(getUser);
     } catch (err) {
-        return res.send(err);
+        return res.status(405).send(err);
     }
 }
 
