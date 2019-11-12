@@ -36,7 +36,8 @@ let MerchantSchema = new Schema({
     operational_hours_description: { type: String },
     preference: { type: String },
     address: { typ: String },
-    promotion: { type: mongoose.Schema.Types.Mixed }
+    promotion: { type: mongoose.Schema.Types.Mixed },
+    merchantSource: { type: String, default: 'local' } // handle collected data with our data
     // promotion
     // promotion_title: { type: String },
     // promotion_description: { type: String },

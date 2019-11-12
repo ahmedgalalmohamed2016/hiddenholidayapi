@@ -93,6 +93,30 @@ exports.updateDeal = async(req, res) => {
     }
 }
 
+exports.adminUpdateDeal = async(req, res) => {
+    try {
+        let deal = {};
+        deal.title = req.body.title;
+        deal.description = req.body.description;
+        //percentage fixed
+        deal.type = req.body.type;
+        deal.amount = req.body.amount;
+        deal.price = req.body.price;
+        deal.usersType = req.body.usersType; //"individual" "group";
+        deal.subscriptionFees = req.body.subscriptionFees;
+        deal.sharePercentage = req.body.sharePercentage;
+
+
+        const updatedMerchant = await MerchantModel.updateOne({ _id: req.body.id }, { $set: { promotion: deal, isActivePromotion: req.body.isActivePromotion } }, { new: true });
+        if (_.isNil(updatedMerchant) || updatedMerchant.length < 1)
+            return res.status(405).send("We can not update your deal.Try in another time.");
+        return res.send(updatedMerchant);
+    } catch (err) {
+        console.log(err);
+        return res.send({ data: "Please Try in another time" });
+    }
+}
+
 exports.deals = async(req, res) => {
     try {
         // get deals

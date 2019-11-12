@@ -20,6 +20,7 @@ router.post('/me/accept', middleware.mainAuth, deal_controller.accept);
 router.post('/me/create', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.createDeal);
 router.post('/me/update', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.updateDeal);
 
+
 router.post('/admin/deal', middleware.mainAuth, adminMiddleware.adminAuth, deal_controller.AdminDealData);
 
 router.get('/Demodeals', deal_controller.Demodeals);
