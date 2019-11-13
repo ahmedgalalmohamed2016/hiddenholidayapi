@@ -104,14 +104,12 @@ exports.create = async(req, res) => {
         transactionData.status = "approved";
         transactionData.sourceType = "Init";
         transactionData.comment = "This is free init balance.";
-        transactionData.paymentMethod = "cash";
+        transactionData.paymentMethod = "virtual";
         transactionData.code = makeUserCode(10);
 
         let transactionResult = await TransactionService.createTransaction(transactionData);
         if (transactionResult == false)
             return res.send("error Happened while create transaction");
-
-
 
         // Verification Number
         let verificationData = {};
@@ -133,9 +131,6 @@ exports.create = async(req, res) => {
             return res.send("error Happened");
         await sendSmsService.sendActivationAccountsms(req, saveData.mobileNumber, verificationCode);
         user._verificationCode = verificationCode;
-
-
-
 
         return res.send({ user: user, merchant: _merchant });
     } catch (err) {
@@ -272,6 +267,52 @@ exports.me = async(req, res) => {
     }
 };
 
+exports.balance = async(req, res) => {
+    try {
+        let data = {};
+        data.availableBalance = 0;
+        data.virtualBalance = 0;
+        data.currentBalance = 0;
+
+        data.currency = await countryModel.findOne({ enName: req.merchantData.country }, '-_id currency');
+        if (!data.currency)
+            return res.status(405).send("Error Happened please try again later.");
+
+        let transactions = await TransactionModel.find({ status: "approved", $or: [{ from_userId: req.userData._id }, { to_userId: req.userData._id }] })
+        if (!transactions)
+            return res.status(405).send("Error Happened please try again later.");
+
+        for (let x = 0; x < transactions.length; x++) {
+            if (transactions[x].paymentMethod == "virtual") {
+
+                console.log(String(req.userData._id));
+                console.log(String(transactions[x].to_userId));
+
+                if (String(transactions[x].to_userId) == String(req.userData._id)) {
+                    data.virtualBalance = data.virtualBalance + transactions[x].amount;
+
+                } else if (String(transactions[x].from_userId) == String(req.userData._id)) {
+                    data.virtualBalance = data.virtualBalance - transactions[x].amount;
+                }
+
+            } else if (transactions[x].paymentMethod != "virtual") {
+                if (String(transactions[x].from_userId) == String(req.userData._id)) {
+                    data.availableBalance = data.availableBalance + transactions[x].amount;
+                } else if (String(transactions[x].to_userId) == String(req.userData._id)) {
+                    data.availableBalance = data.availableBalance - transactions[x].amount;
+                }
+            }
+        }
+        data.currency = data.currency.currency;
+        data.availableBalance = parseInt(data.availableBalance);
+        data.virtualBalance = parseInt(data.virtualBalance);
+        data.currentBalance = data.availableBalance + data.virtualBalance;
+        res.send(data);
+    } catch (err) {
+        return res.send(err.message);
+    }
+};
+
 exports.totalDeals = async(req, res) => {
     try {
         let data = {};
@@ -387,8 +428,10 @@ exports.merchants = async(req, res) => {
             _skip = req.query.page * 10;
         let _merchants = await merchant.find(_query, null, { sort: { clean_name: 1 } }).limit(10).skip(_skip);
         //    req.io.emit('newMessage', "welcome dodo");
+        // mongoose.connection.close();
         return res.send(_merchants);
     } catch (err) {
+        // mongoose.connection.close();
         return res.send(err.message);
     }
 };

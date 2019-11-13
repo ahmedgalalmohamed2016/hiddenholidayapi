@@ -51,7 +51,18 @@ io.sockets.on('connect', function(socket) {
 });
 
 const mongoDB = process.env.MONGODB_URI || dev_db_url;
-mongoose.connect(mongoDB);
+const options = {
+    keepAlive: 1,
+    useNewUrlParser: true,
+    reconnectTries: Number.MAX_VALUE, // Never stop trying to reconnect
+    reconnectInterval: 500, // Reconnect every 500ms
+    poolSize: 10, // Maintain up to 10 socket connections
+    // If not connected, return errors immediately rather than waiting for reconnect
+    bufferMaxEntries: 0,
+    connectTimeoutMS: 10000, // Give up initial connection after 10 seconds
+    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+};
+mongoose.connect(mongoDB, options);
 mongoose.Promise = global.Promise;
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
@@ -85,7 +96,7 @@ app.use('/api/transactions', transactionRoutes);
 
 
 
-let port = 8086;
+let port = 1337;
 
 http.listen(port, () => {
     console.log('Server is up and running on port numner ' + port);

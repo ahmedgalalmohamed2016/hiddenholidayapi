@@ -13,6 +13,7 @@ router.post('/create', merchant_controller.create);
 router.get('/maps', merchant_controller.maps);
 router.get('/merchantsById', merchant_controller.merchantById);
 router.post('/me', middleware.mainAuth, merchantMiddleware.merchantAuth, merchant_controller.me);
+router.post('/balance', middleware.mainAuth, merchantMiddleware.merchantAuth, merchant_controller.balance);
 router.post('/me/totalDeals', middleware.mainAuth, merchantMiddleware.merchantAuth, merchant_controller.totalDeals);
 router.post('/me/update', middleware.mainAuth, merchantMiddleware.merchantAuth, merchant_controller.update);
 router.get('/', merchant_controller.merchants);

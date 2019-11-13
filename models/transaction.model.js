@@ -12,7 +12,7 @@ let TransactionSchema = new Schema({
     sourceId: { type: mongoose.Schema.Types.ObjectId },
     sourceData: { type: mongoose.Schema.Types.Mixed },
     comment: { type: String },
-    paymentMethod: { type: String, required: true },
+    paymentMethod: { type: String, required: true }, // virtual cash credit
     isActive: { type: Boolean, required: true },
     code: { type: String, required: true },
 });
