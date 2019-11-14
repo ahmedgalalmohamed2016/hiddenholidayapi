@@ -140,6 +140,39 @@ exports.create = async(req, res) => {
     }
 };
 
+exports.addFund = async(req, res) => {
+    try {
+        let transactionData = {};
+        const transactionTo = await UserModel.findOne({ role: "superAdmin" });
+        if (!transactionTo._id)
+            return res.send("Error Happened try in another time");
+
+        let countryData = await countryModel.findOne({ enName: req.merchantData.country });
+        if (!countryData._id)
+            return res.send("error Happened to find countryData");
+
+        transactionData.from_userId = req.userData._id;
+        transactionData.to_userId = transactionTo._id;
+        transactionData.amount = req.body.amount;
+        transactionData.currency = countryData.currency;
+
+        transactionData.status = "approved";
+        transactionData.sourceType = "Init";
+        transactionData.comment = "This is free init balance.";
+        transactionData.paymentMethod = "credit";
+        transactionData.code = makeUserCode(10);
+        transactionData.creationDate = new Date();
+
+        let transactionResult = await TransactionService.createTransaction(transactionData);
+        if (transactionResult == false)
+            return res.status(401).send("error Happened while create transaction");
+        return res.send(transactionResult);
+    } catch (err) {
+        console.log(err);
+        return res.res.status(401).send("error Happened while create transaction");
+    }
+}
+
 
 exports.getAirports = async(req, res) => {
     try {

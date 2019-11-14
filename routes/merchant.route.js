@@ -12,6 +12,9 @@ const merchantMiddleware = require('../middleware/merchant');
 router.get('/home', merchant_controller.home);
 router.post('/create', merchant_controller.create);
 router.post('/card/add', middleware.mainAuth, merchantMiddleware.merchantAuth, card_controller.add);
+
+router.post('/fund/add', middleware.mainAuth, merchantMiddleware.merchantAuth, merchant_controller.addFund);
+
 router.post('/card/get', middleware.mainAuth, merchantMiddleware.merchantAuth, card_controller.cards);
 router.get('/maps', merchant_controller.maps);
 router.get('/merchantsById', merchant_controller.merchantById);
