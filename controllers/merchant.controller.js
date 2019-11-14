@@ -106,6 +106,7 @@ exports.create = async(req, res) => {
         transactionData.comment = "This is free init balance.";
         transactionData.paymentMethod = "virtual";
         transactionData.code = makeUserCode(10);
+        transactionData.creationDate = new Date();
 
         let transactionResult = await TransactionService.createTransaction(transactionData);
         if (transactionResult == false)

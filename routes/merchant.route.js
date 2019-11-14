@@ -3,6 +3,7 @@ const router = express.Router();
 
 // Require the controllers WHICH WE DID NOT CREATE YET!!
 const merchant_controller = require('../controllers/merchant.controller');
+const card_controller = require('../controllers/card.controller');
 const middleware = require('../middleware/auth');
 const merchantMiddleware = require('../middleware/merchant');
 
@@ -10,6 +11,8 @@ const merchantMiddleware = require('../middleware/merchant');
 // router.get('/prepare', merchant_controller.merchant_prepare);
 router.get('/home', merchant_controller.home);
 router.post('/create', merchant_controller.create);
+router.post('/card/add', middleware.mainAuth, merchantMiddleware.merchantAuth, card_controller.add);
+router.post('/card/get', middleware.mainAuth, merchantMiddleware.merchantAuth, card_controller.cards);
 router.get('/maps', merchant_controller.maps);
 router.get('/merchantsById', merchant_controller.merchantById);
 router.post('/me', middleware.mainAuth, merchantMiddleware.merchantAuth, merchant_controller.me);
