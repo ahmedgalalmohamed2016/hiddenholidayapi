@@ -13,7 +13,7 @@ let TransactionSchema = new Schema({
     sourceData: { type: mongoose.Schema.Types.Mixed },
     comment: { type: String },
     paymentMethod: { type: String, required: true }, // virtual cash credit
-    isActive: { type: Boolean, required: true },
+    isActive: { type: Boolean, required: true, default: true },
     code: { type: String, required: true },
 });
 

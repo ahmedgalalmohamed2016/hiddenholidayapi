@@ -99,7 +99,7 @@ exports.create = async(req, res) => {
         transactionData.from_userId = transactionFrom._id;
         transactionData.to_userId = user._id;
         transactionData.amount = categoryData.initBalance * countryData.exRate;
-        transactionData.currency = categoryData.currency;
+        transactionData.currency = countryData.currency;
 
         transactionData.status = "approved";
         transactionData.sourceType = "Init";
@@ -110,7 +110,7 @@ exports.create = async(req, res) => {
 
         let transactionResult = await TransactionService.createTransaction(transactionData);
         if (transactionResult == false)
-            return res.send("error Happened while create transaction");
+            return res.status(401).send("error Happened while create transaction");
 
         // Verification Number
         let verificationData = {};
