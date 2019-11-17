@@ -38,6 +38,18 @@ exports.cards = async(req, res) => {
 
     } catch (err) {
         console.log(err);
-        return res.status(401).send("Try in another time.");
+        return res.status(405).send("Try in another time.");
+    }
+}
+
+exports.delete = async(req, res) => {
+    try {
+        let cards = await CardModel.findByIdAndRemove(req.body.id);
+        if (_.isNil(cards))
+            return res.status(404).send("Cannot remove this card.");
+        return res.send(cards);
+    } catch (err) {
+        console.log(err);
+        return res.status(405).send("Cannot remove this card,Try in another time.");
     }
 }

@@ -16,6 +16,11 @@ router.post('/card/add', middleware.mainAuth, merchantMiddleware.merchantAuth, c
 router.post('/fund/add', middleware.mainAuth, merchantMiddleware.merchantAuth, merchant_controller.addFund);
 
 router.post('/card/get', middleware.mainAuth, merchantMiddleware.merchantAuth, card_controller.cards);
+router.post('/card/remove', middleware.mainAuth, merchantMiddleware.merchantAuth, card_controller.delete);
+
+router.post('/checkPassword', middleware.mainAuth, merchantMiddleware.merchantAuth, merchant_controller.checkPassword);
+
+
 router.get('/maps', merchant_controller.maps);
 router.get('/merchantsById', merchant_controller.merchantById);
 router.post('/me', middleware.mainAuth, merchantMiddleware.merchantAuth, merchant_controller.me);

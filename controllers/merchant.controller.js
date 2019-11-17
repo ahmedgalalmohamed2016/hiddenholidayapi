@@ -140,6 +140,22 @@ exports.create = async(req, res) => {
     }
 };
 
+exports.checkPassword = async(req, res) => {
+    try {
+        console.log(req.body.password);
+        if (!req.body.password) {
+            return res.status(405).send({ error: "Please enter valid password" });
+        }
+        const password = await passwordService.comparePassword(req.body.password, req.userData.password, req.userData._id);
+        console.log(password);
+        if (_.isNil(password) || password != true)
+            return res.status(405).send({ error: "Please enter valid password" });
+        res.send(true);
+    } catch (err) {
+
+    }
+}
+
 exports.addFund = async(req, res) => {
     try {
         let transactionData = {};
