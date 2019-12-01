@@ -156,39 +156,6 @@ exports.checkPassword = async(req, res) => {
     }
 }
 
-exports.addFund = async(req, res) => {
-    try {
-        let transactionData = {};
-        const transactionTo = await UserModel.findOne({ role: "superAdmin" });
-        if (!transactionTo._id)
-            return res.send("Error Happened try in another time");
-
-        let countryData = await countryModel.findOne({ enName: req.merchantData.country });
-        if (!countryData._id)
-            return res.send("error Happened to find countryData");
-
-        transactionData.from_userId = req.userData._id;
-        transactionData.to_userId = transactionTo._id;
-        transactionData.amount = req.body.amount;
-        transactionData.currency = countryData.currency;
-
-        transactionData.status = "approved";
-        transactionData.sourceType = "Init";
-        transactionData.comment = "This is free init balance.";
-        transactionData.paymentMethod = "credit";
-        transactionData.code = makeUserCode(10);
-        transactionData.creationDate = new Date();
-
-        let transactionResult = await TransactionService.createTransaction(transactionData);
-        if (transactionResult == false)
-            return res.status(401).send("error Happened while create transaction");
-        return res.send(transactionResult);
-    } catch (err) {
-        console.log(err);
-        return res.res.status(401).send("error Happened while create transaction");
-    }
-}
-
 
 exports.getAirports = async(req, res) => {
     try {
@@ -296,7 +263,7 @@ exports.maps = async(req, res) => {
 exports.merchantById = async(req, res) => {
     try {
         console.log(req.query.id);
-        let _merchants = await merchant.findById({ _id: req.query.id });
+        let _merchants = await merchant.find({ _id: req.query.id }).populate('categoryId');
         if (!_merchants)
             return res.status(405).send("Please enter valid merchant data");
         return res.send(_merchants);
@@ -317,51 +284,7 @@ exports.me = async(req, res) => {
     }
 };
 
-exports.balance = async(req, res) => {
-    try {
-        let data = {};
-        data.availableBalance = 0;
-        data.virtualBalance = 0;
-        data.currentBalance = 0;
 
-        data.currency = await countryModel.findOne({ enName: req.merchantData.country }, '-_id currency');
-        if (!data.currency)
-            return res.status(405).send("Error Happened please try again later.");
-
-        let transactions = await TransactionModel.find({ status: "approved", $or: [{ from_userId: req.userData._id }, { to_userId: req.userData._id }] })
-        if (!transactions)
-            return res.status(405).send("Error Happened please try again later.");
-
-        for (let x = 0; x < transactions.length; x++) {
-            if (transactions[x].paymentMethod == "virtual") {
-
-                console.log(String(req.userData._id));
-                console.log(String(transactions[x].to_userId));
-
-                if (String(transactions[x].to_userId) == String(req.userData._id)) {
-                    data.virtualBalance = data.virtualBalance + transactions[x].amount;
-
-                } else if (String(transactions[x].from_userId) == String(req.userData._id)) {
-                    data.virtualBalance = data.virtualBalance - transactions[x].amount;
-                }
-
-            } else if (transactions[x].paymentMethod != "virtual") {
-                if (String(transactions[x].from_userId) == String(req.userData._id)) {
-                    data.availableBalance = data.availableBalance + transactions[x].amount;
-                } else if (String(transactions[x].to_userId) == String(req.userData._id)) {
-                    data.availableBalance = data.availableBalance - transactions[x].amount;
-                }
-            }
-        }
-        data.currency = data.currency.currency;
-        data.availableBalance = parseInt(data.availableBalance);
-        data.virtualBalance = parseInt(data.virtualBalance);
-        data.currentBalance = data.availableBalance + data.virtualBalance;
-        res.send(data);
-    } catch (err) {
-        return res.send(err.message);
-    }
-};
 
 exports.totalDeals = async(req, res) => {
     try {
@@ -472,13 +395,19 @@ exports.merchants = async(req, res) => {
             _query.clean_name = { $regex: req.query.name, $options: "i" } //{ contains: req.query.name };
 
         if (req.query.category)
-            _query.cat_name = req.query.category;
+            _query.categoryId = req.query.category;
+
+        if (req.query.country)
+            _query.country = req.query.country;
+
+        console.log(_query);
 
         if (req.query.page)
             _skip = req.query.page * 10;
-        let _merchants = await merchant.find(_query, null, { sort: { clean_name: 1 } }).limit(10).skip(_skip);
-        //    req.io.emit('newMessage', "welcome dodo");
-        // mongoose.connection.close();
+        let _merchants = await merchant.find(_query, null, { sort: { clean_name: 1 } }).populate('categoryId').limit(10).skip(_skip);
+        console.log(_merchants);
+        if (!_merchants)
+            return res.status(405).send('Error Happened');
         return res.send(_merchants);
     } catch (err) {
         // mongoose.connection.close();

@@ -6,6 +6,16 @@ const request = require("superagent");
 var fs = require("fs");
 const mongoose = require('mongoose');
 const uuidv4 = require('uuid/v4');
+const multipart = require('connect-multiparty');
+const multipartMiddleware = multipart({ uploadDir: './public/categories' });
+
+exports.upload = async(req, res) => {
+    try {
+        res.send('File uploaded succesfully.');
+    } catch (err) {
+        res.status(406).send('File uploaded succesfully.');
+    }
+}
 
 exports.getPackage = async(req, res) => {
     try {

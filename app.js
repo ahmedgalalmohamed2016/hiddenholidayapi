@@ -1,10 +1,11 @@
-// const express = require('express');
-let app = require('express')();
-let http = require('http').Server(app);
-let io = require('socket.io')(http);
+const express = require('express');
+// let app = require('express')();
+// let http = require('http').Server(app);
+// let io = require('socket.io')(http);
 
 const bodyParser = require('body-parser');
 const config = require('./configs/main');
+const path = require('path');
 
 const merchant = require('./routes/merchant.route');
 const user = require('./routes/user.route');
@@ -17,38 +18,40 @@ const categoriesRoutes = require('./routes/categories.route');
 const transactionRoutes = require('./routes/transaction.route');
 
 
-// const app = express();
+const app = express();
 // Set up mongoose connection
 const mongoose = require('mongoose');
 // let dev_db_url = 'mongodb://admin:2wGnLj9ayKfeZLCQaVgy5WvBW4nuQemsy977BvdbJykmjq4c@ds045679.mlab.com:45679/hiddenholidaydb';
 let dev_db_url = 'mongodb://admin:Hidden123@ds119129.mlab.com:19129/hiddenholidaystable';
 
-app.use(function(req, res, next) {
-    req.io = io;
-    next();
-});
+// app.use(function(req, res, next) {
+//     req.io = io;
+//     next();
+// });
 
-io.on('connection', (socket) => {
-    socket.on('disconnect', function() {
-        io.emit('users-changed', { user: socket.nickname, event: 'left' });
-    });
+// io.on('connection', (socket) => {
+// socket.on('disconnect', function() {
+//     io.emit('users-changed', { user: socket.nickname, event: 'left' });
+// });
 
-    socket.on('newMessage', (message) => {
-        io.emit('newMessage', "welcome " + message);
-    });
+// socket.on('newMessage', (message) => {
+//     io.emit('newMessage', "welcome " + message);
+// });
 
-    socket.on('checkSocket', (message) => {
-        console.log(socket.id);
-        io.emit('sendSocketId', socket.id);
-    });
+// socket.on('checkSocket', (message) => {
+//     console.log(socket.id);
+//     io.emit('sendSocketId', socket.id);
+// });
+// });
 
+// io.sockets.on('connect', function(socket) {
+// console.log(socket.id);
+// io.emit('sendSocketId', socket.id);
+// });
 
-});
+app.use('/static', express.static('public'))
+app.use('/', express.static(path.join(__dirname, 'public/admin')));
 
-io.sockets.on('connect', function(socket) {
-    console.log(socket.id);
-    io.emit('sendSocketId', socket.id);
-});
 
 const mongoDB = process.env.MONGODB_URI || dev_db_url;
 const options = {
@@ -92,12 +95,8 @@ app.use('/api/transactions', transactionRoutes);
 
 
 
-
-
-
-
 let port = 8086;
 
-http.listen(port, () => {
+app.listen(port, () => {
     console.log('Server is up and running on port numner ' + port);
 });

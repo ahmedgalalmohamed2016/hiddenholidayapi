@@ -119,11 +119,15 @@ exports.adminUpdateDeal = async(req, res) => {
 
 exports.deals = async(req, res) => {
     try {
+
+        if (!req.query.country)
+            return res.status(405).send("Please enter valid country data");
+
         // get deals
         let _skip = 0;
         if (req.query.page)
             _skip = req.query.page * 10;
-        let dealsData = await MerchantModel.find({ promotion: { $ne: null } }).limit(10).skip(_skip).orFail((err) => Error(err));
+        let dealsData = await MerchantModel.find({ promotion: { $ne: null }, country: req.query.country }).populate('categoryId').limit(10).skip(_skip).orFail((err) => Error(err));
         if (!dealsData)
             return res.status(405).send("Please enter data");
         res.send(dealsData);
@@ -179,7 +183,7 @@ exports.request = async(req, res) => {
         let _socketObj = {};
         _socketObj.title = req.userData.firstName + ' ' + req.userData.lastName + 'New Deal Request';
         _socketObj.data = _deal;
-        req.io.to(_merchant.userId.socketId).emit('newMessage', _socketObj);
+        // req.io.to(_merchant.userId.socketId).emit('newMessage', _socketObj);
         // req.io.emit('newMessage', req.userData.firstName + ' ' + req.userData.lastName + 'New Deal Request');
 
         return res.send(_deal);
@@ -284,7 +288,7 @@ exports.cancel = async(req, res) => {
         _socketObj.data = 'canceled';
         console.log("here is canceled");
         console.log(_merchant.userId.socketId);
-        req.io.to(_merchant.userId.socketId).emit('newMessage', _socketObj);
+        // req.io.to(_merchant.userId.socketId).emit('newMessage', _socketObj);
 
         return res.send({ data: "Deal Canceled Successfully." })
     } catch (err) {
@@ -323,7 +327,7 @@ exports.accept = async(req, res) => {
         _socketObj.data = 'accept';
         console.log("here is accept");
         console.log(_merchant.userId.socketId);
-        req.io.to(_merchant.userId.socketId).emit('newMessage', _socketObj);
+        // req.io.to(_merchant.userId.socketId).emit('newMessage', _socketObj);
 
         return res.send({ data: "Deal accepted Successfully." })
     } catch (err) {

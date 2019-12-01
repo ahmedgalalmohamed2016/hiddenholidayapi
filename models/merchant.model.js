@@ -5,6 +5,7 @@ let MerchantSchema = new Schema({
     is_active: { type: Boolean, default: false },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     packageId: { type: mongoose.Schema.Types.ObjectId, ref: 'Package' },
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Categories' },
     favorite: { type: String },
     categories: { type: String },
     country: { type: String },

@@ -6,8 +6,10 @@ let CategoriesSchema = new Schema({
     enName: { type: String },
     arName: { type: String },
     icon: { type: String },
+    smallImage: { type: String },
+    bannerImage: { type: String },
     initBalance: { type: Number },
-    isActive: { type: Boolean }
+    isActive: { type: Boolean },
 });
 
 
