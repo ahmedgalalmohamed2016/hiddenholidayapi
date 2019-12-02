@@ -16,6 +16,8 @@ const countriesRoutes = require('./routes/country.route');
 const packageRoutes = require('./routes/package.route');
 const categoriesRoutes = require('./routes/categories.route');
 const transactionRoutes = require('./routes/transaction.route');
+const cardRoutes = require('./routes/card.route');
+const walletRoutes = require('./routes/wallet.route');
 
 
 const app = express();
@@ -92,6 +94,8 @@ app.use('/api/countries', countriesRoutes);
 app.use('/api/packages', packageRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/cards', cardRoutes);
+app.use('/api/wallet', walletRoutes);
 
 
 

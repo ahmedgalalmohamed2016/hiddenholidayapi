@@ -63,7 +63,87 @@ exports.balance = async(req, res) => {
     }
 };
 
-exports.addFund = async(req, res) => {
+exports.userBalance = async(req, res) => {
+    try {
+        let data = {};
+        data.availableBalance = 0;
+        data.virtualBalance = 0;
+        data.currentBalance = 0;
+
+        data.currency = await countryModel.findOne({ enName: req.userData.country }, '-_id currency');
+        if (!data.currency)
+            return res.status(405).send("Error Happened please try again later.");
+
+        let transactions = await TransactionModel.find({ status: "approved", $or: [{ from_userId: req.userData._id }, { to_userId: req.userData._id }] })
+        if (!transactions)
+            return res.status(405).send("Error Happened please try again later.");
+
+        for (let x = 0; x < transactions.length; x++) {
+            if (transactions[x].paymentMethod == "virtual") {
+
+                console.log(String(req.userData._id));
+                console.log(String(transactions[x].to_userId));
+
+                if (String(transactions[x].to_userId) == String(req.userData._id)) {
+                    data.virtualBalance = data.virtualBalance + transactions[x].amount;
+
+                } else if (String(transactions[x].from_userId) == String(req.userData._id)) {
+                    data.virtualBalance = data.virtualBalance - transactions[x].amount;
+                }
+
+            } else if (transactions[x].paymentMethod != "virtual") {
+                if (String(transactions[x].from_userId) == String(req.userData._id)) {
+                    data.availableBalance = data.availableBalance + transactions[x].amount;
+                } else if (String(transactions[x].to_userId) == String(req.userData._id)) {
+                    data.availableBalance = data.availableBalance - transactions[x].amount;
+                }
+            }
+        }
+        data.currency = data.currency.currency;
+        data.availableBalance = parseInt(data.availableBalance);
+        data.virtualBalance = parseInt(data.virtualBalance);
+        data.currentBalance = data.availableBalance + data.virtualBalance;
+        res.send(data);
+    } catch (err) {
+        return res.send(err.message);
+    }
+};
+
+exports.userAddFund = async(req, res) => {
+    try {
+        let transactionData = {};
+        const transactionTo = await UserModel.findOne({ role: "superAdmin" });
+        if (!transactionTo._id)
+            return res.send("Error Happened try in another time");
+
+        let countryData = await countryModel.findOne({ enName: req.userData.country });
+        if (!countryData._id)
+            return res.send("error Happened to find countryData");
+
+        transactionData.from_userId = req.userData._id;
+        transactionData.to_userId = transactionTo._id;
+        transactionData.amount = req.body.amount;
+        transactionData.currency = countryData.currency;
+
+        transactionData.status = "approved";
+        transactionData.sourceType = "Init";
+        transactionData.comment = "This is free init balance.";
+        transactionData.paymentMethod = "credit";
+        transactionData.code = makeUserCode(10);
+        transactionData.creationDate = new Date();
+
+        let transactionResult = await TransactionService.createTransaction(transactionData);
+        if (transactionResult == false)
+            return res.status(401).send("error Happened while create transaction");
+        return res.send(transactionResult);
+    } catch (err) {
+        console.log(err);
+        return res.res.status(401).send("error Happened while create transaction");
+    }
+}
+
+
+exports.merchantAddFund = async(req, res) => {
     try {
         let transactionData = {};
         const transactionTo = await UserModel.findOne({ role: "superAdmin" });
@@ -94,4 +174,14 @@ exports.addFund = async(req, res) => {
         console.log(err);
         return res.res.status(401).send("error Happened while create transaction");
     }
+}
+
+function makeUserCode(length) {
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
 }

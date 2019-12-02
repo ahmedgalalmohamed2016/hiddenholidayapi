@@ -14,7 +14,7 @@ router.get('/home', merchant_controller.home);
 router.post('/create', merchant_controller.create);
 router.post('/card/add', middleware.mainAuth, merchantMiddleware.merchantAuth, card_controller.add);
 
-router.post('/fund/add', middleware.mainAuth, merchantMiddleware.merchantAuth, wallet_controller.addFund);
+router.post('/fund/add', middleware.mainAuth, merchantMiddleware.merchantAuth, wallet_controller.merchantAddFund);
 
 router.post('/card/get', middleware.mainAuth, merchantMiddleware.merchantAuth, card_controller.cards);
 router.post('/card/remove', middleware.mainAuth, merchantMiddleware.merchantAuth, card_controller.delete);

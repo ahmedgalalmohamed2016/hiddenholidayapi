@@ -44,9 +44,12 @@ exports.cards = async(req, res) => {
 
 exports.delete = async(req, res) => {
     try {
-        let cards = await CardModel.findByIdAndRemove(req.body.id);
+        if (_.isNil(req.body.id))
+            return res.status(405).send("Card id is required.");
+
+        let cards = await CardModel.deleteOne({ _id: req.body.id, userId: req.userData._id });
         if (_.isNil(cards))
-            return res.status(404).send("Cannot remove this card.");
+            return res.status(405).send("Cannot remove this card.");
         return res.send(cards);
     } catch (err) {
         console.log(err);

@@ -4,6 +4,9 @@ const router = express.Router();
 // Require the controllers WHICH WE DID NOT CREATE YET!!
 const user_controller = require('../controllers/user.controller');
 const middleware = require('../middleware/auth');
+const merchantMiddleware = require('../middleware/merchant');
+const wallet_controller = require('../controllers/wallet.controller');
+const card_controller = require('../controllers/card.controller');
 
 router.post('/register', user_controller.register);
 router.post('/login', user_controller.login);
@@ -12,6 +15,11 @@ router.post('/logout', middleware.mainAuth, user_controller.logout);
 router.post('/updatesocket', middleware.mainAuth, user_controller.updateSocket);
 router.get('/countries', user_controller.getCountries);
 router.get('/categories', user_controller.getCategories);
+router.post('/balance', middleware.mainAuth, wallet_controller.userBalance);
+router.post('/card/get', middleware.mainAuth, card_controller.cards);
+router.post('/checkPassword', middleware.mainAuth, user_controller.checkPassword);
+
+
 
 
 router.post('/profile', middleware.mainAuth, user_controller.getUserData);

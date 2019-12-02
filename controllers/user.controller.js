@@ -38,8 +38,14 @@ exports.getCategories = async(req, res) => {
 
 exports.register = async(req, res) => {
     try {
-        if (!req.body.mobileNumber || !req.body.password)
+        if (!req.body.mobileNumber || !req.body.password || !req.body.country)
             return res.send('Please enter required fields.');
+        console.log("-------------" + req.body.country);
+        const _country = await CountryModel.findOne({ enName: req.body.country });
+        console.log(_country);
+        if (_.isNil(_country))
+            return res.status(405).send("Please enter valid country");
+
         let saveData = {};
         saveData._id = new mongoose.Types.ObjectId;
         saveData.userDevice = uuidv4();
@@ -47,7 +53,7 @@ exports.register = async(req, res) => {
         const usersNamedFinn = await UserModel.find({ mobileNumber: req.body.mobileNumber });
         if (usersNamedFinn.length > 0 && req.body.mobileNumber == usersNamedFinn[0].mobileNumber)
             return res.send("mobile number is not available try another one");
-
+        console.log("saveData----------");
         // Generate Password
         const password = await passwordService.generatePassword(req.body.password, saveData._id);
         if (_.isNil(password) || password == false)
@@ -62,10 +68,12 @@ exports.register = async(req, res) => {
         saveData.role = 'user';
 
         saveData.mobileNumber = req.body.mobileNumber;
+        saveData.country = req.body.country;
         saveData.lastLoginDate = new Date();
         saveData.userNumber = makeUserCode(10);
         saveData.userToken = token;
-
+        console.log("saveData");
+        console.log(saveData);
         const user = await UserModel.create(saveData);
         if (_.isNil(user))
             return res.send("error Happened");
@@ -204,6 +212,9 @@ exports.login = async(req, res) => {
         if (usersNamedFinn.length < 1)
             return res.status(405).send({ error: "Please enter valid username and password" });
 
+        if (usersNamedFinn[0].role != 'user')
+            return res.status(405).send({ error: "Please enter valid username and password" });
+
         const password = await passwordService.comparePassword(req.body.password, usersNamedFinn[0].password, usersNamedFinn[0]._id);
         if (_.isNil(password) || password != true)
             return res.status(405).send({ error: "Please enter valid username and password" });
@@ -230,6 +241,22 @@ exports.login = async(req, res) => {
         return res.send(getUser);
     } catch (err) {
         return res.status(405).send(err);
+    }
+}
+
+exports.checkPassword = async(req, res) => {
+    try {
+        console.log(req.body.password);
+        if (!req.body.password) {
+            return res.status(405).send({ error: "Please enter valid password" });
+        }
+        const password = await passwordService.comparePassword(req.body.password, req.userData.password, req.userData._id);
+        console.log(password);
+        if (_.isNil(password) || password != true)
+            return res.status(405).send({ error: "Please enter valid password" });
+        res.send(true);
+    } catch (err) {
+
     }
 }
 
