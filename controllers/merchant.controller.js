@@ -130,7 +130,7 @@ exports.create = async(req, res) => {
         let verfificationCreated = await VerificationModel.create(verificationData);
         if (_.isNil(verfificationCreated))
             return res.send("error Happened");
-        await sendSmsService.sendActivationAccountsms(req, saveData.mobileNumber, verificationCode);
+        sendSmsService.sendActivationAccountsms(req, saveData.mobileNumber, verificationCode);
         user._verificationCode = verificationCode;
 
         return res.send({ user: user, merchant: _merchant });

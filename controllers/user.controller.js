@@ -72,8 +72,7 @@ exports.register = async(req, res) => {
         saveData.lastLoginDate = new Date();
         saveData.userNumber = makeUserCode(10);
         saveData.userToken = token;
-        console.log("saveData");
-        console.log(saveData);
+
         const user = await UserModel.create(saveData);
         if (_.isNil(user))
             return res.send("error Happened");
@@ -96,7 +95,8 @@ exports.register = async(req, res) => {
         let verfificationCreated = await VerificationModel.create(verificationData);
         if (_.isNil(verfificationCreated))
             return res.send("error Happened");
-        await sendSmsService.sendActivationAccountsms(req, saveData.mobileNumber, verificationCode);
+
+        sendSmsService.sendActivationAccountsms(req, saveData.mobileNumber, verificationCode);
         user._verificationCode = verificationCode;
         console.log(verificationCode);
         return res.send(user);
@@ -172,7 +172,7 @@ exports.verifyPhone = async(req, res) => {
         const updatedUser = await UserModel.findByIdAndUpdate(req.userData._id, { verifiedMobileNumber: true }).lean();
         if (_.isNil(updatedUser))
             return res.status(401).send("Error Happened ,contact our support.");
-        return res.send("Mobile Verified Successfull.");
+        return res.status(200).send("Mobile Verified Successfull.");
     } catch (err) {
         return res.send(err);
     }
@@ -262,6 +262,7 @@ exports.checkPassword = async(req, res) => {
 
 exports.loginAdmin = async(req, res) => {
     try {
+        console.log('start');
         const usersNamedFinn = await UserModel.find({
             $or: [{ mobileNumber: req.body.username }, { email: req.body.username }]
         });
@@ -293,7 +294,7 @@ exports.loginAdmin = async(req, res) => {
         if (_.isNil(getUser))
             return res.status(405).send({ error: "Please enter valid username and password 5" });
 
-        if (getUser.role != 'admin')
+        if (getUser.role != 'admin' && getUser.role != 'superAdmin')
             return res.status(405).send({ error: "Only Admin can access this portal 6" });
         return res.send(getUser);
     } catch (err) {
