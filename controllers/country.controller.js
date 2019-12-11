@@ -23,6 +23,18 @@ exports.getCountries = async(req, res) => {
     }
 }
 
+exports.getAllCountries = async(req, res) => {
+    try {
+        let countries = await country.find({}, '-encExRate').sort('enName');
+        if (!countries)
+            return res.status(405).send(err || { data: "Try in another time." });
+        return res.send(countries);
+
+    } catch (err) {
+        return res.status(405).send(err || { data: "Try in another time." });
+    }
+}
+
 exports.adminGetCountries = async(req, res) => {
     try {
         let _query = {};

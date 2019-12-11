@@ -40,9 +40,8 @@ exports.register = async(req, res) => {
     try {
         if (!req.body.mobileNumber || !req.body.password || !req.body.country)
             return res.send('Please enter required fields.');
-        console.log("-------------" + req.body.country);
         const _country = await CountryModel.findOne({ enName: req.body.country });
-        console.log(_country);
+
         if (_.isNil(_country))
             return res.status(405).send("Please enter valid country");
 
@@ -53,7 +52,7 @@ exports.register = async(req, res) => {
         const usersNamedFinn = await UserModel.find({ mobileNumber: req.body.mobileNumber });
         if (usersNamedFinn.length > 0 && req.body.mobileNumber == usersNamedFinn[0].mobileNumber)
             return res.send("mobile number is not available try another one");
-        console.log("saveData----------");
+        // console.log("saveData----------");
         // Generate Password
         const password = await passwordService.generatePassword(req.body.password, saveData._id);
         if (_.isNil(password) || password == false)

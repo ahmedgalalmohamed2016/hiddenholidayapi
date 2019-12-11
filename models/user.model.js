@@ -31,6 +31,6 @@ let UserSchema = new Schema({
     notificationEmail: { type: Boolean, default: true },
     notificationMobile: { type: Boolean, default: true },
     socketId: { type: String },
-
+    favouriteCategories: { type: mongoose.Schema.Types.Mixed }
 });
 module.exports = mongoose.model('User', UserSchema);

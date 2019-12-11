@@ -8,6 +8,7 @@ const superAdminMiddleware = require('../middleware/superAdmin');
 const countryController = require('../controllers/country.controller');
 
 router.get('/list', countryController.getCountries);
+router.get('/list/all', countryController.getAllCountries);
 router.post('/admin/create', countryController.create);
 router.post('/admin/list', countryController.adminGetCountries);
 
