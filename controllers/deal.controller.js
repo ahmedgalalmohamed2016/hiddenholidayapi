@@ -195,7 +195,7 @@ exports.request = async(req, res) => {
 exports.DealByMerchantById = async(req, res) => {
     try {
         console.log(req.query.id);
-        let _merchants = await MerchantModel.findById({ _id: req.query.id });
+        let _merchants = await MerchantModel.findById({ _id: req.query.id }).populate('categoryId');
         if (!_merchants)
             return res.status(405).send("Please enter valid merchant data");
         return res.send(_merchants);
