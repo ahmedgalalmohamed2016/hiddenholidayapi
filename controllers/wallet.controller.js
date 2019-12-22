@@ -63,6 +63,53 @@ exports.balance = async(req, res) => {
     }
 };
 
+exports.adminMerchantBalance = async(req, res) => {
+    try {
+        let data = {};
+        data.availableBalance = 0;
+        data.virtualBalance = 0;
+        data.currentBalance = 0;
+
+        let _merchant = await merchant.findById({ _id: req.body.merchantId });
+        if (!_merchant)
+            return res.status(405).send("Please enter valid merchant data");
+
+        data.currency = await countryModel.findOne({ enName: _merchant.country }, '-_id currency');
+        if (!data.currency)
+            return res.status(405).send("Error Happened please try again later.");
+
+        let transactions = await TransactionModel.find({ status: "approved", $or: [{ from_userId: _merchant.userId }, { to_userId: _merchant.userId }] })
+        if (!transactions)
+            return res.status(405).send("Error Happened please try again later.");
+
+        for (let x = 0; x < transactions.length; x++) {
+            if (transactions[x].paymentMethod == "virtual") {
+
+                if (String(transactions[x].to_userId) == String(_merchant.userId)) {
+                    data.virtualBalance = data.virtualBalance + transactions[x].amount;
+
+                } else if (String(transactions[x].from_userId) == String(_merchant.userId)) {
+                    data.virtualBalance = data.virtualBalance - transactions[x].amount;
+                }
+
+            } else if (transactions[x].paymentMethod != "virtual") {
+                if (String(transactions[x].from_userId) == String(_merchant.userId)) {
+                    data.availableBalance = data.availableBalance + transactions[x].amount;
+                } else if (String(transactions[x].to_userId) == String(_merchant.userId)) {
+                    data.availableBalance = data.availableBalance - transactions[x].amount;
+                }
+            }
+        }
+        data.currency = data.currency.currency;
+        data.availableBalance = parseInt(data.availableBalance);
+        data.virtualBalance = parseInt(data.virtualBalance);
+        data.currentBalance = data.availableBalance + data.virtualBalance;
+        res.send(data);
+    } catch (err) {
+        return res.send(err.message);
+    }
+}
+
 exports.userBalance = async(req, res) => {
     try {
         let data = {};
@@ -109,6 +156,75 @@ exports.userBalance = async(req, res) => {
     }
 };
 
+exports.hiddenHolidayBalance = async(req, res) => {
+    try {
+        let data = {};
+        data.availableBalance = 0;
+        data.virtualBalance = 0;
+        data.currentBalance = 0;
+
+        let _country = await countryModel.findOne({ enName: req.userData.country });
+        if (!_country)
+            return res.status(405).send("Error Happened please try again later.");
+
+        data.currency = _country.currency;
+        data.exRate = _country.exRate;
+
+        let _countries = await countryModel.find({});
+        if (!_countries)
+            return res.status(405).send("Error Happened please try again later.");
+
+
+
+        let transactions = await TransactionModel.find({ status: "approved", $or: [{ from_userId: req.userData._id }, { to_userId: req.userData._id }] })
+        if (!transactions)
+            return res.status(405).send("Error Happened please try again later.");
+
+        console.log(transactions.length);
+        for (let x = 0; x < transactions.length; x++) {
+            if (data.currency != transactions[x].currency) {
+
+                for (let tc = 0; tc < _countries.length; tc++) {
+                    let newAmount = 0;
+                    if (transactions[x].currency == _countries[tc].currency) {
+                        console.log("old amount " + transactions[x].amount);
+                        console.log("exrate" + _countries[tc].exRate);
+                        newAmount = transactions[x].amount / _countries[tc].exRate;
+                        transactions[x].amount = newAmount / data.exRate;
+                        console.log("new amount " + transactions[x].amount);
+                    }
+                }
+            }
+
+            if (transactions[x].paymentMethod == "virtual") {
+
+                if (String(transactions[x].to_userId) == String(req.userData._id)) {
+                    data.virtualBalance = data.virtualBalance + transactions[x].amount;
+
+                } else if (String(transactions[x].from_userId) == String(req.userData._id)) {
+                    data.virtualBalance = data.virtualBalance - transactions[x].amount;
+                }
+
+            } else if (transactions[x].paymentMethod != "virtual") {
+                if (String(transactions[x].from_userId) == String(req.userData._id)) {
+                    data.availableBalance = data.availableBalance + transactions[x].amount;
+                } else if (String(transactions[x].to_userId) == String(req.userData._id)) {
+                    data.availableBalance = data.availableBalance - transactions[x].amount;
+                }
+            }
+        }
+
+        console.log("-------------------------");
+        // data.currency = data.currency.currency;
+        data.availableBalance = parseInt(data.availableBalance);
+        data.virtualBalance = parseInt(data.virtualBalance);
+        data.currentBalance = data.availableBalance + data.virtualBalance;
+        return res.send(data);
+    } catch (err) {
+        return res.send(err.message);
+    }
+};
+
 exports.userAddFund = async(req, res) => {
     try {
         let transactionData = {};
@@ -127,7 +243,7 @@ exports.userAddFund = async(req, res) => {
 
         transactionData.status = "approved";
         transactionData.sourceType = "Init";
-        transactionData.comment = "This is free init balance.";
+        transactionData.comment = req.body.comment;
         transactionData.paymentMethod = "credit";
         transactionData.code = makeUserCode(10);
         transactionData.creationDate = new Date();

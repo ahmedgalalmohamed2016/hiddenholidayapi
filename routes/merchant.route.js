@@ -7,6 +7,7 @@ const wallet_controller = require('../controllers/wallet.controller');
 const card_controller = require('../controllers/card.controller');
 const middleware = require('../middleware/auth');
 const merchantMiddleware = require('../middleware/merchant');
+const adminMiddleware = require('../middleware/admin');
 
 // a simple test url to check that all of our files are communicating correctly.
 // router.get('/prepare', merchant_controller.merchant_prepare);
@@ -24,6 +25,8 @@ router.post('/checkPassword', middleware.mainAuth, merchantMiddleware.merchantAu
 
 router.get('/maps', merchant_controller.maps);
 router.get('/merchantsById', merchant_controller.merchantById);
+router.post('/admin/merchantsById', middleware.mainAuth, adminMiddleware.adminAuth, merchant_controller.adminMerchantById);
+
 router.post('/me', middleware.mainAuth, merchantMiddleware.merchantAuth, merchant_controller.me);
 router.post('/balance', middleware.mainAuth, merchantMiddleware.merchantAuth, wallet_controller.balance);
 router.post('/me/totalDeals', middleware.mainAuth, merchantMiddleware.merchantAuth, merchant_controller.totalDeals);
@@ -33,5 +36,7 @@ router.post('/favourites', merchant_controller.merchants_favourites);
 // router.get('/dummy', merchant_controller.merchantsDummy);
 // router.get('/updates/dummy', merchant_controller.updateDummyMerchant);
 router.get('/airports', merchant_controller.getAirports);
+
+router.post('/admin/create', middleware.mainAuth, adminMiddleware.adminAuth, merchant_controller.adminCreate);
 
 module.exports = router;

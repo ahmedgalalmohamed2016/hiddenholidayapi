@@ -228,7 +228,7 @@ exports.DealData = async(req, res) => {
 exports.AdminDealData = async(req, res) => {
     try {
         if (!req.body.id)
-            res.status(405).send("please enter valid data");
+            return res.status(405).send("please enter valid data");
 
         let _merchant = await MerchantModel.findById({ _id: req.body.id });
         console.log(_merchant);
@@ -236,7 +236,7 @@ exports.AdminDealData = async(req, res) => {
             return res.status(405).send("Please enter valid merchant data");
 
         if (!_merchant.promotion)
-            res.status(405).send("Merchant doe not have any pormotion");
+            return res.status(405).send("Merchant doe not have any pormotion");
 
 
         return res.send(_merchant);

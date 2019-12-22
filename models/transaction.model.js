@@ -5,6 +5,7 @@ let TransactionSchema = new Schema({
     creationDate: { type: Date, required: true },
     from_userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     to_userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    cardId: { type: mongoose.Schema.Types.ObjectId, ref: 'Card' },
     amount: { type: Number, required: true },
     currency: { type: String, required: true },
     status: { type: String, required: true },

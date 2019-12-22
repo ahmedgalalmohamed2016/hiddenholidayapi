@@ -18,6 +18,7 @@ const categoriesRoutes = require('./routes/categories.route');
 const transactionRoutes = require('./routes/transaction.route');
 const cardRoutes = require('./routes/card.route');
 const walletRoutes = require('./routes/wallet.route');
+const bidRoutes = require('./routes/bid.route');
 
 
 const app = express();
@@ -96,6 +97,8 @@ app.use('/api/categories', categoriesRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/cards', cardRoutes);
 app.use('/api/wallet', walletRoutes);
+app.use('/api/bids', bidRoutes);
+bidRoutes
 
 
 

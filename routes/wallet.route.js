@@ -10,6 +10,8 @@ const card_controller = require('../controllers/card.controller');
 const wallet_controller = require('../controllers/wallet.controller');
 
 router.post('/user/addFund', middleware.mainAuth, userMiddleware.userAuth, wallet_controller.userAddFund);
+router.post('/admin/merchant/balance', middleware.mainAuth, adminMiddleware.adminAuth, wallet_controller.adminMerchantBalance);
+router.post('/main/balance', middleware.mainAuth, adminMiddleware.adminAuth, wallet_controller.hiddenHolidayBalance);
 
 
 module.exports = router;

@@ -8,6 +8,8 @@ const adminMiddleware = require('../middleware/admin');
 
 router.post('/admin/list', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.getAll);
 router.post('/merchant/me', middleware.mainAuth, TransactionController.me);
+router.post('/admin/merchant', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.getByAdmin);
+
 router.post('/user/me', middleware.mainAuth, TransactionController.me);
 router.post('/merchant/balance', middleware.mainAuth, TransactionController.balance);
 

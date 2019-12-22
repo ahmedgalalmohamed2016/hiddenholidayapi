@@ -24,7 +24,24 @@ exports.me = async(req, res) => {
     try {
         let transactions = await TransactionModel.find({
             $or: [{ from_userId: req.userData._id }, { to_userId: req.userData._id }, ]
+        }).populate('from_userId').populate('to_userId').sort('-creationDate');
+        if (_.isNil(transactions))
+            return res.send("No Transaction found in our system");
+        return res.send(transactions);
+
+    } catch (err) {
+        console.log(err);
+        return res.send("Try in another time.");
+    }
+}
+
+exports.getByAdmin = async(req, res) => {
+    try {
+        console.log("------------" + req.body.merchantId);
+        let transactions = await TransactionModel.find({
+            $or: [{ from_userId: req.body.merchantId }, { to_userId: req.body.merchantId }, ]
         }).populate('from_userId').populate('to_userId');
+        console.log(transactions);
         if (_.isNil(transactions))
             return res.send("No Transaction found in our system");
         return res.send(transactions);

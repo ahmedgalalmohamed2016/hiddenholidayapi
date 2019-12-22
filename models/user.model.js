@@ -15,7 +15,7 @@ let UserSchema = new Schema({
     mobileNumber: { type: String, unique: true },
     gender: { type: String },
     userDevice: { type: String },
-    country: { type: String },
+    country: { type: String, required: true },
     merchant: { type: mongoose.Schema.Types.ObjectId, ref: 'Merchant' },
     merchantData: { type: mongoose.Schema.Types.Mixed },
     //verificarions

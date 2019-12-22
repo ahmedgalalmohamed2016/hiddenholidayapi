@@ -13,8 +13,8 @@ let MerchantSchema = new Schema({
     cat_name: { type: String },
     clean_name: { type: String },
     name: { type: String },
-    isActivePromotion: { type: Boolean, default: true },
-    isActiveMerchant: { type: Boolean, default: true },
+    isActivePromotion: { type: Boolean, default: false },
+    isActiveMerchant: { type: Boolean, default: false },
     isActiveBids: { type: Boolean, default: true },
 
     contact_person: { type: String },
@@ -38,7 +38,7 @@ let MerchantSchema = new Schema({
     preference: { type: String },
     address: { typ: String },
     promotion: { type: mongoose.Schema.Types.Mixed },
-    merchantSource: { type: String, default: 'local' } // handle collected data with our data
+    merchantSource: { type: String, default: 'local' } // handle collected data with our data Application,local
     // promotion
     // promotion_title: { type: String },
     // promotion_description: { type: String },
