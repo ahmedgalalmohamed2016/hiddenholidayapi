@@ -3,6 +3,7 @@ const UserModel = require('../models/user.model');
 const tokenService = require('../services/tokenService');
 
 exports.mainAuth = async function(req, res, next) {
+
     if (!req.body.userDevice || !req.body.mauth) {
         return res.status(401).send("You need to login to access this page");
     } else if (req.body.userDevice && req.body.mauth) {

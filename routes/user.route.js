@@ -5,6 +5,7 @@ const router = express.Router();
 const user_controller = require('../controllers/user.controller');
 const middleware = require('../middleware/auth');
 const merchantMiddleware = require('../middleware/merchant');
+const adminMiddleware = require('../middleware/admin');
 const wallet_controller = require('../controllers/wallet.controller');
 const card_controller = require('../controllers/card.controller');
 
@@ -19,7 +20,10 @@ router.post('/balance', middleware.mainAuth, wallet_controller.userBalance);
 router.post('/card/get', middleware.mainAuth, card_controller.cards);
 router.post('/checkPassword', middleware.mainAuth, user_controller.checkPassword);
 
-
+router.post('/admin/users',  middleware.mainAuth, adminMiddleware.adminAuth, user_controller.adminGetUsers);
+router.post('/admin/create',  middleware.mainAuth, adminMiddleware.adminAuth, user_controller.adminCreateUser);
+router.post('/admin/getUser',  middleware.mainAuth, adminMiddleware.adminAuth, user_controller.adminGetUserById);
+router.post('/admin/update',  middleware.mainAuth, adminMiddleware.adminAuth, user_controller.adminUpdateUser);
 
 
 router.post('/profile', middleware.mainAuth, user_controller.getUserData);
