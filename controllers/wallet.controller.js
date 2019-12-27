@@ -163,6 +163,11 @@ exports.hiddenHolidayBalance = async(req, res) => {
         data.virtualBalance = 0;
         data.currentBalance = 0;
 
+        let _mainUser = await UserModel.findOne({ role: 'superAdmin' });
+        if (!_mainUser)
+            return res.status(405).send("Error Happened please try again later.");
+        req.userData = _mainUser;
+
         let _country = await countryModel.findOne({ enName: req.userData.country });
         if (!_country)
             return res.status(405).send("Error Happened please try again later.");

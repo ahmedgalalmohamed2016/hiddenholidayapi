@@ -108,6 +108,19 @@ exports.adminList = async(req, res) => {
     }
 }
 
+exports.adminListbyMerchantId = async(req, res) => {
+    try {
+
+        let _bids = await BidModel.find({ merchantId: req.body.id }).sort('endDate')
+            .populate('merchantId').populate('categoryId');
+        if (!_bids)
+            return res.status(405).send("No bids found with this data.");
+        return res.send(_bids);
+    } catch (err) {
+        return res.status(405).send(err);
+    }
+}
+
 exports.adminGetBid = async(req, res) => {
     try {
         if (!req.body.id) {

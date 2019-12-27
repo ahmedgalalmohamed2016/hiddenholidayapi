@@ -38,5 +38,6 @@ router.post('/favourites', merchant_controller.merchants_favourites);
 router.get('/airports', merchant_controller.getAirports);
 
 router.post('/admin/create', middleware.mainAuth, adminMiddleware.adminAuth, merchant_controller.adminCreate);
+router.post('/admin/update', middleware.mainAuth, adminMiddleware.adminAuth, merchant_controller.adminUpdate);
 
 module.exports = router;

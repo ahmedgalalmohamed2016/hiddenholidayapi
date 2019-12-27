@@ -269,6 +269,27 @@ exports.adminCreate = async(req, res) => {
     }
 }
 
+exports.adminUpdate = async(req, res) => {
+    try {
+        if (!req.body.id)
+            return res.status(405).send("No merchant found with this data");
+
+        if (req.body.country)
+            delete req.body.country;
+
+        let _merchant = await merchant.findOne({ _id: req.body.id });
+        if (!_merchant)
+            return res.status(405).send("No bid found with this data");
+
+        let _res = await merchant.findOneAndUpdate({ _id: req.body.id }, { $set: req.body }, { new: true });
+        if (!_res)
+            return res.status(405).send("Can not update this merchant,try in another time.");
+        return res.send(_res);
+    } catch (err) {
+        return res.send(err || "Error Happened");
+    }
+}
+
 exports.checkPassword = async(req, res) => {
     try {
         console.log(req.body.password);
@@ -404,7 +425,7 @@ exports.merchantById = async(req, res) => {
 exports.adminMerchantById = async(req, res) => {
     try {
         console.log(req.body.id);
-        let _merchants = await merchant.find({ _id: req.body.id }).populate('categoryId').populate('packageId');
+        let _merchants = await merchant.find({ _id: req.body.id }).populate('categoryId').populate('packageId').populate('userId');
         if (!_merchants)
             return res.status(405).send("Please enter valid merchant data");
         return res.send(_merchants);

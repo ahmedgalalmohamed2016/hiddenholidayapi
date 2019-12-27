@@ -10,6 +10,8 @@ router.post('/admin/create', middleware.mainAuth, adminMiddleware.adminAuth, bid
 router.post('/admin/update', middleware.mainAuth, adminMiddleware.adminAuth, bidcontroller.adminUpdate);
 router.post('/admin/list', middleware.mainAuth, adminMiddleware.adminAuth, bidcontroller.adminList);
 router.post('/admin/bid', middleware.mainAuth, adminMiddleware.adminAuth, bidcontroller.adminGetBid);
+router.post('/admin/merchant', middleware.mainAuth, adminMiddleware.adminAuth, bidcontroller.adminListbyMerchantId);
+
 
 
 
