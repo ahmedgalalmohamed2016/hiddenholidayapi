@@ -26,6 +26,44 @@ exports.me = async(req, res) => {
             $or: [{ from_userId: req.userData._id }, { to_userId: req.userData._id }, ]
         }).populate('from_userId').populate('to_userId').sort('-creationDate');
         if (_.isNil(transactions))
+            return res.status(405).send("No Transaction found in our system");
+        return res.send(transactions);
+
+    } catch (err) {
+        console.log(err);
+        return res.send("Try in another time.");
+    }
+}
+
+exports.merchantById = async(req, res) => {
+    try {
+        if (!req.body.id)
+            return res.status(405).send("Please choose valid merchant");
+
+        let transactions = await TransactionModel.find({
+            $or: [{ from_userId: req.body.id }, { to_userId: req.body.id }, ]
+        }).populate('from_userId').populate('to_userId').sort('-creationDate');
+        if (_.isNil(transactions))
+            return res.send("No Transaction found for this merchant in our system");
+        return res.send(transactions);
+
+    } catch (err) {
+        console.log(err);
+        return res.send("Try in another time.");
+    }
+}
+exports.hiddenHoliday = async(req, res) => {
+    try {
+
+        let _mainUser = await UserModel.findOne({ role: 'superAdmin' });
+        if (!_mainUser)
+            return res.status(405).send("Error Happened please try again later.");
+
+        let transactions = await TransactionModel.find({
+                $or: [{ from_userId: _mainUser._id }, { to_userId: _mainUser._id }, ]
+            })
+            .populate('from_userId').populate('to_userId').sort('-creationDate');
+        if (_.isNil(transactions))
             return res.send("No Transaction found in our system");
         return res.send(transactions);
 
@@ -37,7 +75,6 @@ exports.me = async(req, res) => {
 
 exports.getByAdmin = async(req, res) => {
     try {
-        console.log("------------" + req.body.merchantId);
         let transactions = await TransactionModel.find({
             $or: [{ from_userId: req.body.merchantId }, { to_userId: req.body.merchantId }, ]
         }).populate('from_userId').populate('to_userId');

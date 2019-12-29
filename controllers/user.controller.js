@@ -77,8 +77,8 @@ exports.adminGetUserById = async(req, res) => {
 
 exports.adminUpdateUser = async(req, res) => {
     try {
-        if (!req.body.id)
-            return res.status(405).send("No user valid with this data");
+        if (!req.body.id || !req.body.verifiedMobileNumber || !req.body.isLockedOut || !req.body.mobileNumber || !req.body.country || !req.body.firstName || !req.body.lastName)
+            return res.send('Please enter required fields.');
 
         let data = {};
         data.firstName = req.body.firstName;
@@ -87,6 +87,7 @@ exports.adminUpdateUser = async(req, res) => {
         data.mobileNumber = req.body.mobileNumber;
         data.country = req.body.country;
         data.isLockedOut = req.body.isLockedOut;
+        data.verifiedMobileNumber = req.body.verifiedMobileNumber;
 
         let _user = await UserModel.findOne({ _id: req.body.id });
         if (!_user)
@@ -149,6 +150,29 @@ exports.adminCreateUser = async(req, res) => {
         return res.send(user);
     } catch (err) {
         return res.send({ data: err || "error" });
+    }
+}
+
+exports.adminChangePassword = async(req, res) => {
+    try {
+        if (!req.body.id || !req.body.password)
+            return res.status(405).send('Please enter required fields.');
+
+        const _user = await UserModel.findOne({ _id: req.body.id, role: 'user' });
+        if (!_user)
+            return res.status(405).send("No user found with this data");
+
+        // Generate Password
+        const password = await passwordService.generatePassword(req.body.password, _user._id);
+        if (_.isNil(password) || password == false)
+            return res.status(405).send("error Happened while generate new password");
+
+        const updatedUser = await UserModel.findOneAndUpdate({ _id: req.body.id, }, { $set: { password: password } }, { new: true })
+        if (!updatedUser)
+            return res.status(405).send("No user found with this data");
+        return res.send({ message: "Password Updated Successfully." });
+    } catch (err) {
+        return res.status(405).send("Error happened while update user data");
     }
 }
 
@@ -321,9 +345,7 @@ exports.loginFB = async(req, res) => {
 
 exports.login = async(req, res) => {
     try {
-        const usersNamedFinn = await UserModel.find({
-            $or: [{ mobileNumber: req.body.username }, { email: req.body.username }]
-        });
+        const usersNamedFinn = await UserModel.find({ mobileNumber: req.body.username });
         if (usersNamedFinn.length < 1)
             return res.status(405).send({ error: "Please enter valid username and password" });
 
@@ -333,6 +355,10 @@ exports.login = async(req, res) => {
         const password = await passwordService.comparePassword(req.body.password, usersNamedFinn[0].password, usersNamedFinn[0]._id);
         if (_.isNil(password) || password != true)
             return res.status(405).send({ error: "Please enter valid username and password" });
+
+        if (usersNamedFinn[0].isLockedOut == true) {
+            return res.status(405).send({ error: "Your account is locked,contact our support." });
+        }
 
         // Generate Token
         let saveData = {};
@@ -377,17 +403,21 @@ exports.checkPassword = async(req, res) => {
 
 exports.loginAdmin = async(req, res) => {
     try {
-        console.log('start');
         const usersNamedFinn = await UserModel.find({
-            $or: [{ mobileNumber: req.body.username }, { email: req.body.username }]
+            mobileNumber: req.body.username
         });
         if (usersNamedFinn.length < 1)
-            return res.status(405).send({ error: "Please enter valid username and password 1" });
+            return res.status(405).send({ error: "Please enter valid username and password" });
         console.log(usersNamedFinn[0]._id);
         const password = await passwordService.comparePassword(req.body.password, usersNamedFinn[0].password, usersNamedFinn[0]._id);
 
         if (_.isNil(password) || password != true)
-            return res.status(405).send({ error: "Please enter valid username and password 2" });
+            return res.status(405).send({ error: "Please enter valid username and password" });
+
+        if (usersNamedFinn[0].isLockedOut == true) {
+            return res.status(405).send({ error: "Your account is locked,contact our support." });
+        }
+
 
         // Generate Token
         let saveData = {};
@@ -396,21 +426,21 @@ exports.loginAdmin = async(req, res) => {
         // Generate Token.
         const userToken = await tokenService.generateLoginToken(saveData.userDevice, usersNamedFinn[0]._id, usersNamedFinn[0].mobileNumber, usersNamedFinn[0].role);
         if (_.isNil(userToken) || userToken == false)
-            return res.status(405).send({ error: "Please enter valid username and password 3" });
+            return res.status(405).send({ error: "Please enter valid username and password" });
 
         saveData.userToken = userToken;
         saveData.lastLoginDate = new Date();
 
         const updatedUser = await UserModel.updateOne({ _id: usersNamedFinn[0]._id }, { $set: saveData });
         if (_.isNil(updatedUser) || updatedUser.length < 1)
-            return res.status(405).send({ error: "Please enter valid username and password 4" });
+            return res.status(405).send({ error: "Please enter valid username and password" });
 
         let getUser = await UserModel.findOne({ _id: usersNamedFinn[0]._id }).lean();
         if (_.isNil(getUser))
-            return res.status(405).send({ error: "Please enter valid username and password 5" });
+            return res.status(405).send({ error: "Please enter valid username and password" });
 
         if (getUser.role != 'admin' && getUser.role != 'superAdmin')
-            return res.status(405).send({ error: "Only Admin can access this portal 6" });
+            return res.status(405).send({ error: "Only Admin can access this portal" });
         return res.send(getUser);
     } catch (err) {
         return res.send(err);

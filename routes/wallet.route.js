@@ -13,5 +13,7 @@ router.post('/user/addFund', middleware.mainAuth, userMiddleware.userAuth, walle
 router.post('/admin/merchant/balance', middleware.mainAuth, adminMiddleware.adminAuth, wallet_controller.adminMerchantBalance);
 router.post('/main/balance', middleware.mainAuth, adminMiddleware.adminAuth, wallet_controller.hiddenHolidayBalance);
 
+router.post('/main/subwallets', middleware.mainAuth, adminMiddleware.adminAuth, wallet_controller.subwallets);
+
 
 module.exports = router;

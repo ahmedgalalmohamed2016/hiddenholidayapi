@@ -11,6 +11,11 @@ router.post('/merchant/me', middleware.mainAuth, TransactionController.me);
 router.post('/admin/merchant', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.getByAdmin);
 
 router.post('/user/me', middleware.mainAuth, TransactionController.me);
+router.post('/main', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.hiddenHoliday);
+
+router.post('/user', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.merchantById);
+
+
 router.post('/merchant/balance', middleware.mainAuth, TransactionController.balance);
 
 

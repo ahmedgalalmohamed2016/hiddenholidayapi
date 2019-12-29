@@ -297,6 +297,20 @@ exports.merchantAddFund = async(req, res) => {
     }
 }
 
+exports.subwallets = async(req, res) => {
+    try {
+        let _merchants = await merchant.find({ merchantSource: "Application" }, null, { sort: { clean_name: 1 } }).populate('categoryId')
+            .populate('userId');
+        console.log(_merchants);
+        if (!_merchants)
+            return res.status(405).send('Error Happened');
+        return res.send(_merchants);
+    } catch (err) {
+        // mongoose.connection.close();
+        return res.send(err.message);
+    }
+}
+
 function makeUserCode(length) {
     var result = '';
     var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

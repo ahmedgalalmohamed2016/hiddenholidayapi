@@ -20,6 +20,8 @@ router.post('/balance', middleware.mainAuth, wallet_controller.userBalance);
 router.post('/card/get', middleware.mainAuth, card_controller.cards);
 router.post('/checkPassword', middleware.mainAuth, user_controller.checkPassword);
 
+
+router.post('/admin/changePassword',  middleware.mainAuth, adminMiddleware.adminAuth, user_controller.adminChangePassword);
 router.post('/admin/users',  middleware.mainAuth, adminMiddleware.adminAuth, user_controller.adminGetUsers);
 router.post('/admin/create',  middleware.mainAuth, adminMiddleware.adminAuth, user_controller.adminCreateUser);
 router.post('/admin/getUser',  middleware.mainAuth, adminMiddleware.adminAuth, user_controller.adminGetUserById);
