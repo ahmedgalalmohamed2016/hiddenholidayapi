@@ -349,8 +349,8 @@ exports.login = async(req, res) => {
         if (usersNamedFinn.length < 1)
             return res.status(405).send({ error: "Please enter valid username and password" });
 
-        if (usersNamedFinn[0].role != 'user')
-            return res.status(405).send({ error: "Please enter valid username and password" });
+        // if (usersNamedFinn[0].role != 'user')
+        //     return res.status(405).send({ error: "Please enter valid username and password" });
 
         const password = await passwordService.comparePassword(req.body.password, usersNamedFinn[0].password, usersNamedFinn[0]._id);
         if (_.isNil(password) || password != true)
