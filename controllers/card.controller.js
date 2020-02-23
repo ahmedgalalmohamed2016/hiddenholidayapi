@@ -25,7 +25,7 @@ exports.add = async(req, res) => {
 
     } catch (err) {
         console.log(err);
-        return res.res.status(401).send("Can not add this card.");
+        return res.status(401).send("Can not add this card.");
     }
 }
 

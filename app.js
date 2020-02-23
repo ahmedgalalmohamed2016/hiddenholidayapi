@@ -19,38 +19,16 @@ const transactionRoutes = require('./routes/transaction.route');
 const cardRoutes = require('./routes/card.route');
 const walletRoutes = require('./routes/wallet.route');
 const bidRoutes = require('./routes/bid.route');
+const merchantAdminRoutes = require('./routes/merchantAdmin.route');
+const ealbRoutes = require('./routes/ealb.route');
+
 
 
 const app = express();
 // Set up mongoose connection
 const mongoose = require('mongoose');
-// let dev_db_url = 'mongodb://admin:2wGnLj9ayKfeZLCQaVgy5WvBW4nuQemsy977BvdbJykmjq4c@ds045679.mlab.com:45679/hiddenholidaydb';
-let dev_db_url = 'mongodb://admin:Hidden123@ds119129.mlab.com:19129/hiddenholidaystable';
+let dev_db_url = 'mongodb://drizzleup:neejde5m2KnkhPYu@ds137498.mlab.com:37498/drizzleup';
 
-// app.use(function(req, res, next) {
-//     req.io = io;
-//     next();
-// });
-
-// io.on('connection', (socket) => {
-// socket.on('disconnect', function() {
-//     io.emit('users-changed', { user: socket.nickname, event: 'left' });
-// });
-
-// socket.on('newMessage', (message) => {
-//     io.emit('newMessage', "welcome " + message);
-// });
-
-// socket.on('checkSocket', (message) => {
-//     console.log(socket.id);
-//     io.emit('sendSocketId', socket.id);
-// });
-// });
-
-// io.sockets.on('connect', function(socket) {
-// console.log(socket.id);
-// io.emit('sendSocketId', socket.id);
-// });
 
 app.use('/static', express.static('public'))
 app.use('/', express.static(path.join(__dirname, 'public/admin')));
@@ -98,11 +76,12 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/cards', cardRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/bids', bidRoutes);
-bidRoutes
+app.use('/api/merchantAdmin', merchantAdminRoutes);
+app.use('/api/ealb', ealbRoutes);
 
 
 
-let port = 8086;
+let port = 3100;
 
 app.listen(port, () => {
     console.log('Server is up and running on port numner ' + port);

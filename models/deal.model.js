@@ -2,20 +2,19 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 let DealSchema = new Schema({
-    creationDate: { type: Date },
-    merchantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Merchant' },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    verificationCode: { type: String },
-    title: { type: String },
-    description: { type: String },
-    type: { type: String },
-    amount  :{type : String},
-    price  :{type : String},
-    usersType : {type : String},
-    subscriptionFees : {type : String},
-    sharePercentage : {type : String},
-    comment: { type: String },
-    status: { type: String } //pending approved canceled 
+
+    merchantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Merchant', required: true },
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Categories', required: true },
+    title: { type: String, required: true },
+    country: { type: String, required: true },
+    description: { type: String, required: true },
+    image: { type: String },
+    amount: { type: Number, required: true },
+    price: { type: Number, required: true },
+    sharePercentage: { type: Number, required: true },
+    isActive: { type: Boolean, required: true, default: false }, //pending approved canceled
+    isArchived: { type: Boolean, required: true, default: false },
+    endDate: { type: Date },
 });
 
 

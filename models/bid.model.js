@@ -15,8 +15,8 @@ let BidSchema = new Schema({
     isActive: { type: Boolean, required: true, default: false }, //pending approved canceled
     isArchived: { type: Boolean, required: true, default: false },
     creationDate: { type: Date },
-    startDate: { type: Date, required: true },
-    endDate: { type: Date, required: true },
+    startDate: { type: Date },
+    endDate: { type: Date },
 });
 
 

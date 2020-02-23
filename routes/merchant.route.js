@@ -33,9 +33,7 @@ router.post('/me/totalDeals', middleware.mainAuth, merchantMiddleware.merchantAu
 router.post('/me/update', middleware.mainAuth, merchantMiddleware.merchantAuth, merchant_controller.update);
 router.get('/', merchant_controller.merchants);
 router.post('/favourites', merchant_controller.merchants_favourites);
-// router.get('/dummy', merchant_controller.merchantsDummy);
-// router.get('/updates/dummy', merchant_controller.updateDummyMerchant);
-router.get('/airports', merchant_controller.getAirports);
+
 
 router.post('/admin/create', middleware.mainAuth, adminMiddleware.adminAuth, merchant_controller.adminCreate);
 router.post('/admin/update', middleware.mainAuth, adminMiddleware.adminAuth, merchant_controller.adminUpdate);

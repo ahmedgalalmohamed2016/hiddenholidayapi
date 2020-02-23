@@ -10,7 +10,6 @@ const passwordService = require('../services/passwordService');
 const sendSmsService = require('../services/sendSmsService');
 const tokenService = require('../services/tokenService');
 const TransactionService = require('../services/transactionService');
-const AirportModel = require('../models/airport.model');
 const _ = require("lodash");
 const request = require("superagent");
 var fs = require("fs");
@@ -307,25 +306,6 @@ exports.checkPassword = async(req, res) => {
 }
 
 
-exports.getAirports = async(req, res) => {
-    try {
-        let _query = {};
-        let _skip = 0;
-        //
-        if (req.query.name)
-            _query.name = { $regex: req.query.name, $options: "i" }
-
-        if (req.query.country)
-            _query.iso_country = { $regex: req.query.country, $options: "i" }
-
-        let _airports = await AirportModel.find(_query, null, { sort: { name: 1 } });
-
-        return res.send(_airports);
-    } catch (err) {
-
-        return res.send(err.message);
-    }
-};
 
 exports.registerMerchant = async(req, res) => {
     try {

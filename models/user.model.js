@@ -4,7 +4,7 @@ const _ = require('../configs/validation');
 
 let UserSchema = new Schema({
     userNumber: { type: String, unique: true, required: [true, 'user number is required'] },
-    role: { type: String, required: true },
+    role: { type: String, required: true }, // adminMerchant , merchant , user , ealb , superAdmin , admin
     firstName: { type: String, },
     lastName: { type: String, },
     address: { type: String },

@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 let MerchantSchema = new Schema({
     is_active: { type: Boolean, default: false },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    usZerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     packageId: { type: mongoose.Schema.Types.ObjectId, ref: 'Package' },
     categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Categories' },
     favorite: { type: String },
@@ -39,18 +39,6 @@ let MerchantSchema = new Schema({
     address: { typ: String },
     promotion: { type: mongoose.Schema.Types.Mixed },
     merchantSource: { type: String, default: 'local' } // handle collected data with our data Application,local
-    // promotion
-    // promotion_title: { type: String },
-    // promotion_description: { type: String },
-    // promotion_type: { type: String },
-    // promotion_amount: { type: String },
-    // promotion_start_date: { type: Date },
-    // promotion_end_date: { type: Date },
-    // promotion_for: { type: String },
-    // promotion_subscription_fees: { type: Number },
-    // promotion_share_percentage: { type: String },
-
-
 
 });
 

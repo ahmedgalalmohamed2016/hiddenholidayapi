@@ -10,7 +10,6 @@ const passwordService = require('../services/passwordService');
 const sendSmsService = require('../services/sendSmsService');
 const tokenService = require('../services/tokenService');
 const TransactionService = require('../services/transactionService');
-const AirportModel = require('../models/airport.model');
 const _ = require("lodash");
 const request = require("superagent");
 var fs = require("fs");
