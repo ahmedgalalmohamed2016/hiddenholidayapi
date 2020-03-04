@@ -142,7 +142,7 @@ exports.create = async(req, res) => {
 
 exports.adminCreate = async(req, res) => {
     try {
-        if (!req.body.mobileNumber || !req.body.password)
+        if (!req.body.mobileNumber || !req.body.password || !req.body.userId)
             return res.send('Please enter required fields.');
         let saveData = {};
         let transactionData = {};
@@ -162,6 +162,10 @@ exports.adminCreate = async(req, res) => {
         const transactionFrom = await UserModel.findOne({ role: "superAdmin" });
         if (!transactionFrom._id)
             return res.status(405).send("Error Happened try in another time");
+
+        const merchantAdmin = await UserModel.findOne({ role: "merchantAdmin", _id: req.body.userId });
+        if (!merchantAdmin._id)
+            return res.status(405).send("Error Happened try in another time 5");
 
         const categoryData = await CategoryModel.findOne({ enName: req.body.category });
         if (!categoryData._id)
@@ -200,7 +204,7 @@ exports.adminCreate = async(req, res) => {
 
         let merchantData = {};
         merchantData._id = saveData.merchant;
-        merchantData.userId = saveData._id;
+        merchantData.userId = merchantAdmin._id;
         merchantData.country = req.body.country;
         merchantData.main_phone_number = req.body.main_phone_number;
         merchantData.clean_name = req.body.clean_name;

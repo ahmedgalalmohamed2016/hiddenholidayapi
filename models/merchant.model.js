@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 let MerchantSchema = new Schema({
     is_active: { type: Boolean, default: false },
-    usZerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     packageId: { type: mongoose.Schema.Types.ObjectId, ref: 'Package' },
     categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Categories' },
     favorite: { type: String },

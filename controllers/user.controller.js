@@ -142,6 +142,8 @@ exports.adminCreateUser = async(req, res) => {
         saveData.userNumber = makeUserCode(10);
         saveData.userToken = token;
         saveData.verifiedMobileNumber = true;
+        saveData.firstName = req.body.firstName;
+        saveData.lastName = req.body.lastName;
 
         const user = await UserModel.create(saveData);
         if (_.isNil(user))

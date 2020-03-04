@@ -37,12 +37,12 @@ exports.adminCreateMerchantAdmin = async(req, res) => {
             return res.send("error Happened");
 
         // Generate Token
-        const token = await tokenService.generateLoginToken(saveData.userDevice, saveData._id, req.body.mobileNumber, 'user');
+        const token = await tokenService.generateLoginToken(saveData.userDevice, saveData._id, req.body.mobileNumber, 'merchantAdmin');
         if (_.isNil(token) || token == false)
             return res.send("error Happened");
 
         saveData.password = password;
-        saveData.role = 'user';
+        saveData.role = 'merchantAdmin';
 
         saveData.mobileNumber = req.body.mobileNumber;
         saveData.country = req.body.country;
@@ -50,6 +50,8 @@ exports.adminCreateMerchantAdmin = async(req, res) => {
         saveData.userNumber = makeUserCode(10);
         saveData.userToken = token;
         saveData.verifiedMobileNumber = true;
+        saveData.firstName = req.body.firstName;
+        saveData.lastName = req.body.lastName;
 
         const user = await UserModel.create(saveData);
         if (_.isNil(user))
@@ -94,7 +96,7 @@ exports.adminChangePassword = async(req, res) => {
         if (!req.body.id || !req.body.password)
             return res.status(405).send('Please enter required fields.');
 
-        const _user = await UserModel.findOne({ _id: req.body.id, role: 'admin' });
+        const _user = await UserModel.findOne({ _id: req.body.id, role: 'merchantAdmin' });
         if (!_user)
             return res.status(405).send("No user found with this data");
 
@@ -116,7 +118,7 @@ exports.adminGetUserById = async(req, res) => {
     try {
         if (!req.body.id)
             return res.status(405).send("No user valid with this data");
-        let _user = await UserModel.findOne({ _id: req.body.id, role: 'admin' }, '-password -userToken');
+        let _user = await UserModel.findOne({ _id: req.body.id, role: 'merchantAdmin' }, '-password -userToken');
         return res.send(_user);
     } catch (err) {
         return res.status(405).send(err);
@@ -138,6 +140,8 @@ exports.adminUpdateUser = async(req, res) => {
         data.mobileNumber = req.body.mobileNumber;
         data.country = req.body.country;
         data.isLockedOut = req.body.isLockedOut;
+        data.firstName = req.body.firstName;
+        data.lastName = req.body.lastName;
 
         let _user = await UserModel.findOne({ _id: req.body.id });
         if (!_user)

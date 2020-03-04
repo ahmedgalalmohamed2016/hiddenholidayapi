@@ -81,7 +81,7 @@ app.use('/api/ealb', ealbRoutes);
 
 
 
-let port = 3100;
+let port = 8086;
 
 app.listen(port, () => {
     console.log('Server is up and running on port numner ' + port);
