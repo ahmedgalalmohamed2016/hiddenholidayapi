@@ -178,8 +178,16 @@ exports.adminChangePassword = async(req, res) => {
 
 exports.register = async(req, res) => {
     try {
-        if (!req.body.mobileNumber || !req.body.password || !req.body.country)
-            return res.send('Please enter required fields.');
+        if (!req.body.mobileNumber)
+            return res.send('Please enter required fields (mobileNumber).');
+        if (!req.body.password)
+            return res.send('Please enter required fields (password).');
+        if (!req.body.country)
+            return res.send('Please enter required fields (country).');
+        if (!req.body.firstName)
+            return res.send('Please enter required fields (firstName).');
+        if (!req.body.lastName)
+            return res.send('Please enter required fields (lastName).');
         const _country = await CountryModel.findOne({ enName: req.body.country });
 
         if (_.isNil(_country))
@@ -207,6 +215,8 @@ exports.register = async(req, res) => {
         saveData.role = 'user';
 
         saveData.mobileNumber = req.body.mobileNumber;
+        saveData.firstName = req.body.firstName;
+        saveData.lastName = req.body.lastName;
         saveData.country = req.body.country;
         saveData.lastLoginDate = new Date();
         saveData.userNumber = makeUserCode(10);
@@ -345,6 +355,8 @@ exports.loginFB = async(req, res) => {
 
 exports.login = async(req, res) => {
     try {
+        console.log(req.body);
+        
         const usersNamedFinn = await UserModel.find({ mobileNumber: req.body.username });
         if (usersNamedFinn.length < 1)
             return res.status(405).send({ error: "Please enter valid username and password" });
