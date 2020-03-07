@@ -47,8 +47,6 @@ exports.adminGetUsers = async(req, res) => {
 
         if (req.body.skip)
             _skip = req.body.skip * 50;
-
-        console.log(_query);
         let _users = await UserModel.find({
             $or: [
                 { firstName: { $regex: req.body.name, $options: "i" } },
@@ -94,7 +92,6 @@ exports.adminUpdateUser = async(req, res) => {
             return res.status(405).send("No bid found with this data");
 
         let _mobile = await UserModel.findOne({ mobileNumber: req.body.mobileNumber });
-        console.log(_mobile._id + ' ' + _user._id);
         if (_mobile && String(_mobile._id) != String(_user._id))
             return res.status(405).send("this mobile number already registered for another user before .");
 
@@ -180,8 +177,16 @@ exports.adminChangePassword = async(req, res) => {
 
 exports.register = async(req, res) => {
     try {
-        if (!req.body.mobileNumber || !req.body.password || !req.body.country)
-            return res.send('Please enter required fields.');
+        if (!req.body.mobileNumber)
+            return res.send('Please enter required fields (mobileNumber).');
+        if (!req.body.password)
+            return res.send('Please enter required fields (password).');
+        if (!req.body.country)
+            return res.send('Please enter required fields (country).');
+        if (!req.body.firstName)
+            return res.send('Please enter required fields (firstName).');
+        if (!req.body.lastName)
+            return res.send('Please enter required fields (lastName).');
         const _country = await CountryModel.findOne({ enName: req.body.country });
 
         if (_.isNil(_country))
@@ -194,7 +199,6 @@ exports.register = async(req, res) => {
         const usersNamedFinn = await UserModel.find({ mobileNumber: req.body.mobileNumber });
         if (usersNamedFinn.length > 0 && req.body.mobileNumber == usersNamedFinn[0].mobileNumber)
             return res.send("mobile number is not available try another one");
-        // console.log("saveData----------");
         // Generate Password
         const password = await passwordService.generatePassword(req.body.password, saveData._id);
         if (_.isNil(password) || password == false)
@@ -209,6 +213,8 @@ exports.register = async(req, res) => {
         saveData.role = 'user';
 
         saveData.mobileNumber = req.body.mobileNumber;
+        saveData.firstName = req.body.firstName;
+        saveData.lastName = req.body.lastName;
         saveData.country = req.body.country;
         saveData.lastLoginDate = new Date();
         saveData.userNumber = makeUserCode(10);
@@ -239,7 +245,6 @@ exports.register = async(req, res) => {
 
         sendSmsService.sendActivationAccountsms(req, saveData.mobileNumber, verificationCode);
         user._verificationCode = verificationCode;
-        console.log(verificationCode);
         return res.send(user);
     } catch (err) {
         return res.send({ data: err || "error" });
@@ -268,7 +273,6 @@ exports.resendSms = async(req, res) => {
         let _c = String(Math.floor(Math.random() * 10));
         let _d = String(Math.floor(Math.random() * 10));
         let verificationCode = _a + _b + _c + _d;
-        console.log(verificationCode);
         verificationData.verificationCode = await passwordService.generatePassword(verificationCode, req.userData.mobileNumber);
         verificationData.isVerified = false;
         let verfificationCreated = await VerificationModel.create(verificationData);
@@ -321,7 +325,6 @@ exports.verifyPhone = async(req, res) => {
 
 exports.getUserData = async(req, res) => {
     try {
-        //console.log(req.userData);
         return res.send(req.userData);
     } catch (err) {
         return res.send(err);
@@ -347,6 +350,7 @@ exports.loginFB = async(req, res) => {
 
 exports.login = async(req, res) => {
     try {
+
         const usersNamedFinn = await UserModel.find({ mobileNumber: req.body.username });
         if (usersNamedFinn.length < 1)
             return res.status(405).send({ error: "Please enter valid username and password" });
@@ -389,12 +393,10 @@ exports.login = async(req, res) => {
 
 exports.checkPassword = async(req, res) => {
     try {
-        console.log(req.body.password);
         if (!req.body.password) {
             return res.status(405).send({ error: "Please enter valid password" });
         }
         const password = await passwordService.comparePassword(req.body.password, req.userData.password, req.userData._id);
-        console.log(password);
         if (_.isNil(password) || password != true)
             return res.status(405).send({ error: "Please enter valid password" });
         res.send(true);
@@ -410,7 +412,6 @@ exports.loginAdmin = async(req, res) => {
         });
         if (usersNamedFinn.length < 1)
             return res.status(405).send({ error: "Please enter valid username and password" });
-        console.log(usersNamedFinn[0]._id);
         const password = await passwordService.comparePassword(req.body.password, usersNamedFinn[0].password, usersNamedFinn[0]._id);
 
         if (_.isNil(password) || password != true)

@@ -63,6 +63,20 @@ exports.adminCreateMerchantAdmin = async(req, res) => {
     }
 }
 
+
+exports.adminMerchantsGetMerchants = async(req, res) => {
+    try {
+        if (!req.body.id)
+            return res.status(405).send("Please enter valid merchant id");
+        let _merchants = await merchant.find({ userId: req.body.id }).populate('categoryId');
+        if (!_merchants)
+            return res.status(405).send("Please enter valid merchant data");
+        return res.send(_merchants);
+    } catch (err) {
+        return res.send(err.message);
+    }
+};
+
 exports.adminGetMerchantAdmins = async(req, res) => {
     try {
         let _skip = 0;
@@ -75,7 +89,6 @@ exports.adminGetMerchantAdmins = async(req, res) => {
         if (req.body.skip)
             _skip = req.body.skip * 50;
 
-        console.log(_query);
         let _users = await UserModel.find({
             $or: [
                 { firstName: { $regex: req.body.name, $options: "i" } },

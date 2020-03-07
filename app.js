@@ -29,7 +29,6 @@ const app = express();
 const mongoose = require('mongoose');
 let dev_db_url = 'mongodb://drizzleup:neejde5m2KnkhPYu@ds137498.mlab.com:37498/drizzleup';
 
-
 app.use('/static', express.static('public'))
 app.use('/', express.static(path.join(__dirname, 'public/admin')));
 
@@ -52,11 +51,12 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 app.use(function(req, res, next) {
+    
     res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
     res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Credentials', false);
 
     next();
 });

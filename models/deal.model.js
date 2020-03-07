@@ -5,13 +5,19 @@ let DealSchema = new Schema({
 
     merchantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Merchant', required: true },
     categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Categories', required: true },
+    countryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Country' },
     title: { type: String, required: true },
     country: { type: String, required: true },
     description: { type: String, required: true },
+    titleAr: { type: String },
+    descriptionAr: { type: String },
     image: { type: String },
-    amount: { type: Number, required: true },
-    price: { type: Number, required: true },
+    newPrice: { type: Number, required: true },
+    originalPrice: { type: Number, required: true },
     sharePercentage: { type: Number, required: true },
+    type: { type: String, required: true }, // deal , bid
+    timeUsed: { type: String, required: true }, // 7
+    dealType: { type: String, required: true }, // oneTime , multipleTime , free
     isActive: { type: Boolean, required: true, default: false }, //pending approved canceled
     isArchived: { type: Boolean, required: true, default: false },
     creationDate: { type: Date },

@@ -93,26 +93,29 @@ exports.updateDeal = async(req, res) => {
     }
 }
 
-exports.adminUpdateDeal = async(req, res) => {
+exports.adminCreateDeal = async(req, res) => {
     try {
         let deal = {};
+        deal.merchantId = req.body.merchantId;
+        deal.categoryId = req.body.categoryId;
+        deal.countryId = req.body.countryId;
         deal.title = req.body.title;
         deal.description = req.body.description;
-        //percentage fixed
-        deal.type = req.body.type;
-        deal.amount = req.body.amount;
-        deal.price = req.body.price;
-        deal.usersType = req.body.usersType; //"individual" "group";
-        deal.subscriptionFees = req.body.subscriptionFees;
+        deal.country = req.body.country;
+        deal.type = 'deal';
+        deal.originalPrice = req.body.originalPrice;
+        deal.newPrice = req.body.newPrice;
+        deal.dealType = req.body.dealType; // oneTime , multipleTime , free
+        deal.timeUsed = req.body.timeUsed;
+        deal.creationDate = new Date();
         deal.sharePercentage = req.body.sharePercentage;
+        deal.titleAr = req.body.titleAr;
+        deal.descriptionAr = req.body.descriptionAr;
 
-
-        const updatedMerchant = await MerchantModel.updateOne({ _id: req.body.id }, { $set: { promotion: deal, isActivePromotion: req.body.isActivePromotion } }, { new: true });
-        if (_.isNil(updatedMerchant) || updatedMerchant.length < 1)
-            return res.status(405).send("We can not update your deal.Try in another time.");
-        return res.send(updatedMerchant);
+        let dealData = await DealModel.create(deal);
+        if (_.isNil(dealData))
+            return res.status(401).send("Can not create this deal.");
     } catch (err) {
-        console.log(err);
         return res.send({ data: "Please Try in another time" });
     }
 }
@@ -179,7 +182,6 @@ exports.request = async(req, res) => {
         if (_.isNil(_deal))
             return res.status(405).send("error Happened");
 
-        // console.log('socketid ' + _merchant.userId.socketId);
         let _socketObj = {};
         _socketObj.title = req.userData.firstName + ' ' + req.userData.lastName + 'New Deal Request';
         _socketObj.data = _deal;
@@ -194,7 +196,6 @@ exports.request = async(req, res) => {
 
 exports.DealByMerchantById = async(req, res) => {
     try {
-        console.log(req.query.id);
         let _merchants = await MerchantModel.findById({ _id: req.query.id }).populate('categoryId');
         if (!_merchants)
             return res.status(405).send("Please enter valid merchant data");
@@ -231,7 +232,7 @@ exports.AdminDealData = async(req, res) => {
             return res.status(405).send("please enter valid data");
 
         let _merchant = await MerchantModel.findById({ _id: req.body.id });
-        console.log(_merchant);
+
         if (!_merchant)
             return res.status(405).send("Please enter valid merchant data");
 
@@ -286,8 +287,7 @@ exports.cancel = async(req, res) => {
         let _socketObj = {};
         _socketObj.title = req.userData.firstName + ' ' + req.userData.lastName + 'cancel Deal';
         _socketObj.data = 'canceled';
-        console.log("here is canceled");
-        console.log(_merchant.userId.socketId);
+
         // req.io.to(_merchant.userId.socketId).emit('newMessage', _socketObj);
 
         return res.send({ data: "Deal Canceled Successfully." })
@@ -325,8 +325,7 @@ exports.accept = async(req, res) => {
         let _socketObj = {};
         _socketObj.title = req.userData.firstName + ' ' + req.userData.lastName + 'accept Deal';
         _socketObj.data = 'accept';
-        console.log("here is accept");
-        console.log(_merchant.userId.socketId);
+
         // req.io.to(_merchant.userId.socketId).emit('newMessage', _socketObj);
 
         return res.send({ data: "Deal accepted Successfully." })

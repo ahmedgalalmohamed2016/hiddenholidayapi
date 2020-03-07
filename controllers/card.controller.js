@@ -24,7 +24,6 @@ exports.add = async(req, res) => {
         return res.send(cardData);
 
     } catch (err) {
-        console.log(err);
         return res.status(401).send("Can not add this card.");
     }
 }
@@ -37,7 +36,6 @@ exports.cards = async(req, res) => {
         return res.send(cards);
 
     } catch (err) {
-        console.log(err);
         return res.status(405).send("Try in another time.");
     }
 }
@@ -52,7 +50,6 @@ exports.delete = async(req, res) => {
             return res.status(405).send("Cannot remove this card.");
         return res.send(cards);
     } catch (err) {
-        console.log(err);
         return res.status(405).send("Cannot remove this card,Try in another time.");
     }
 }

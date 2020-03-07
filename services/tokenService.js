@@ -5,8 +5,7 @@ const crypto = require('crypto'),
 const randomDate = new Date().getTime();
 const secretKey = 'asjhut^tg*(2@EASFQ!_+"?]>,nvgfQMIZK#$,Zx[]iwQUsjJ~+-o+ujlcH^^%h(oWs';
 module.exports = {
-    generateLoginToken: function (userDevice, userId, mobileNumber, userRole) {
-        console.log(userDevice + '  ' + userId);
+    generateLoginToken: function(userDevice, userId, mobileNumber, userRole) {
         let dataEncrypt = JSON.stringify({
             userDevice: userDevice,
             userId: userId,
@@ -25,8 +24,7 @@ module.exports = {
         return crypted;
     },
 
-    verifyLoginToken: function (userDevice, userId, tokenData) {
-        console.log(userDevice + '  ' + userId);
+    verifyLoginToken: function(userDevice, userId, tokenData) {
         let decipher = crypto.createDecipher(algorithm, userId + userDevice + secretKey)
         let dec = decipher.update(tokenData, 'hex', 'utf8')
         dec += decipher.final('utf8');
@@ -37,7 +35,7 @@ module.exports = {
         return JSON.parse(dec);
     },
 
-    generateToken: function (dataEncrypt) {
+    generateToken: function(dataEncrypt) {
         let cipher = crypto.createCipher(algorithm, secretKey)
 
         let crypted = cipher.update(dataEncrypt, 'utf8', 'hex')

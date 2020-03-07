@@ -75,7 +75,6 @@ exports.adminGetUsers = async(req, res) => {
         if (req.body.skip)
             _skip = req.body.skip * 50;
 
-        console.log(_query);
         let _users = await UserModel.find({
             $or: [
                 { firstName: { $regex: req.body.name, $options: "i" } },
@@ -129,7 +128,6 @@ exports.adminUpdateUser = async(req, res) => {
     try {
         if (!req.body.id)
             return res.status(405).send("No user valid with this data");
-        console.log(req.body);
         if (!req.body.id || !req.body.mobileNumber || !req.body.country || !req.body.firstName || !req.body.lastName)
             return res.send('Please enter required fields.');
 

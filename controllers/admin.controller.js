@@ -28,7 +28,7 @@ exports.adminGetUsers = async(req, res) => {
         if (req.body.skip)
             _skip = req.body.skip * 50;
 
-        console.log(_query);
+
         let _users = await UserModel.find({
             $or: [
                 { firstName: { $regex: req.body.name, $options: "i" } },

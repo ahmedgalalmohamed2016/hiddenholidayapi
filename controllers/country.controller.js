@@ -107,8 +107,6 @@ exports.create = async(req, res) => {
 // let _res =   await superagent.get('https://free.currconv.com/api/v7/convert?q=USD_'+x[r].currency+'&compact=ultra&apiKey=7b7c22104b482c82f2cc');
 // let u = 'USD_'+x[r].currency;
 // let _json = JSON.parse(_res.text);
-// console.log(_json);
-// console.log("--------");
 //  x[r].exRate = _json[u];
 // g.push(x[r]);
 // }

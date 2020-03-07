@@ -229,7 +229,7 @@ exports.adminCreate = async(req, res) => {
             return res.send("error Happened while create user account");
 
         transactionData.from_userId = transactionFrom._id;
-        transactionData.to_userId = user._id;
+        transactionData.to_userId = saveData._id;
         transactionData.amount = categoryData.initBalance * countryData.exRate;
         transactionData.currency = countryData.currency;
 
@@ -239,6 +239,13 @@ exports.adminCreate = async(req, res) => {
         transactionData.paymentMethod = "virtual";
         transactionData.code = makeUserCode(10);
         transactionData.creationDate = new Date();
+        transactionData.sharePercentage = '0';
+        //sourceData {senderName , recieverName  }
+        transactionData.sourceData = {};
+        transactionData.sourceData.senderName = transactionFrom.firstName + ' ' + transactionFrom.lastName;
+        transactionData.sourceData.receiverName = merchantData.name;
+
+        //sourceData {senderName , recieverName  }
 
         let transactionResult = await TransactionService.createTransaction(transactionData);
         if (transactionResult == false)
