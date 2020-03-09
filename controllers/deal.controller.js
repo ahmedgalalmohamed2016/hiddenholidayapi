@@ -1,6 +1,7 @@
 const MerchantModel = require('../models/merchant.model');
 const UserModel = require('../models/user.model');
 const DealModel = require('../models/deal.model');
+const CategoryModel = require('../models/categories.model');
 const VerificationModel = require('../models/verification.model');
 const passwordService = require('../services/passwordService');
 const sendSmsService = require('../services/sendSmsService');
@@ -95,28 +96,43 @@ exports.updateDeal = async(req, res) => {
 
 exports.adminCreateDeal = async(req, res) => {
     try {
+
+        let _merchant = await MerchantModel.findById({ _id: req.body.id });
+        if (!_merchant)
+            return res.status(405).send("Please enter valid merchant data");
+
+        let _category = await CategoryModel.findById({ _id: req.body.categoryId });
+        if (!_category)
+            return res.status(405).send("Please enter valid category data");
+
         let deal = {};
-        deal.merchantId = req.body.merchantId;
-        deal.categoryId = req.body.categoryId;
-        deal.countryId = req.body.countryId;
+        deal.merchantId = req.body.id;
+        deal.categoryId = _category._id;
+        deal.countryId = _merchant.countryId;
         deal.title = req.body.title;
         deal.description = req.body.description;
-        deal.country = req.body.country;
+        deal.country = _merchant.country;
+        deal.currency = req.body.currency;
         deal.type = 'deal';
         deal.originalPrice = req.body.originalPrice;
         deal.newPrice = req.body.newPrice;
-        deal.dealType = req.body.dealType; // oneTime , multipleTime , free
         deal.timeUsed = req.body.timeUsed;
+        deal.discountPercentage = req.body.discountPercentage;
         deal.creationDate = new Date();
         deal.sharePercentage = req.body.sharePercentage;
         deal.titleAr = req.body.titleAr;
         deal.descriptionAr = req.body.descriptionAr;
+        deal.maximumDays = req.body.maximumDays;
+        deal.isActive = true;
 
         let dealData = await DealModel.create(deal);
         if (_.isNil(dealData))
             return res.status(401).send("Can not create this deal.");
+
+        return res.send({ data: "Deal Created Success." });
     } catch (err) {
-        return res.send({ data: "Please Try in another time" });
+        console.log(err);
+        return res.status(405).send({ data: "Please Try in another time", error: err });
     }
 }
 
@@ -125,14 +141,31 @@ exports.deals = async(req, res) => {
 
         if (!req.query.country)
             return res.status(405).send("Please enter valid country data");
+        // get deals
+        let _skip = 0;
+        if (req.query.page)
+            _skip = req.query.page * 10;
+        let dealsData = await DealModel.find({ isArchived: false, country: req.query.country }).populate('categoryId').limit(10).skip(_skip).orFail((err) => Error(err));
+        if (!dealsData)
+            return res.status(405).send("Please enter data");
+        res.send(dealsData);
+    } catch (err) {
+        return res.send(err);
+    }
+}
+
+exports.MerchantDeals = async(req, res) => {
+    try {
+        if (!req.body.merchantId)
+            return res.status(405).send("Please enter valid merchant id");
 
         // get deals
         let _skip = 0;
         if (req.query.page)
             _skip = req.query.page * 10;
-        let dealsData = await MerchantModel.find({ promotion: { $ne: null }, country: req.query.country }).populate('categoryId').limit(10).skip(_skip).orFail((err) => Error(err));
+        let dealsData = await DealModel.find({ merchantId: req.body.merchantId }).populate('categoryId').limit(10).skip(_skip).orFail((err) => Error(err));
         if (!dealsData)
-            return res.status(405).send("Please enter data");
+            return res.status(405).send("Please enter valid data");
         res.send(dealsData);
     } catch (err) {
         return res.send(err);
@@ -211,16 +244,10 @@ exports.DealData = async(req, res) => {
         if (!req.body.id)
             res.status(405).send("please enter valid data");
 
-        let _merchant = await MerchantModel.findById({ _id: req.body.id });
-        if (!_merchant)
-            return res.status(405).send("Please enter valid merchant data");
-        if (!_merchant.promotion)
-            res.status(405).send("Merchant doe not have any pormotion");
-
-        let _checkDeal = await DealModel.findOne({ userId: req.userData._id, merchantId: _merchant._id, status: "pending" });
-        if (_checkDeal)
-            return res.send(_checkDeal);
-        return res.send({});
+        let _deal = await DealModel.findById({ _id: req.body.id, isArchived: false });
+        if (!_deal)
+            return res.status(405).send("Please enter valid deal data");
+        return res.send(_deal);
     } catch (err) {
         return res.send("Error Happened");
     }
@@ -229,18 +256,12 @@ exports.DealData = async(req, res) => {
 exports.AdminDealData = async(req, res) => {
     try {
         if (!req.body.id)
-            return res.status(405).send("please enter valid data");
+            res.status(405).send("please enter valid data");
 
-        let _merchant = await MerchantModel.findById({ _id: req.body.id });
-
-        if (!_merchant)
-            return res.status(405).send("Please enter valid merchant data");
-
-        if (!_merchant.promotion)
-            return res.status(405).send("Merchant doe not have any pormotion");
-
-
-        return res.send(_merchant);
+        let _deal = await DealModel.findById({ _id: req.body.id, isArchived: false });
+        if (!_deal)
+            return res.status(405).send("Please enter valid deal data");
+        return res.send(_deal);
     } catch (err) {
         return res.send("Error Happened");
     }

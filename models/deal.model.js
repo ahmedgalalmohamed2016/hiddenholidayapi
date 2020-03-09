@@ -14,10 +14,10 @@ let DealSchema = new Schema({
     image: { type: String },
     newPrice: { type: Number, required: true },
     originalPrice: { type: Number, required: true },
+    maximumDays: { type: Number, required: true },
     sharePercentage: { type: Number, required: true },
     type: { type: String, required: true }, // deal , bid
     timeUsed: { type: String, required: true }, // 7
-    dealType: { type: String, required: true }, // oneTime , multipleTime , free
     isActive: { type: Boolean, required: true, default: false }, //pending approved canceled
     isArchived: { type: Boolean, required: true, default: false },
     creationDate: { type: Date },

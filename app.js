@@ -51,7 +51,7 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 app.use(function(req, res, next) {
-    
+
     res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
@@ -67,7 +67,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/merchants', merchant);
 app.use('/user', userRoutes);
 app.use('/merchant/user', merchantUser);
-app.use('/deals', dealRoutes);
+app.use('/api/deals', dealRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/countries', countriesRoutes);
 app.use('/api/packages', packageRoutes);

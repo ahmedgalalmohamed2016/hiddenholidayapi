@@ -216,6 +216,7 @@ exports.adminCreate = async(req, res) => {
         merchantData.packageId = packageId._id;
         merchantData.merchantSource = "Application";
         merchantData.emails = req.body.emails;
+        merchantData.countryId = countryData._id;
 
         if (_.isNil(merchantData.categoryId))
             return res.status(405).send({ dd: merchantData.categoryId });
@@ -416,7 +417,7 @@ exports.merchantById = async(req, res) => {
 exports.adminMerchantById = async(req, res) => {
     try {
         console.log(req.body.id);
-        let _merchants = await merchant.find({ _id: req.body.id }).populate('categoryId').populate('packageId').populate('userId');
+        let _merchants = await merchant.find({ _id: req.body.id }).populate('categoryId').populate('countryId').populate('userId');
         if (!_merchants)
             return res.status(405).send("Please enter valid merchant data");
         return res.send(_merchants);

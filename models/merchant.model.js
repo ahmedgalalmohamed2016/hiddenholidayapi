@@ -6,6 +6,7 @@ let MerchantSchema = new Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     packageId: { type: mongoose.Schema.Types.ObjectId, ref: 'Package' },
     categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Categories' },
+    countryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Country' },
     favorite: { type: String },
     categories: { type: String },
     country: { type: String },
