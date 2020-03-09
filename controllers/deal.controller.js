@@ -154,6 +154,30 @@ exports.deals = async(req, res) => {
     }
 }
 
+exports.cart = async(req, res) => {
+    try {
+        if (!req.body.ids)
+            return res.status(405).send("Please enter valid cart id");
+        let ids = [];
+
+        for (let x = 0; x < req.body.ids.length; x++) {
+            console.log("----------1---------" + req.body.ids[x]);
+            let valu = new mongoose.Types.ObjectId(req.body.ids[x]);
+            ids.push(valu);
+        }
+        console.log(ids);
+        let dealsData = await DealModel.find({
+            _id: { $in: ids },
+            isArchived: false
+        }).populate('categoryId').orFail((err) => Error(err));
+        if (!dealsData)
+            return res.status(405).send("Please enter data");
+        res.send(dealsData);
+    } catch (err) {
+        return res.send(err);
+    }
+}
+
 exports.MerchantDeals = async(req, res) => {
     try {
         if (!req.body.merchantId)

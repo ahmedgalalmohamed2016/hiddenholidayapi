@@ -8,6 +8,7 @@ const merchantMiddleware = require('../middleware/merchant');
 const adminMiddleware = require('../middleware/admin');
 
 router.get('/', deal_controller.deals);
+router.post('/cart', deal_controller.cart);
 router.post('/request', middleware.mainAuth, deal_controller.request);
 router.post('/request/decline', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.decline);
 router.post('/history', middleware.mainAuth, deal_controller.history);
