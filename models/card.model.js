@@ -8,6 +8,7 @@ let CardSchema = new Schema({
     expireMonth: { type: String, required: true },
     expireYear: { type: String, required: true },
     holderName: { type: String, required: true },
+    isDeleted: { type: Boolean, required: true, default: false },
 });
 
 

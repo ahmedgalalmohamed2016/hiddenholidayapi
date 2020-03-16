@@ -96,8 +96,8 @@ exports.create = async(req, res) => {
         if (_.isNil(user))
             return res.send("error Happened while create user account");
 
-        transactionData.from_userId = transactionFrom._id;
-        transactionData.to_userId = user._id;
+        transactionData.fromUserId = transactionFrom._id;
+        transactionData.toUserId = user._id;
         transactionData.amount = categoryData.initBalance * countryData.exRate;
         transactionData.currency = countryData.currency;
 
@@ -229,8 +229,8 @@ exports.adminCreate = async(req, res) => {
         if (_.isNil(user))
             return res.send("error Happened while create user account");
 
-        transactionData.from_userId = transactionFrom._id;
-        transactionData.to_userId = saveData._id;
+        transactionData.fromUserId = transactionFrom._id;
+        transactionData.toUserId = saveData._id;
         transactionData.amount = categoryData.initBalance * countryData.exRate;
         transactionData.currency = countryData.currency;
 

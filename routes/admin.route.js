@@ -12,8 +12,12 @@ const adminController = require('../controllers/admin.controller');
 
 router.post('/merchants', middleware.mainAuth, adminMiddleware.adminAuth, merchantController.merchants);
 router.post('/deals', middleware.mainAuth, adminMiddleware.adminAuth, merchantController.deals);
+router.post('/bids', middleware.mainAuth, adminMiddleware.adminAuth, merchantController.bids);
+
 router.post('/dashboard', middleware.mainAuth, adminMiddleware.adminAuth, mainController.dashboard);
 router.post('/deals/create', middleware.mainAuth, adminMiddleware.adminAuth, deal_controller.adminCreateDeal);
+router.post('/bids/create', middleware.mainAuth, adminMiddleware.adminAuth, deal_controller.adminCreateBid);
+
 
 router.post('/changePassword',  middleware.mainAuth, adminMiddleware.adminAuth, adminController.adminChangePassword);
 //middleware.mainAuth, adminMiddleware.adminAuth, 

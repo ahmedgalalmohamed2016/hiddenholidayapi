@@ -9,7 +9,7 @@ const mongoose = require('mongoose');
 
 exports.getAll = async(req, res) => {
     try {
-        let transactions = await TransactionModel.find().populate('from_userId').populate('to_userId');
+        let transactions = await TransactionModel.find().populate('fromUserId').populate('toUserId');
         if (_.isNil(transactions))
             return res.send("No Transaction found in our system");
         return res.send(transactions);
@@ -22,8 +22,8 @@ exports.getAll = async(req, res) => {
 exports.me = async(req, res) => {
     try {
         let transactions = await TransactionModel.find({
-            $or: [{ from_userId: req.userData._id }, { to_userId: req.userData._id }, ]
-        }).populate('from_userId').populate('to_userId').sort('-creationDate');
+            $or: [{ fromUserId: req.userData._id }, { toUserId: req.userData._id }, ]
+        }).populate('fromUserId').populate('toUserId').sort('-creationDate');
         if (_.isNil(transactions))
             return res.status(405).send("No Transaction found in our system");
         return res.send(transactions);
@@ -47,8 +47,8 @@ exports.merchantById = async(req, res) => {
             return res.status(405).send("Please enter valid merchant data");
 
         let transactions = await TransactionModel.find({
-            $or: [{ from_userId: _user._id }, { to_userId: _user._id }, ]
-        }).populate('from_userId').populate('to_userId').sort('-creationDate');
+            $or: [{ fromUserId: _user._id }, { toUserId: _user._id }, ]
+        }).populate('fromUserId').populate('toUserId').sort('-creationDate');
         if (_.isNil(transactions))
             return res.send("No Transaction found for this merchant in our system");
         return res.send(transactions);
@@ -65,9 +65,9 @@ exports.hiddenHoliday = async(req, res) => {
             return res.status(405).send("Error Happened please try again later.");
 
         let transactions = await TransactionModel.find({
-                $or: [{ from_userId: _mainUser._id }, { to_userId: _mainUser._id }, ]
+                $or: [{ fromUserId: _mainUser._id }, { toUserId: _mainUser._id }, ]
             })
-            .populate('from_userId').populate('to_userId').sort('-creationDate');
+            .populate('fromUserId').populate('toUserId').sort('-creationDate');
         if (_.isNil(transactions))
             return res.send("No Transaction found in our system");
         return res.send(transactions);
@@ -80,8 +80,8 @@ exports.hiddenHoliday = async(req, res) => {
 exports.getByAdmin = async(req, res) => {
     try {
         let transactions = await TransactionModel.find({
-            $or: [{ from_userId: req.body.merchantId }, { to_userId: req.body.merchantId }, ]
-        }).populate('from_userId').populate('to_userId');
+            $or: [{ fromUserId: req.body.merchantId }, { toUserId: req.body.merchantId }, ]
+        }).populate('fromUserId').populate('toUserId');
         if (_.isNil(transactions))
             return res.send("No Transaction found in our system");
         return res.send(transactions);
@@ -94,8 +94,8 @@ exports.getByAdmin = async(req, res) => {
 exports.balance = async(req, res) => {
     try {
         let transactions = await TransactionModel.find({
-            $or: [{ from_userId: req.userData._id }, { to_userId: req.userData._id }, ]
-        }).populate('from_userId').populate('to_userId');
+            $or: [{ fromUserId: req.userData._id }, { toUserId: req.userData._id }, ]
+        }).populate('fromUserId').populate('toUserId');
         if (_.isNil(transactions))
             return res.send("No Transaction found in our system");
 

@@ -31,7 +31,7 @@ exports.adminCreate = async(req, res) => {
         if (!_merchant || !_merchant.categoryId)
             return res.status(405).send("No merchant found with this data");
 
-        let _totalBids = await BidModel.count({ merchantId: req.body.merchantId });
+        let _totalBids = await DealModel.count({ merchantId: req.body.merchantId, type: 'bid' });
 
         if (_merchant.packageId.maxBids <= _totalBids)
             return res.status(405).send("Merchant have maximum limit on bids, please upgrade plan");
@@ -42,7 +42,7 @@ exports.adminCreate = async(req, res) => {
         data.categoryId = _merchant.categoryId;
         data.country = _merchant.country;
 
-        let _res = await BidModel.create(data);
+        let _res = await DealModel.create(data);
         if (!_res)
             return res.status(405).send("Can not create bid,try i another time.");
         return res.send({ data: data, t: _totalBids, p: _merchant.packageId });
@@ -63,11 +63,11 @@ exports.adminUpdate = async(req, res) => {
         data.startDate = req.body.startDate;
         data.endDate = req.body.endDate;
 
-        let _bid = await BidModel.findOne({ _id: req.body.id });
+        let _bid = await DealModel.findOne({ _id: req.body.id, type: 'bid' });
         if (!_bid)
             return res.status(405).send("No bid found with this data");
 
-        let _res = await BidModel.findOneAndUpdate({ _id: req.body.id }, { $set: data }, { new: true });
+        let _res = await DealModel.findOneAndUpdate({ _id: req.body.id }, { $set: data }, { new: true });
         if (!_res)
             return res.status(405).send("Can not update this bid,try i another time.");
         return res.send(_res);
@@ -94,7 +94,7 @@ exports.adminList = async(req, res) => {
         if (!req.body.name)
             req.body.name = '';
 
-        let BidsData = await BidModel.find({
+        let BidsData = await DealModel.find({
                 $or: [{ title: { $regex: req.body.name, $options: "i" } },
                     { country: { $regex: req.body.name, $options: "i" } }
                 ]
@@ -111,7 +111,7 @@ exports.adminList = async(req, res) => {
 exports.adminListbyMerchantId = async(req, res) => {
     try {
 
-        let _bids = await BidModel.find({ merchantId: req.body.id }).sort('endDate')
+        let _bids = await DealModel.find({ merchantId: req.body.id }).sort('endDate')
             .populate('merchantId').populate('categoryId');
         if (!_bids)
             return res.status(405).send("No bids found with this data.");
@@ -127,7 +127,7 @@ exports.adminGetBid = async(req, res) => {
             return res.status(405).send("Error Happened");
         }
 
-        let bid = await BidModel.findById(req.body.id);
+        let bid = await DealModel.findOne({ _id: req.body.id, type: 'bid' });
 
         if (!bid) {
             return res.status(405).send("No bids found with this data.");

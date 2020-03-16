@@ -8,24 +8,15 @@ const merchantMiddleware = require('../middleware/merchant');
 const adminMiddleware = require('../middleware/admin');
 
 router.get('/', deal_controller.deals);
+router.get('/bids', deal_controller.bids);
 router.post('/cart', deal_controller.cart);
-router.post('/request', middleware.mainAuth, deal_controller.request);
-router.post('/request/decline', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.decline);
-router.post('/history', middleware.mainAuth, deal_controller.history);
-router.get('/deal', deal_controller.DealByMerchantById);
+router.post('/admin/merchant', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.MerchantDeals);
 router.post('/me/deal', middleware.mainAuth, deal_controller.DealData);
+router.post('/admin/deal', middleware.mainAuth, adminMiddleware.adminAuth, deal_controller.AdminDealData);
 router.post('/merchants/me', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.DealRequests);
 
-router.post('/me/cancel', middleware.mainAuth, deal_controller.cancel);
-router.post('/me/accept', middleware.mainAuth, deal_controller.accept);
-router.post('/me/create', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.createDeal);
-router.post('/me/update', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.updateDeal);
-
-
-router.post('/admin/deal', middleware.mainAuth, adminMiddleware.adminAuth, deal_controller.AdminDealData);
-router.post('/admin/merchant', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.MerchantDeals);
-
-router.get('/Demodeals', deal_controller.Demodeals);
-
+router.post('/request', middleware.mainAuth, deal_controller.request);
+router.post('/history', middleware.mainAuth, deal_controller.history);
+// router.get('/deal', deal_controller.DealByMerchantById);
 
 module.exports = router;

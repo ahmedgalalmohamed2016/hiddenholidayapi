@@ -25,14 +25,11 @@ exports.dashboard = async(req, res) => {
         data.totalTransactions = await TransactionModel.count({});
         data.totalCategories = await CategoriesModel.count({});
         data.totalUsers = await UserModel.count({ role: 'user' });
-        data.totalDeals = await MerchantModel.count({ promotion: { $ne: null } });
+        data.totalDeals = await DealModel.count({ type: 'deal' });
+        data.totalBids = await DealModel.count({ type: 'bid' });
 
         data.totalActiveMerchants = await MerchantModel.count({ isActiveMerchant: true });
         data.totalNotActiveMerchants = await MerchantModel.count({ isActiveMerchant: false });
-
-        data.pendingDeals = await DealModel.count({ status: 'pending' });
-        data.acceptedDeals = await DealModel.count({ status: 'accept' });
-        data.declinedDeals = await DealModel.count({ status: 'decline' });
 
         return res.send(data);
     } catch (err) {
