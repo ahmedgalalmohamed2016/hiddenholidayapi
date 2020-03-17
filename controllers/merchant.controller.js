@@ -231,7 +231,9 @@ exports.adminCreate = async(req, res) => {
 
         transactionData.fromUserId = transactionFrom._id;
         transactionData.toUserId = saveData._id;
-        transactionData.amount = categoryData.initBalance * countryData.exRate;
+        transactionData.grossAmount = categoryData.initBalance * countryData.exRate;
+        transactionData.netAmount = transactionData.grossAmount;
+        transactionData.merchantAmount = 0;
         transactionData.currency = countryData.currency;
 
         transactionData.status = "approved";

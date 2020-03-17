@@ -11,13 +11,13 @@ let TransactionSchema = new Schema({
     grossAmount: { type: Number, required: true },
     netAmount: { type: Number, required: true },
     merchantAmount: { type: Number, required: true },
-    netAmount: { type: Number, required: true },
     currency: { type: String, required: true },
-    sharePercentage: { type: String, required: true },
+    sharePercentage: { type: String, required: true }, //number or 'multi'
     status: { type: String, required: true },
-    sourceType: { type: String, required: true }, // Deal , Bid , Init
+    sourceType: { type: String, required: true }, // Deal , Bid , Init , Purchase
     sourceData: { type: mongoose.Schema.Types.Mixed },
     comment: { type: String },
+    exRate: { type: Number },
     paymentMethod: { type: String, required: true }, // virtual cash credit
     isActive: { type: Boolean, required: true, default: true },
     code: { type: String, required: true },

@@ -195,8 +195,96 @@ exports.MerchantBids = async(req, res) => {
     }
 }
 
-exports.request = async(req, res) => {
+exports.requestDeal = async(req, res) => {
     try {
+        //1 check deals (isActive , merchant active , isArchived)
+        // 2 type card check cardid
+        //3 type balance chek total balance
+        //4 create transaction
+        // 5 create deal request
+        if (!req.body.paymentType || !req.body.data)
+            return res.status(401).send("paymentType and data is required");
+
+        if (req.body.paymentType != "card" && req.body.paymentType != "balance")
+            return res.status(401).send("Please enter valid payment method");
+
+        if (req.body.paymentType == "card" && !req.body.cardId)
+            return res.status(401).send("cardId is required");
+        let _ids = [];
+        for (let x = 0; x < req.body.data.length; x++) {
+            let valu = new mongoose.Types.ObjectId(req.body.data[x].id);
+            _ids.push(valu);
+        }
+
+        let dealsData = await DealModel.find({
+            _id: { $in: ids },
+            isArchived: false,
+            isActive: false
+        }).populate('categoryId').populate('countryId').populate('merchantId').orFail((err) => Error(err));
+
+        if (!dealsData)
+            return res.status(401).send("error happened while find deals");
+
+        for (let y = 0; y < dealsData.length; y++) {
+            if (dealsData[y].country != dealsData[0].country)
+                return res.send("Deals must be at the same country");
+        }
+        let totalGrossAmount = 0;
+        let totalNetAmount = 0;
+        let merchantAmount = 0;
+        for (let y = 0; y < dealsData.length; y++) {
+            if (dealsData[y].newPrice != 0) {
+                totalGrossAmount = totalGrossAmount + dealsData[y].newPrice;
+                totalNetAmount = totalNetAmount + (dealsData[y].newPrice * dealsData[y].sharePercentage / 100);
+            } else if (dealsData[y].newPrice == 0) {
+                totalGrossAmount = totalGrossAmount + dealsData[y].originalPrice;
+                totalNetAmount = totalNetAmount + (dealsData[y].originalPrice * dealsData[y].sharePercentage / 100);
+            }
+        }
+
+        let totalMerchantAmount = totalGrossAmount - totalNetAmount;
+
+        if (req.body.paymentType == "card") {
+            let cardData = await CardModel.findOne({ _id: req.body.cardId, userId: req.userData._id });
+            if (!cardData)
+                return res.status(401).send("error Happened to find card Data");
+        } else if (req.body.paymentType == "balance") {
+
+        }
+
+        let transactionData = {};
+        const transactionTo = await UserModel.findOne({ role: "superAdmin" });
+        if (!transactionTo._id)
+            return res.status(401).send("Error Happened try in another time");
+
+        let countryData = await countryModel.findOne({ enName: dealsData[0].country });
+        if (!countryData._id)
+            return res.status(401).send("error Happened to find countryData");
+
+        transactionData.fromUserId = req.userData._id;
+        transactionData.toUserId = transactionTo._id;
+        transactionData.grossAmount = totalGrossAmount;
+        transactionData.netAmount = totalNetAmount;
+        transactionData.merchantAmount = totalMerchantAmount;
+        transactionData.currency = countryData.currency;
+
+        transactionData.status = "approved";
+        transactionData.sourceType = "purchase";
+        transactionData.comment = req.body.comment || "";
+        transactionData.paymentMethod = req.body.paymentType;
+        transactionData.code = makeUserCode(10);
+        transactionData.creationDate = new Date();
+        transactionData.sharePercentage = 'multi';
+        transactionData.exRate = countryData.exRate;
+
+        // //sourceData {senderName , recieverName  }
+        transactionData.sourceData = {};
+        transactionData.sourceData.senderName = req.userData.firstName + ' ' + req.userData.lastName;
+        transactionData.sourceData.receiverName = transactionTo.firstName + ' ' + transactionTo.lastName;
+
+        let transactionResult = await TransactionService.createTransaction(transactionData);
+        if (transactionResult == false)
+            return res.status(401).send("error Happened while create transaction");
 
     } catch (err) {
         return res.send({ data: err });
