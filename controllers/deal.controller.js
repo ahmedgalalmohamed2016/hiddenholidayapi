@@ -2,11 +2,14 @@ const MerchantModel = require('../models/merchant.model');
 const UserModel = require('../models/user.model');
 const DealModel = require('../models/deal.model');
 const CardModel = require('../models/card.model');
+const CountryModel = require('../models/country.model');
+const RequestModel = require('../models/request.model');
 const CategoryModel = require('../models/categories.model');
 const VerificationModel = require('../models/verification.model');
 const passwordService = require('../services/passwordService');
 const sendSmsService = require('../services/sendSmsService');
 const tokenService = require('../services/tokenService');
+const TransactionService = require('../services/transactionService');
 const superagent = require('superagent');
 const _ = require("lodash");
 const request = require("superagent");
@@ -202,6 +205,7 @@ exports.requestDeal = async(req, res) => {
         //3 type balance chek total balance
         //4 create transaction
         // 5 create deal request
+        console.log("---------------");
         if (!req.body.paymentType || !req.body.data)
             return res.status(401).send("paymentType and data is required");
 
@@ -211,19 +215,29 @@ exports.requestDeal = async(req, res) => {
         if (req.body.paymentType == "card" && !req.body.cardId)
             return res.status(401).send("cardId is required");
         let _ids = [];
+
+        if (typeof req.body.data == "string")
+            req.body.data = JSON.parse(req.body.data);
+        console.log(typeof req.body.data);
+
+        // return res.send(req.body.data);
+
         for (let x = 0; x < req.body.data.length; x++) {
             let valu = new mongoose.Types.ObjectId(req.body.data[x].id);
             _ids.push(valu);
         }
 
         let dealsData = await DealModel.find({
-            _id: { $in: ids },
-            isArchived: false,
-            isActive: false
-        }).populate('categoryId').populate('countryId').populate('merchantId').orFail((err) => Error(err));
-
+            _id: { $in: _ids },
+            // isArchived: false,
+            // isActive: false
+        }).populate('categoryId').populate('countryId').populate('merchantId');
+        // return res.send(dealsData);
         if (!dealsData)
             return res.status(401).send("error happened while find deals");
+
+        if (dealsData.length != req.body.data.length)
+            return res.status(401).send("error happened while find deals that you choosen");
 
         for (let y = 0; y < dealsData.length; y++) {
             if (dealsData[y].country != dealsData[0].country)
@@ -245,11 +259,11 @@ exports.requestDeal = async(req, res) => {
         let totalMerchantAmount = totalGrossAmount - totalNetAmount;
 
         if (req.body.paymentType == "card") {
-            let cardData = await CardModel.findOne({ _id: req.body.cardId, userId: req.userData._id });
+            let cardData = await CardModel.findOne({ _id: req.body.cardId, userId: req.userData.id });
             if (!cardData)
                 return res.status(401).send("error Happened to find card Data");
         } else if (req.body.paymentType == "balance") {
-
+            return res.status(401).send("You does not have enough balance to purchase");
         }
 
         let transactionData = {};
@@ -257,7 +271,7 @@ exports.requestDeal = async(req, res) => {
         if (!transactionTo._id)
             return res.status(401).send("Error Happened try in another time");
 
-        let countryData = await countryModel.findOne({ enName: dealsData[0].country });
+        let countryData = await CountryModel.findOne({ enName: dealsData[0].country });
         if (!countryData._id)
             return res.status(401).send("error Happened to find countryData");
 
@@ -283,70 +297,63 @@ exports.requestDeal = async(req, res) => {
         transactionData.sourceData.receiverName = transactionTo.firstName + ' ' + transactionTo.lastName;
 
         let transactionResult = await TransactionService.createTransaction(transactionData);
-        if (transactionResult == false)
+        if (!transactionResult)
             return res.status(401).send("error Happened while create transaction");
+        console.log("------------after trransaction");
+        // create Deals Requests
+
+
+        // transactionSource: { type: String }, // if refund must insert source transaction id
+        // bankAccount: { type: String },
+        let requests = [];
+        for (let z = 0; z < dealsData.length; z++) {
+            let _requestData = {};
+            _requestData._id = new mongoose.Types.ObjectId();
+            _requestData.creationDate = new Date();
+            _requestData.merchantId = dealsData[z].merchantId._id;
+            _requestData.userId = req.userData._id;
+            _requestData.transactionId = transactionResult._id;
+            _requestData.VerificationCode = makeUserCode(10);
+
+            for (let r = 0; r < req.body.data.length; r++) {
+                if (req.body.data[r].id == dealsData[z]._id) {
+                    _requestData.count = req.body.data[r].count;
+                }
+            }
+
+            _requestData.title = dealsData[z].title;
+            _requestData.description = dealsData[z].description;
+            _requestData.arTitle = dealsData[z].arTitle;
+            _requestData.arDescription = dealsData[z].arDescription;
+            _requestData.type = dealsData[z].type;
+
+            _requestData.country = dealsData[z].country;
+            _requestData.maximumDays = dealsData[z].maximumDays;
+            _requestData.timeUsed = dealsData[z].timeUsed;
+
+            if (dealsData[z].newPrice == 0) {
+                _requestData.grossAmount = dealsData[z].originalPrice;
+                _requestData.netAmount = dealsData[z].originalPrice * dealsData[z].sharePercentage / 100;
+                _requestData.merchantAmount = _requestData.grossAmount - _requestData.netAmount;
+            } else {
+                _requestData.grossAmount = dealsData[z].newPrice;
+                _requestData.netAmount = dealsData[z].newPrice * dealsData[z].sharePercentage / 100;
+                _requestData.merchantAmount = _requestData.grossAmount - _requestData.netAmount;
+            }
+            _requestData.sharePercentage = dealsData[z].sharePercentage;
+            _requestData.status = "approved";
+            requests.push(_requestData);
+        }
+        let requestData = RequestModel.create(requests);
+        if (!requestData)
+            return res.status(401).send("error Happened while create requests");
+        return res.send("Requests Created Success");
 
     } catch (err) {
+        console.log(err);
         return res.send({ data: err });
     }
 }
-
-// exports.request = async(req, res) => {
-//     try {
-//         if (!req.body.id)
-//             res.status(405).send("please enter valid data");
-
-//         let _merchant = await MerchantModel.findById({ _id: req.body.id }).populate('userId');
-//         if (!_merchant)
-//             return res.status(405).send("Please enter valid merchant data");
-//         if (!_merchant.promotion)
-//             res.status(405).send("Merchant doe not have any pormotion");
-
-//         let _checkDeal = await DealModel.findOne({ userId: req.userData._id, merchantId: _merchant._id });
-//         if (_checkDeal && _checkDeal.status == 'pending')
-//             return res.send({ deal: _checkDeal, requested: "you can not request deal multible time" });
-
-//         let dealObj = {};
-//         dealObj.title = _merchant.promotion.title;
-//         dealObj.description = _merchant.promotion.description;
-//         dealObj.type = _merchant.promotion.type;
-//         dealObj.amount = _merchant.promotion.amount;
-//         dealObj.price = _merchant.promotion.price;
-//         dealObj.usersType = _merchant.promotion.usersType;
-//         dealObj.subscriptionFees = _merchant.promotion.subscriptionFees;
-//         dealObj.sharePercentage = _merchant.promotion.sharePercentage;
-
-//         dealObj.creationDate = new Date();
-//         dealObj.merchantId = _merchant._id;
-//         dealObj.userId = req.userData._id;
-
-//         let _a = String(Math.floor(Math.random() * 10));
-//         let _b = String(Math.floor(Math.random() * 10));
-//         let _c = String(Math.floor(Math.random() * 10));
-//         let _d = String(Math.floor(Math.random() * 10));
-//         let verificationCode = _a + _b + _c + _d;
-
-//         dealObj.verificationCode = verificationCode;
-//         dealObj.comment = req.body.comment || null;
-//         dealObj.status = "pending";
-
-//         let _deal = await DealModel.create(dealObj);
-//         if (_.isNil(_deal))
-//             return res.status(405).send("error Happened");
-
-//         let _socketObj = {};
-//         _socketObj.title = req.userData.firstName + ' ' + req.userData.lastName + 'New Deal Request';
-//         _socketObj.data = _deal;
-//         // req.io.to(_merchant.userId.socketId).emit('newMessage', _socketObj);
-//         // req.io.emit('newMessage', req.userData.firstName + ' ' + req.userData.lastName + 'New Deal Request');
-
-//         return res.send(_deal);
-//     } catch (err) {
-//         return res.send({ data: err });
-//     }
-// }
-
-
 
 
 exports.DealData = async(req, res) => {
@@ -381,13 +388,10 @@ exports.DealRequests = async(req, res) => {
     try {
         let _query = {};
         _query.merchantId = req.merchantData._id;
-        if (req.body.dealsType == 'pending')
-            _query.status = 'pending';
-        else {
-            _query.status = { $ne: 'pending' }
-        }
+        _query.isSettled = false;
+        _query.isRefunded = false;
 
-        let _checkDeal = await DealModel.find(_query).sort('-creationDate').populate('userId');
+        let _checkDeal = await RequestModel.find(_query).sort('-creationDate').populate('userId');
         if (_checkDeal)
             return res.send({ deal: _checkDeal, merchant: req.merchantData });
         return res.send({ deal: [], merchant: req.merchantData });
@@ -406,4 +410,14 @@ exports.history = async(req, res) => {
     } catch (err) {
         return res.send("Error Happened");
     }
+}
+
+function makeUserCode(length) {
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
 }
