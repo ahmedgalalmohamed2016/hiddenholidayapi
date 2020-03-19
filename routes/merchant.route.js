@@ -21,6 +21,7 @@ router.post('/card/get', middleware.mainAuth, merchantMiddleware.merchantAuth, c
 router.post('/card/remove', middleware.mainAuth, merchantMiddleware.merchantAuth, card_controller.delete);
 
 router.post('/checkPassword', middleware.mainAuth, merchantMiddleware.merchantAuth, merchant_controller.checkPassword);
+router.post('/totalsummary', middleware.mainAuth, merchantMiddleware.merchantAuth, merchant_controller.totalSummary);
 
 
 router.get('/maps', merchant_controller.maps);

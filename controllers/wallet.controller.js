@@ -134,12 +134,14 @@ exports.userBalance = async(req, res) => {
                     data.virtualBalance = data.virtualBalance - transactions[x].grossAmount;
                 }
 
-            } else if (transactions[x].paymentMethod != "virtual") {
-                if (String(transactions[x].fromUserId) == String(req.userData._id)) {
-                    data.availableBalance = data.availableBalance + transactions[x].netAmount;
-                } else if (String(transactions[x].toUserId) == String(req.userData._id)) {
-                    data.availableBalance = data.availableBalance - transactions[x].netAmount;
-                }
+            } else if (transactions[x].paymentMethod != "balance") {
+                // if (String(transactions[x].fromUserId) == String(req.userData._id)) {
+                data.availableBalance = data.availableBalance + transactions[x].netAmount + transactions[x].merchantAmount;
+                // } else if (String(transactions[x].toUserId) == String(req.userData._id)) {
+                //     data.availableBalance = data.availableBalance - transactions[x].netAmount;
+                // }
+                //let userB = await TransactionService.getUserBalance(req.userData.id);
+
             }
         }
         data.currency = data.currency.currency;

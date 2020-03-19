@@ -5,6 +5,7 @@ const countryModel = require('../models/country.model');
 const packageModel = require('../models/package.model');
 const UserModel = require('../models/user.model');
 const DealModel = require('../models/deal.model');
+const RequestModel = require('../models/request.model');
 const VerificationModel = require('../models/verification.model');
 const passwordService = require('../services/passwordService');
 const sendSmsService = require('../services/sendSmsService');
@@ -509,6 +510,22 @@ exports.update = async(req, res) => {
         return res.send(err.message || "We can not update merchant.Try in another time.");
     }
 };
+
+exports.totalSummary = async(req, res) => {
+    try {
+        let data = {};
+
+        data.totalDealsRequests = await RequestModel.count({ type: 'deal', merchantId: req.merchantData.id });
+        data.totalBidsRequests = await RequestModel.count({ type: 'bid', merchantId: req.merchantData.id });
+        data.totalDeals = await DealModel.count({ type: 'deal', merchantId: req.merchantData.id, isArchived: false, isActive: true });
+        data.totalBids = await DealModel.count({ type: 'bid', merchantId: req.merchantData.id, isArchived: false, isActive: true });
+
+
+        return res.send(data);
+    } catch (err) {
+        return res.send(err);
+    }
+}
 
 
 exports.home = async(req, res) => {

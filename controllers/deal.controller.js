@@ -218,9 +218,7 @@ exports.requestDeal = async(req, res) => {
 
         if (typeof req.body.data == "string")
             req.body.data = JSON.parse(req.body.data);
-        console.log(typeof req.body.data);
 
-        // return res.send(req.body.data);
 
         for (let x = 0; x < req.body.data.length; x++) {
             let valu = new mongoose.Types.ObjectId(req.body.data[x].id);
@@ -241,8 +239,14 @@ exports.requestDeal = async(req, res) => {
 
         for (let y = 0; y < dealsData.length; y++) {
             if (dealsData[y].country != dealsData[0].country)
+
                 return res.send("Deals must be at the same country");
         }
+
+        let countryData = await CountryModel.findOne({ enName: dealsData[0].country });
+        if (!countryData._id)
+            return res.status(401).send("error Happened to find countryData");
+
         let totalGrossAmount = 0;
         let totalNetAmount = 0;
         let merchantAmount = 0;
@@ -263,7 +267,10 @@ exports.requestDeal = async(req, res) => {
             if (!cardData)
                 return res.status(401).send("error Happened to find card Data");
         } else if (req.body.paymentType == "balance") {
-            return res.status(401).send("You does not have enough balance to purchase");
+            let _uBalance = await TransactionService.getUserBalance(req.userData.id);
+            _uBalance = _uBalance / countryData.exRate;
+            if (totalGrossAmount < _uBalance)
+                return res.status(401).send("You does not have enough balance to purchase");
         }
 
         let transactionData = {};
@@ -271,9 +278,7 @@ exports.requestDeal = async(req, res) => {
         if (!transactionTo._id)
             return res.status(401).send("Error Happened try in another time");
 
-        let countryData = await CountryModel.findOne({ enName: dealsData[0].country });
-        if (!countryData._id)
-            return res.status(401).send("error Happened to find countryData");
+
 
         transactionData.fromUserId = req.userData._id;
         transactionData.toUserId = transactionTo._id;
@@ -299,7 +304,6 @@ exports.requestDeal = async(req, res) => {
         let transactionResult = await TransactionService.createTransaction(transactionData);
         if (!transactionResult)
             return res.status(401).send("error Happened while create transaction");
-        console.log("------------after trransaction");
         // create Deals Requests
 
 

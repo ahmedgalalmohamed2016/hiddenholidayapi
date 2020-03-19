@@ -18,7 +18,7 @@ let DealSchema = new Schema({
     sharePercentage: { type: Number, required: true },
     type: { type: String, required: true }, // deal , bid
     timeUsed: { type: String, required: true }, // 7
-    isActive: { type: Boolean, required: true, default: false }, //pending approved canceled
+    isActive: { type: Boolean, required: true, default: true }, //pending approved canceled
     isArchived: { type: Boolean, required: true, default: false },
     creationDate: { type: Date },
     startDate: { type: Date },

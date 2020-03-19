@@ -22,7 +22,7 @@ let Request = new Schema({
     country: { type: String, required: true },
     maximumDays: { type: Number, required: true },
     timeUsed: { type: String, required: true },
-
+    howManyUsed: { type: Number, required: true, default: 0 },
     status: { type: String }, //pending approved canceled 
     isSettled: { type: Boolean, default: false },
     isRefunded: { type: Boolean, default: false },

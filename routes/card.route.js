@@ -5,10 +5,13 @@ const router = express.Router();
 const TransactionController = require('../controllers/transaction.controller');
 const middleware = require('../middleware/auth');
 const adminMiddleware = require('../middleware/admin');
+const merchantMiddleware = require('../middleware/merchant');
 const userMiddleware = require('../middleware/user');
 const card_controller = require('../controllers/card.controller');
 
 router.post('/user/add', middleware.mainAuth, userMiddleware.userAuth, card_controller.add);
+
+router.post('/merchant/add', middleware.mainAuth, merchantMiddleware.merchantAuth, card_controller.merchantAdd);
 router.post('/user/get', middleware.mainAuth, userMiddleware.userAuth, card_controller.cards);
 router.post('/user/remove', middleware.mainAuth, userMiddleware.userAuth, card_controller.delete);
 
