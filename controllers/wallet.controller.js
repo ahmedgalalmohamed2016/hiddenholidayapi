@@ -110,6 +110,52 @@ exports.adminMerchantBalance = async(req, res) => {
     }
 }
 
+
+exports.merchantBalance = async(req, res) => {
+    try {
+        let data = {};
+        data.availableBalance = 0;
+        data.virtualBalance = 0;
+        data.currentBalance = 0;
+
+        data.currency = await countryModel.findOne({ enName: req.userData.country }, '-_id currency');
+        if (!data.currency)
+            return res.status(405).send("Error Happened please try again later.");
+
+        let transactions = await TransactionModel.find({ status: "approved", $or: [{ fromUserId: req.userData._id }, { toUserId: req.userData._id }] })
+        if (!transactions)
+            return res.status(405).send("Error Happened please try again later.");
+
+        for (let x = 0; x < transactions.length; x++) {
+            if (transactions[x].paymentMethod == "virtual") {
+                if (String(transactions[x].toUserId) == String(req.userData._id)) {
+                    data.virtualBalance = data.virtualBalance + transactions[x].grossAmount;
+
+                } else if (String(transactions[x].fromUserId) == String(req.userData._id)) {
+                    data.virtualBalance = data.virtualBalance - transactions[x].grossAmount;
+                }
+
+            } else if (transactions[x].paymentMethod != "balance") {
+                // if (String(transactions[x].fromUserId) == String(req.userData._id)) {
+                data.availableBalance = data.availableBalance + transactions[x].netAmount + transactions[x].merchantAmount;
+                // } else if (String(transactions[x].toUserId) == String(req.userData._id)) {
+                //     data.availableBalance = data.availableBalance - transactions[x].netAmount;
+                // }
+                //let userB = await TransactionService.getUserBalance(req.userData.id);
+
+            }
+        }
+        data.currency = data.currency.currency;
+        data.availableBalance = parseInt(data.availableBalance);
+        data.virtualBalance = parseInt(data.virtualBalance);
+        data.currentBalance = data.availableBalance + data.virtualBalance;
+        res.send(data);
+    } catch (err) {
+        return res.send(err.message);
+    }
+};
+
+
 exports.userBalance = async(req, res) => {
     try {
         let data = {};

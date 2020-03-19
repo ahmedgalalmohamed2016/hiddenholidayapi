@@ -23,7 +23,7 @@ exports.me = async(req, res) => {
     try {
         let transactions = await TransactionModel.find({
             $or: [{ fromUserId: req.userData._id }, { toUserId: req.userData._id }, ]
-        }).populate('fromUserId').populate('toUserId').sort('-creationDate');
+        }).populate('fromUserId').populate('toUserId').sort('-creationDate').limit(10);
         if (_.isNil(transactions))
             return res.status(405).send("No Transaction found in our system");
         return res.send(transactions);
@@ -90,6 +90,22 @@ exports.getByAdmin = async(req, res) => {
         return res.send("Try in another time.");
     }
 }
+
+
+exports.details = async(req, res) => {
+
+    try {
+        let transactions = await TransactionModel.findOne({ _id: req.body.id }).populate('fromUserId').populate('toUserId');
+        if (_.isNil(transactions))
+            return res.send("No Transaction found in our system");
+
+        return res.send(transactions);
+
+    } catch (err) {
+        return res.send("Try in another time.");
+    }
+}
+
 
 exports.balance = async(req, res) => {
     try {

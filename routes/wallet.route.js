@@ -6,12 +6,14 @@ const TransactionController = require('../controllers/transaction.controller');
 const middleware = require('../middleware/auth');
 const adminMiddleware = require('../middleware/admin');
 const userMiddleware = require('../middleware/user');
+const merchantMiddleware = require('../middleware/merchant');
 const card_controller = require('../controllers/card.controller');
 const wallet_controller = require('../controllers/wallet.controller');
 
 router.post('/user/cashin', middleware.mainAuth, userMiddleware.userAuth, wallet_controller.userCashin);
 router.post('/admin/merchant/balance', middleware.mainAuth, adminMiddleware.adminAuth, wallet_controller.adminMerchantBalance);
 router.post('/main/balance', middleware.mainAuth, adminMiddleware.adminAuth, wallet_controller.hiddenHolidayBalance);
+router.post('/merchant/balance', middleware.mainAuth, merchantMiddleware.merchantAuth, wallet_controller.merchantBalance);
 
 router.post('/main/subwallets', middleware.mainAuth, adminMiddleware.adminAuth, wallet_controller.subwallets);
 
