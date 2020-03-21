@@ -200,12 +200,6 @@ exports.MerchantBids = async(req, res) => {
 
 exports.requestDeal = async(req, res) => {
     try {
-        //1 check deals (isActive , merchant active , isArchived)
-        // 2 type card check cardid
-        //3 type balance chek total balance
-        //4 create transaction
-        // 5 create deal request
-        console.log("---------------");
         if (!req.body.paymentType || !req.body.data)
             return res.status(401).send("paymentType and data is required");
 
@@ -399,6 +393,25 @@ exports.DealRequests = async(req, res) => {
         if (_checkDeal)
             return res.send({ deal: _checkDeal, merchant: req.merchantData });
         return res.send({ deal: [], merchant: req.merchantData });
+    } catch (err) {
+        return res.send("Error Happened");
+    }
+}
+
+exports.UserDealRequests = async(req, res) => {
+    try {
+        let _query = {};
+
+        if (!req.body.type || req.body.type != "deal" && req.body.type != "bid")
+            return res.send("Please enter valid deals type");
+        _query.userId = req.userData._id;
+        _query.isSettled = false;
+        _query.type = req.body.type;
+
+        let _checkDeal = await RequestModel.find(_query).sort('-creationDate').populate('userId');
+        if (!_checkDeal)
+            return res.status(405).send("We doesnot found any deals");
+        return res.send(_checkDeal);
     } catch (err) {
         return res.send("Error Happened");
     }
