@@ -311,6 +311,7 @@ exports.requestDeal = async(req, res) => {
             _requestData.merchantId = dealsData[z].merchantId._id;
             _requestData.userId = req.userData._id;
             _requestData.transactionId = transactionResult._id;
+            _requestData.dealId = dealsData[z]._id;
             _requestData.VerificationCode = makeUserCode(10);
 
             for (let r = 0; r < req.body.data.length; r++) {
@@ -382,33 +383,39 @@ exports.AdminDealData = async(req, res) => {
     }
 }
 
-exports.DealRequests = async(req, res) => {
+exports.ActiveDealRequests = async(req, res) => {
     try {
         let _query = {};
         _query.merchantId = req.merchantData._id;
         _query.isSettled = false;
         _query.isRefunded = false;
 
-        let _checkDeal = await RequestModel.find(_query).sort('-creationDate').populate('userId');
-        if (_checkDeal)
-            return res.send({ deal: _checkDeal, merchant: req.merchantData });
-        return res.send({ deal: [], merchant: req.merchantData });
+        let _checkDeal = await RequestModel.find(_query).sort('-creationDate').populate('userId').populate('transactionId');
+        if (!_checkDeal)
+            return res.send([]);
+        return res.send(_checkDeal)
     } catch (err) {
-        return res.send("Error Happened");
+        return res.status(405).send("Error Happened");
     }
 }
 
 exports.UserDealRequests = async(req, res) => {
     try {
         let _query = {};
-
-        if (!req.body.type || req.body.type != "deal" && req.body.type != "bid")
-            return res.send("Please enter valid deals type");
+        let pageNumber = 0;
         _query.userId = req.userData._id;
         _query.isSettled = false;
-        _query.type = req.body.type;
 
-        let _checkDeal = await RequestModel.find(_query).sort('-creationDate').populate('userId');
+        if (req.bod.type) {
+            if (req.body.type != "deal" && req.body.type != "bid")
+                return res.send("Please enter valid deals type");
+            _query.type = req.body.type;
+        }
+        if (req.body.page) {
+            pageNumber == req.body.page;
+        }
+
+        let _checkDeal = await RequestModel.find(_query).sort('-creationDate').skip(pageNumber).limit(10).populate('userId');
         if (!_checkDeal)
             return res.status(405).send("We doesnot found any deals");
         return res.send(_checkDeal);

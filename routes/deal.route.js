@@ -13,7 +13,7 @@ router.post('/cart', deal_controller.cart);
 router.post('/admin/merchant', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.MerchantDeals);
 router.post('/me/deal', middleware.mainAuth, deal_controller.DealData);
 router.post('/admin/deal', middleware.mainAuth, adminMiddleware.adminAuth, deal_controller.AdminDealData);
-router.post('/merchants/me', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.DealRequests);
+router.post('/merchants/me/active', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.ActiveDealRequests);
 router.post('/user/me', middleware.mainAuth, deal_controller.UserDealRequests);
 
 router.post('/request', middleware.mainAuth, deal_controller.requestDeal);
