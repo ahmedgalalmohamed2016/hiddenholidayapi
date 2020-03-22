@@ -369,6 +369,21 @@ exports.DealData = async(req, res) => {
     }
 }
 
+
+exports.RequestData = async(req, res) => {
+    try {
+        if (!req.body.id)
+            res.status(405).send("please enter valid data");
+
+        let _request = await RequestModel.findById({ _id: req.body.id }).populate('userId').populate('transactionId').populate('dealId');
+        if (!_request)
+            return res.status(405).send("Please enter valid request data");
+        return res.send(_request);
+    } catch (err) {
+        return res.send("Error Happened");
+    }
+}
+
 exports.AdminDealData = async(req, res) => {
     try {
         if (!req.body.id)
@@ -389,8 +404,20 @@ exports.ActiveDealRequests = async(req, res) => {
         _query.merchantId = req.merchantData._id;
         _query.isSettled = false;
         _query.isRefunded = false;
+        let pageNumber;
 
-        let _checkDeal = await RequestModel.find(_query).sort('-creationDate').populate('userId').populate('transactionId');
+        if (req.body.type) {
+            if (req.body.type != "deal" && req.body.type != "bid")
+                return res.send("Please enter valid deals type");
+            _query.type = req.body.type;
+        }
+        if (req.body.page) {
+            pageNumber = parseInt(req.body.page) * 10;
+        } else {
+            pageNumber = 0;
+        }
+
+        let _checkDeal = await RequestModel.find(_query).sort('-creationDate').skip(pageNumber).limit(10).populate('userId').populate('transactionId');
         if (!_checkDeal)
             return res.send([]);
         return res.send(_checkDeal)
@@ -417,7 +444,7 @@ exports.UserDealRequests = async(req, res) => {
             pageNumber = 0;
         }
 
-        console.log(pageNumber);
+
         let _checkDeal = await RequestModel.find(_query).sort('-creationDate').skip(pageNumber).limit(10).populate('userId');
         if (!_checkDeal)
             return res.status(405).send("We doesnot found any deals");

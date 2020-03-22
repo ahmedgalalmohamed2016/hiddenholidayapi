@@ -17,6 +17,8 @@ router.post('/merchants/me/active', middleware.mainAuth, merchantMiddleware.merc
 router.post('/user/me', middleware.mainAuth, deal_controller.UserDealRequests);
 
 router.post('/request', middleware.mainAuth, deal_controller.requestDeal);
+router.post('/request/details', middleware.mainAuth, deal_controller.RequestData);
+
 router.post('/history', middleware.mainAuth, deal_controller.history);
 // router.get('/deal', deal_controller.DealByMerchantById);
 
