@@ -438,6 +438,11 @@ exports.UserDealRequests = async(req, res) => {
                 return res.send("Please enter valid deals type");
             _query.type = req.body.type;
         }
+
+        if (req.body.isUsed) {
+            _query.isUsed = req.body.isUsed;
+        }
+
         if (req.body.page) {
             pageNumber = parseInt(req.body.page) * 10;
         } else {
