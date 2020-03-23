@@ -138,3 +138,21 @@ exports.adminGetBid = async(req, res) => {
         return res.status(405).send(err);
     }
 }
+
+exports.list = async(req, res) => {
+    try {
+
+        if (!req.query.country)
+            return res.status(405).send("Please enter valid country data");
+        // get deals
+        let _skip = 0;
+        if (req.query.page)
+            _skip = req.query.page * 10;
+        let dealsData = await DealModel.find({ isArchived: false, country: req.query.country, type: 'bid' }).populate('categoryId').limit(10).skip(_skip).orFail((err) => Error(err));
+        if (!dealsData)
+            return res.status(405).send("Please enter data");
+        res.send(dealsData);
+    } catch (err) {
+        return res.send(err);
+    }
+}

@@ -12,7 +12,7 @@ router.post('/admin/update', middleware.mainAuth, adminMiddleware.adminAuth, bid
 router.post('/admin/list', middleware.mainAuth, adminMiddleware.adminAuth, bidcontroller.adminList);
 router.post('/admin/bid', middleware.mainAuth, adminMiddleware.adminAuth, bidcontroller.adminGetBid);
 // router.post('/admin/merchant', middleware.mainAuth, adminMiddleware.adminAuth, bidcontroller.adminListbyMerchantId);
-
+router.get('/', bidcontroller.list);
 router.post('/admin/merchant', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.MerchantBids);
 
 module.exports = router;
