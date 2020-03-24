@@ -8,6 +8,7 @@ const config = require('./configs/main');
 const path = require('path');
 
 const merchant = require('./routes/merchant.route');
+const bankAccountRoutes = require('./routes/bankAccount.route');
 const userRoutes = require('./routes/user.route');
 const dealRoutes = require('./routes/deal.route');
 const merchantUser = require('./routes/merchantUser.route');
@@ -66,6 +67,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/merchants', merchant);
 app.use('/user', userRoutes);
+app.use('/bank', bankAccountRoutes);
 app.use('/merchant/user', merchantUser);
 app.use('/api/deals', dealRoutes);
 app.use('/api/admin', adminRoutes);

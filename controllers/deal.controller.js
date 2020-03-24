@@ -350,7 +350,7 @@ exports.requestDeal = async(req, res) => {
 
     } catch (err) {
         console.log(err);
-        return res.send({ data: err });
+        return res.status(405).send({ data: err });
     }
 }
 
