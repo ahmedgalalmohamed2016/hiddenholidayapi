@@ -75,9 +75,12 @@ exports.adminGetUserById = async(req, res) => {
 
 exports.adminUpdateUser = async(req, res) => {
     try {
-        if (!req.body.id || !req.body.verifiedMobileNumber || !req.body.isLockedOut || !req.body.mobileNumber || !req.body.country || !req.body.firstName || !req.body.lastName)
+
+        if (!req.body.id || !req.body.mobileNumber || !req.body.country || !req.body.firstName || !req.body.lastName)
             return res.send('Please enter required fields.');
 
+        // !req.body.verifiedMobileNumber || || 
+        console.log(req.body);
         let data = {};
         data.firstName = req.body.firstName;
         data.lastName = req.body.lastName;

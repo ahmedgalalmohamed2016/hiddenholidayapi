@@ -398,6 +398,32 @@ exports.AdminDealData = async(req, res) => {
     }
 }
 
+exports.MerchantDeals = async(req, res) => {
+    try {
+
+        let _req = {};
+        _req.merchantId = req.merchantData._id;
+        if (req.body.isArchived && req.body.isArchived == true) {
+            _req.isArchived = true;
+        } else {
+            _req.isArchived = false;
+        }
+
+        if (req.body.type == 'bid') {
+            _req.type = 'bid';
+        } else {
+            _req.type = 'deal';
+        }
+        console.log(req.body.type);
+        let _deal = await DealModel.find(_req);
+        if (!_deal)
+            return res.status(405).send("Please enter valid deal data");
+        return res.send(_deal);
+    } catch (err) {
+        return res.send("Error Happened");
+    }
+}
+
 exports.ActiveDealRequests = async(req, res) => {
     try {
         let _query = {};
