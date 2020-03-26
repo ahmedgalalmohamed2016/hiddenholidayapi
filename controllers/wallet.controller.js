@@ -4,6 +4,7 @@ const TransactionModel = require('../models/transaction.model');
 const countryModel = require('../models/country.model');
 const packageModel = require('../models/package.model');
 const CardModel = require('../models/card.model');
+const RequestModel = require('../models/request.model');
 const UserModel = require('../models/user.model');
 const DealModel = require('../models/deal.model');
 const VerificationModel = require('../models/verification.model');
@@ -302,10 +303,11 @@ exports.userCashin = async(req, res) => {
         transactionData.status = "approved";
         transactionData.sourceType = "cashIn";
         transactionData.comment = req.body.comment || "";
-        transactionData.paymentMethod = "credit";
+        transactionData.paymentMethod = "card";
         transactionData.code = makeUserCode(10);
         transactionData.creationDate = new Date();
         transactionData.sharePercentage = '0';
+        transactionData.isSettled = true;
 
         // //sourceData {senderName , recieverName  }
         transactionData.sourceData = {};
@@ -319,6 +321,82 @@ exports.userCashin = async(req, res) => {
     } catch (err) {
         console.log(err);
         return res.res.status(401).send("error Happened while create transaction");
+    }
+}
+exports.merchantCashin = async(req, res) => {
+    try {
+        if (!req.body.cardId || !req.body.amount)
+            return res.status(401).send("card id and amount is required");
+
+        if (req.body.amount > 1000)
+            return res.status(401).send("you have maximum limit exceed");
+
+        let transactionData = {};
+        const transactionTo = await UserModel.findOne({ role: "superAdmin" });
+        if (!transactionTo._id)
+            return res.status(401).send("Error Happened try in another time");
+
+        let countryData = await countryModel.findOne({ enName: req.userData.country });
+        if (!countryData._id)
+            return res.status(401).send("error Happened to find countryData");
+
+        let cardData = await CardModel.findOne({ _id: req.body.cardId, userId: req.userData._id });
+        if (!cardData)
+            return res.status(401).send("error Happened to find card Data");
+
+        req.body.amount = req.body.amount * countryData.exRate;
+        req.body.amount = parseInt(req.body.amount);
+
+        transactionData.fromUserId = req.userData._id;
+        transactionData.toUserId = transactionTo._id;
+        transactionData.grossAmount = req.body.amount;
+        transactionData.netAmount = req.body.amount;
+        transactionData.merchantAmount = 0;
+        transactionData.currency = countryData.currency;
+
+        transactionData.status = "approved";
+        transactionData.sourceType = "cashIn";
+        transactionData.comment = req.body.comment || "";
+        transactionData.paymentMethod = "card";
+        transactionData.code = makeUserCode(10);
+        transactionData.creationDate = new Date();
+        transactionData.sharePercentage = '0';
+        transactionData.isSettled = true;
+
+        // //sourceData {senderName , recieverName  }
+        transactionData.sourceData = {};
+        transactionData.sourceData.senderName = req.merchantData.name;
+        transactionData.sourceData.receiverName = transactionTo.firstName + ' ' + transactionTo.lastName;
+
+        let transactionResult = await TransactionService.createTransaction(transactionData);
+        if (transactionResult == false)
+            return res.status(401).send("error Happened while create transaction");
+        return res.send(transactionResult);
+    } catch (err) {
+        console.log(err);
+        return res.res.status(401).send("error Happened while create transaction");
+    }
+}
+
+exports.merchantSummary = async(req, res) => {
+    try {
+        let summary = {};
+        summary.income = 0;
+        summary.expenses = 0;
+        summary.total = 0;
+        let _dealRequest = await RequestModel.find({ merchantId: req.merchantData._id, isSettled: false });
+        if (!_dealRequest)
+            return res.status(405).send("Please enter valid deal data");
+
+        for (let x = 0; x < _dealRequest.length; x++) {
+            summary.income = summary.income + _dealRequest[x].merchantAmount;
+            summary.expenses = summary.expenses + (_dealRequest[x].netAmount);
+            summary.total = summary.total + _dealRequest[x].grossAmount;
+        }
+        return res.send(summary);
+
+    } catch (err) {
+        return res.res.status(401).send("error Happened while find summary");
     }
 }
 
@@ -342,9 +420,10 @@ exports.merchantAddFund = async(req, res) => {
         transactionData.status = "approved";
         transactionData.sourceType = "Init";
         transactionData.comment = "This is free init balance.";
-        transactionData.paymentMethod = "credit";
+        transactionData.paymentMethod = "card";
         transactionData.code = makeUserCode(10);
         transactionData.creationDate = new Date();
+        transactionData.isSettled = true;
 
         let transactionResult = await TransactionService.createTransaction(transactionData);
         if (transactionResult == false)

@@ -369,6 +369,24 @@ exports.DealData = async(req, res) => {
     }
 }
 
+exports.MerchantDealData = async(req, res) => {
+    try {
+        if (!req.body.id)
+            res.status(405).send("please enter valid data");
+
+        let _deal = await DealModel.find({ _id: req.body.id, merchantId: req.merchantData._id }).populate('categoryId');
+        if (!_deal)
+            return res.status(405).send("Please enter valid deal data");
+
+        let _dealRequest = await RequestModel.count({ merchantId: req.merchantData._id, dealId: req.body.id });
+
+        if (_dealRequest < 0)
+            return res.status(405).send("Please enter valid deal data");
+        return res.send({ deal: _deal, totalRequests: _dealRequest });
+    } catch (err) {
+        return res.send("Error Happened");
+    }
+}
 
 exports.RequestData = async(req, res) => {
     try {
@@ -415,7 +433,7 @@ exports.MerchantDeals = async(req, res) => {
             _req.type = 'deal';
         }
         console.log(req.body.type);
-        let _deal = await DealModel.find(_req);
+        let _deal = await DealModel.find(_req).populate('categoryId');
         if (!_deal)
             return res.status(405).send("Please enter valid deal data");
         return res.send(_deal);

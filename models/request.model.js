@@ -4,9 +4,9 @@ const Schema = mongoose.Schema;
 let Request = new Schema({
     creationDate: { type: Date },
     merchantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Merchant' },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    transactionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' },
-    dealId: { type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    transactionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Transaction', required: true },
+    dealId: { type: mongoose.Schema.Types.ObjectId, ref: 'Deal', required: true },
     verificationCode: { type: String, required: true },
     title: { type: String },
     description: { type: String },
@@ -31,6 +31,10 @@ let Request = new Schema({
     isUsed: { type: Boolean, default: false },
     transactionSource: { type: String }, // if refund must insert source transaction id
     bankAccount: { type: String },
+
+    deliveryRequested: { type: Boolean, default: false },
+    deliveryStatus: { type: mongoose.Schema.Types.Mixed },
+    deliveryTime: { type: String },
 });
 
 

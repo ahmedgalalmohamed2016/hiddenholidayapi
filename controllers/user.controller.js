@@ -79,7 +79,6 @@ exports.adminUpdateUser = async(req, res) => {
         if (!req.body.id || !req.body.mobileNumber || !req.body.country || !req.body.firstName || !req.body.lastName)
             return res.send('Please enter required fields.');
 
-        // !req.body.verifiedMobileNumber || || 
         console.log(req.body);
         let data = {};
         data.firstName = req.body.firstName;

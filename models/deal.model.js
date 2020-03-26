@@ -20,6 +20,8 @@ let DealSchema = new Schema({
     timeUsed: { type: String, required: true }, // 7
     isActive: { type: Boolean, required: true, default: true }, //pending approved canceled
     isArchived: { type: Boolean, required: true, default: false },
+    isDelivery: { type: Boolean, required: true, default: false },
+    deliveryTime: { type: String },
     creationDate: { type: Date },
     startDate: { type: Date },
     endDate: { type: Date },
