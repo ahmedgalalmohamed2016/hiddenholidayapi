@@ -33,7 +33,10 @@ let Request = new Schema({
     bankAccount: { type: String },
 
     deliveryRequested: { type: Boolean, default: false },
-    deliveryStatus: { type: mongoose.Schema.Types.Mixed },
+    deliveryStatus: { type: mongoose.Schema.Types.Mixed }, //request - accept/decline - prepare - delivery -done
+    deliveryAddress: { type: String },
+    deliveryMobileNumber: { type: String },
+    deliveryName: { type: String },
     deliveryTime: { type: String },
 });
 

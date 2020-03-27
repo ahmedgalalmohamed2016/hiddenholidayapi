@@ -233,7 +233,6 @@ exports.requestDeal = async(req, res) => {
 
         for (let y = 0; y < dealsData.length; y++) {
             if (dealsData[y].country != dealsData[0].country)
-
                 return res.send("Deals must be at the same country");
         }
 
@@ -317,6 +316,14 @@ exports.requestDeal = async(req, res) => {
             for (let r = 0; r < req.body.data.length; r++) {
                 if (req.body.data[r].id == dealsData[z]._id) {
                     _requestData.count = req.body.data[r].count;
+                    if (req.body.data[r].isDelivery == true && dealsData[z].isDelivery == true) {
+                        _requestData.deliveryRequested = true;
+                        _requestData.deliveryStatus = 'request';
+                        _requestData.deliveryAddress = req.userData.address;
+                        _requestData.deliveryMobileNumber = req.userData.username;
+                        _requestData.deliveryName = req.userData.firstName + req.userData.lastName;
+                        _requestData.deliveryTime = dealsData[z].deliveryTime;
+                    }
                 }
             }
 
@@ -460,6 +467,38 @@ exports.ActiveDealRequests = async(req, res) => {
         } else {
             pageNumber = 0;
         }
+
+        _query.deliveryRequested = false;
+
+        let _checkDeal = await RequestModel.find(_query).sort('-creationDate').skip(pageNumber).limit(10).populate('userId').populate('transactionId');
+        if (!_checkDeal)
+            return res.send([]);
+        return res.send(_checkDeal)
+    } catch (err) {
+        return res.status(405).send("Error Happened");
+    }
+}
+
+exports.ActiveDealRequestsDelivery = async(req, res) => {
+    try {
+        let _query = {};
+        _query.merchantId = req.merchantData._id;
+        _query.isSettled = false;
+        _query.isRefunded = false;
+        let pageNumber;
+
+        if (req.body.type) {
+            if (req.body.type != "deal" && req.body.type != "bid")
+                return res.send("Please enter valid deals type");
+            _query.type = req.body.type;
+        }
+        if (req.body.page) {
+            pageNumber = parseInt(req.body.page) * 10;
+        } else {
+            pageNumber = 0;
+        }
+
+        _query.deliveryRequested = true;
 
         let _checkDeal = await RequestModel.find(_query).sort('-creationDate').skip(pageNumber).limit(10).populate('userId').populate('transactionId');
         if (!_checkDeal)

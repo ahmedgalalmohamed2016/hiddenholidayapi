@@ -344,7 +344,7 @@ exports.merchantCashin = async(req, res) => {
         if (!cardData)
             return res.status(401).send("error Happened to find card Data");
 
-        req.body.amount = req.body.amount * countryData.exRate;
+        // req.body.amount = req.body.amount;
         req.body.amount = parseInt(req.body.amount);
 
         transactionData.fromUserId = req.userData._id;
@@ -393,6 +393,7 @@ exports.merchantSummary = async(req, res) => {
             summary.expenses = summary.expenses + (_dealRequest[x].netAmount);
             summary.total = summary.total + _dealRequest[x].grossAmount;
         }
+        summary.currency = req.merchantData.countryId.currency;
         return res.send(summary);
 
     } catch (err) {

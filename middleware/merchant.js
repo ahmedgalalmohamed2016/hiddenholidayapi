@@ -14,7 +14,7 @@ exports.merchantAuth = async function(req, res, next) {
         }
     }
 
-    let _merchant = await merchant.findById({ _id: req.userData.merchant });
+    let _merchant = await merchant.findById({ _id: req.userData.merchant }).populate('countryId');
 
     if (!_merchant)
         return res.status(405).send("Please enter valid merchant data");
