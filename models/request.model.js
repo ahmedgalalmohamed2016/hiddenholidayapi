@@ -38,6 +38,7 @@ let Request = new Schema({
     deliveryMobileNumber: { type: String },
     deliveryName: { type: String },
     deliveryTime: { type: String },
+    deliveryFees: { type: Number }
 });
 
 

@@ -271,8 +271,6 @@ exports.requestDeal = async(req, res) => {
         if (!transactionTo._id)
             return res.status(401).send("Error Happened try in another time");
 
-
-
         transactionData.fromUserId = req.userData._id;
         transactionData.toUserId = transactionTo._id;
         transactionData.grossAmount = totalGrossAmount;
@@ -323,6 +321,7 @@ exports.requestDeal = async(req, res) => {
                         _requestData.deliveryMobileNumber = req.userData.username;
                         _requestData.deliveryName = req.userData.firstName + req.userData.lastName;
                         _requestData.deliveryTime = dealsData[z].deliveryTime;
+                        _requestData.deliveryFees = dealsData[z].deliveryFees;
                     }
                 }
             }
@@ -419,7 +418,7 @@ exports.AdminDealData = async(req, res) => {
             return res.status(405).send("Please enter valid deal data");
         return res.send(_deal);
     } catch (err) {
-        return res.send("Error Happened");
+        return res.status(405).send("Error Happened");
     }
 }
 
