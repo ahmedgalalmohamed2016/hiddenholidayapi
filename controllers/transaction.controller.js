@@ -45,7 +45,7 @@ exports.merchantGetBill = async(req, res) => {
 
 exports.merchantUpdateBill = async(req, res) => {
     try {
-        if (!req.body.status)
+        if (!req.body.status || !req.body.transactionId)
             return res.status(405).send("Please choose required status to update");
         console.log(req.body.status);
         if (req.body.status != 'approved' && req.body.status != 'decline')
@@ -53,6 +53,7 @@ exports.merchantUpdateBill = async(req, res) => {
 
         let transactions = await TransactionModel.updateOne({
             merchantId: req.merchantData._id,
+            _id: req.body.transactionId,
             status: 'pending',
             sourceType: 'bill'
         }, { $set: { status: req.body.status } }, { new: true });

@@ -387,9 +387,18 @@ exports.merchantSummary = async(req, res) => {
         summary.income = 0;
         summary.expenses = 0;
         summary.total = 0;
+        summary.bills = 0;
         let _dealRequest = await RequestModel.find({ merchantId: req.merchantData._id, isSettled: false });
         if (!_dealRequest)
             return res.status(405).send("Please enter valid deal data");
+
+        let _bills = await TransactionModel.find({ merchantId: req.merchantData._id, isSettled: false, sourceType: 'bill', status: 'approved' });
+        if (!_bills)
+            return res.status(405).send("Please enter valid deal data");
+
+        for (let y = 0; y < _bills.length; y++) {
+            summary.bills = summary.bills + _bills[y].merchantAmount;
+        }
 
         for (let x = 0; x < _dealRequest.length; x++) {
             summary.income = summary.income + _dealRequest[x].merchantAmount;

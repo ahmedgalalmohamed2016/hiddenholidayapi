@@ -44,6 +44,7 @@ exports.merchantList = async(req, res) => {
             return res.status(405).send("We don't found any accounts");
         return res.send(bankData);
     } catch (err) {
+        console.log(err);
         return res.status(405).send("Can not find bank accounts.");
     }
 }
