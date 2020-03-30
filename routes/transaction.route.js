@@ -21,7 +21,7 @@ router.post('/merchant/balance', middleware.mainAuth, TransactionController.bala
 
 router.post('/user/bill/request', middleware.mainAuth, userMiddleware.userAuth, TransactionController.requestBill);
 router.post('/merchant/bill', middleware.mainAuth, merchantMiddleware.merchantAuth, TransactionController.merchantGetBill);
-router.post('/merchant/bill', middleware.mainAuth, merchantMiddleware.merchantAuth, TransactionController.merchantUpdateBill);
+router.post('/merchant/bill/update', middleware.mainAuth, merchantMiddleware.merchantAuth, TransactionController.merchantUpdateBill);
 
 
 module.exports = router;
