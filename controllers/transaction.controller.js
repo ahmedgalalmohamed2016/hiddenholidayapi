@@ -27,7 +27,7 @@ exports.merchantGetBill = async(req, res) => {
     try {
         let status = 'pending';
         if (req.body.status == 'approved') {
-            status = 'approved';
+            status = { $ne: 'pending' };
         }
         let transactions = await TransactionModel.find({
             merchantId: req.merchantData._id,
@@ -45,15 +45,18 @@ exports.merchantGetBill = async(req, res) => {
 
 exports.merchantUpdateBill = async(req, res) => {
     try {
-        let status = 'pending';
-        if (req.body.status == 'approved') {
-            status = 'approved';
-        }
+        if (!req.body.status)
+            return res.status(405).send("Please choose required status to update");
+        console.log(req.body.status);
+        if (req.body.status != 'approved' && req.body.status != 'decline')
+            return res.status(405).send("Please choose valid status to update");
+
         let transactions = await TransactionModel.updateOne({
             merchantId: req.merchantData._id,
             status: 'pending',
             sourceType: 'bill'
-        }, { $set: { status: req.body.status } });
+        }, { $set: { status: req.body.status } }, { new: true });
+
         if (_.isNil(transactions))
             return res.status(405).send("No Transaction found in our system");
         return res.send(transactions);
