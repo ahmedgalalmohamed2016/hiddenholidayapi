@@ -67,7 +67,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/merchants', merchant);
 app.use('/user', userRoutes);
-app.use('/bank', bankAccountRoutes);
+app.use('/api/bank', bankAccountRoutes);
 app.use('/merchant/user', merchantUser);
 app.use('/api/deals', dealRoutes);
 app.use('/api/admin', adminRoutes);

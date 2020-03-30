@@ -326,23 +326,26 @@ exports.userCashin = async(req, res) => {
 exports.merchantCashin = async(req, res) => {
     try {
         if (!req.body.cardId || !req.body.amount)
-            return res.status(401).send("card id and amount is required");
+            return res.status(405).send("card id and amount is required");
+
+        if (req.body.amount < 1)
+            return res.status(405).send("Enter valid amount");
 
         if (req.body.amount > 1000)
-            return res.status(401).send("you have maximum limit exceed");
+            return res.status(405).send("you have maximum limit exceed");
 
         let transactionData = {};
         const transactionTo = await UserModel.findOne({ role: "superAdmin" });
         if (!transactionTo._id)
-            return res.status(401).send("Error Happened try in another time");
+            return res.status(405).send("Error Happened try in another time");
 
         let countryData = await countryModel.findOne({ enName: req.userData.country });
         if (!countryData._id)
-            return res.status(401).send("error Happened to find countryData");
+            return res.status(405).send("error Happened to find countryData");
 
         let cardData = await CardModel.findOne({ _id: req.body.cardId, userId: req.userData._id });
         if (!cardData)
-            return res.status(401).send("error Happened to find card Data");
+            return res.status(405).send("error Happened to find card Data");
 
         // req.body.amount = req.body.amount;
         req.body.amount = parseInt(req.body.amount);
@@ -370,11 +373,11 @@ exports.merchantCashin = async(req, res) => {
 
         let transactionResult = await TransactionService.createTransaction(transactionData);
         if (transactionResult == false)
-            return res.status(401).send("error Happened while create transaction");
+            return res.status(405).send("error Happened while create transaction");
         return res.send(transactionResult);
     } catch (err) {
         console.log(err);
-        return res.res.status(401).send("error Happened while create transaction");
+        return res.res.status(405).send("error Happened while create transaction");
     }
 }
 

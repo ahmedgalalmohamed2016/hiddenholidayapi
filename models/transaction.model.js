@@ -6,6 +6,7 @@ let TransactionSchema = new Schema({
     fromUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     toUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     requestId: { type: mongoose.Schema.Types.ObjectId, ref: 'Request', required: false },
+    merchantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Merchant', required: false },
     cardId: { type: mongoose.Schema.Types.ObjectId, ref: 'Card' },
     grossAmount: { type: Number, required: true },
     netAmount: { type: Number, required: true },

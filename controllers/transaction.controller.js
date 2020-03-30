@@ -1,11 +1,15 @@
 const merchant = require('../models/merchant.model');
 const UserModel = require('../models/user.model');
 const DealModel = require('../models/deal.model');
+const CountryModel = require('../models/country.model');
+const CardModel = require('../models/card.model');
 const TransactionModel = require('../models/transaction.model');
+const TransactionService = require('../services/transactionService');
 const _ = require("lodash");
 const request = require("superagent");
 var fs = require("fs");
 const mongoose = require('mongoose');
+const config = require('../configs/main');
 
 exports.getAll = async(req, res) => {
     try {
@@ -16,6 +20,108 @@ exports.getAll = async(req, res) => {
 
     } catch (err) {
         return res.send("Try in another time.");
+    }
+}
+
+exports.merchantGetBill = async(req, res) => {
+    try {
+        let status = 'pending';
+        if (req.body.status == 'approved') {
+            status = 'approved';
+        }
+        let transactions = await TransactionModel.find({
+            merchantId: req.merchantData._id,
+            status: status,
+            sourceType: 'bill'
+        }).populate('fromUserId').populate('toUserId');
+        if (_.isNil(transactions))
+            return res.status(405).send("No Transaction found in our system");
+        return res.send(transactions);
+
+    } catch (err) {
+        return res.status(405).send("Try in another time.");
+    }
+}
+
+exports.requestBill = async(req, res) => {
+    try {
+        let transactionData = {};
+        if (!req.body.paymentType || !req.body.merchantId || !req.body.amount)
+            return res.status(405).send("paymentType and amount is required");
+
+        if (req.body.paymentType != "card" && req.body.paymentType != "balance")
+            return res.status(405).send("Please enter valid payment method");
+
+        if (req.body.paymentType == "card" && !req.body.cardId)
+            return res.status(405).send("cardId is required");
+
+        if (req.body.amount < 1)
+            return res.status(405).send("amount must be greather than limit");
+
+        if (typeof req.body.data == "string")
+            req.body.data = JSON.parse(req.body.data);
+
+        let merchantData = await merchant.find({ _id: req.body.merchantId }).populate('countryId');
+        if (_.isNil(merchantData))
+            return res.status(405).send("No Merchant found");
+
+
+        let countryData = await CountryModel.findOne({ enName: merchantData[0].countryId.enName });
+        if (!countryData._id)
+            return res.status(405).send("error Happened to find countryData");
+
+        if (req.body.paymentType == "card") {
+            let cardData = await CardModel.findOne({ _id: req.body.cardId, userId: req.userData.id, isDeleted: false });
+            if (!cardData)
+                return res.status(401).send("error Happened to find card Data");
+            transactionData.sharePercentage = 4 //config.sharePercentage;
+        } else if (req.body.paymentType == "balance") {
+            let _uBalance = await TransactionService.getUserBalance(req.userData.id);
+            _uBalance = _uBalance / countryData.exRate;
+            if (req.body.amount < _uBalance)
+                return res.status(401).send("You does not have enough balance to purchase");
+            transactionData.sharePercentage = 1;
+        }
+        // console.log(config.sharePercentage);
+        let grossAmount = 0;
+        let netAmount = 0;
+        let merchantAmount = 0;
+
+        const transactionTo = await UserModel.findOne({ role: "superAdmin" });
+        if (!transactionTo._id)
+            return res.status(401).send("Error Happened try in another time");
+
+        transactionData.fromUserId = req.userData._id;
+        transactionData.toUserId = transactionTo._id;
+        transactionData.grossAmount = parseFloat(req.body.amount) + parseFloat(req.body.amount * transactionData.sharePercentage / 100);
+        transactionData.netAmount = parseFloat(req.body.amount * transactionData.sharePercentage / 100);
+        transactionData.merchantAmount = req.body.amount;
+        transactionData.currency = countryData.currency;
+
+        transactionData.status = "pending";
+        transactionData.sourceType = "bill";
+        transactionData.comment = req.body.comment || "";
+        transactionData.paymentMethod = req.body.paymentType;
+        transactionData.code = makeUserCode(10);
+        transactionData.creationDate = new Date();
+        transactionData.exRate = countryData.exRate;
+        transactionData.merchantId = merchantData[0]._id;
+
+        // //sourceData {senderName , recieverName  }
+        transactionData.sourceData = {};
+        transactionData.sourceData.senderName = req.userData.firstName + ' ' + req.userData.lastName;
+        transactionData.sourceData.receiverName = merchantData[0].name;
+        //  return res.send(transactionData);
+        let transactionResult = await TransactionService.createTransaction(transactionData);
+        if (!transactionResult)
+            return res.status(401).send("error Happened while create transaction");
+        // create Deals Requests
+
+        return res.send(transactionResult);
+
+    } catch (err) {
+        console.log(err);
+        return res.status(405).send({ data: err });
     }
 }
 
@@ -121,4 +227,14 @@ exports.balance = async(req, res) => {
     } catch (err) {
         return res.send("Try in another time.");
     }
+}
+
+function makeUserCode(length) {
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
 }
