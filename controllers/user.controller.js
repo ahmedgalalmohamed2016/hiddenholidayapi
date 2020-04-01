@@ -332,6 +332,24 @@ exports.getUserData = async(req, res) => {
         return res.send(err);
     }
 }
+exports.profileEdite = async(req, res) => {
+    try{
+    console.log(req.userData);
+    req.userData.firstName = req.body.firstName || req.userData.firstName;
+    req.userData.lastName = req.body.lastName || req.userData.lastName;
+    req.userData.emailName = req.body.emailName || req.userData.emailName;
+    req.userData.address = req.body.address || req.userData.address;
+
+        const updatedUser = await UserModel.findOneAndUpdate({ _id: req.userData._id, }, 
+            { $set:  req.userData}, 
+            { new: true })
+        if (!updatedUser)
+            return res.status(405).send("No user found with this data");
+        return res.send(updatedUser);
+    } catch (err) {
+        return res.status(405).send("Error happened while update user data");
+    }
+}
 
 exports.loginFB = async(req, res) => {
     try {

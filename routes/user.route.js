@@ -29,6 +29,7 @@ router.post('/admin/update',  middleware.mainAuth, adminMiddleware.adminAuth, u
 
 
 router.post('/profile', middleware.mainAuth, user_controller.getUserData);
+router.post('/profileEdite', middleware.mainAuth, user_controller.profileEdite);
 router.post('/verifyPhone', middleware.mainAuth, user_controller.verifyPhone);
 router.post('/verifyPhone/resendSms', middleware.mainAuth, user_controller.resendSms);
 router.post('/login/facebook', user_controller.loginFB);
