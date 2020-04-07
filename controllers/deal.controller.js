@@ -56,7 +56,6 @@ exports.adminCreateDeal = async(req, res) => {
 
         return res.send({ data: "Deal Created Success." });
     } catch (err) {
-        console.log(err);
         return res.status(405).send({ data: "Please Try in another time", error: err });
     }
 }
@@ -175,7 +174,6 @@ exports.adminCreateBid = async(req, res) => {
 
         return res.send({ data: "Deal Created Success." });
     } catch (err) {
-        console.log(err);
         return res.status(405).send({ data: "Please Try in another time", error: err });
     }
 }
@@ -190,6 +188,7 @@ exports.deals = async(req, res) => {
         if (req.query.page)
             _skip = req.query.page * 10;
         let dealsData = await DealModel.find({ isArchived: false, country: req.query.country, type: 'deal' }).populate('categoryId').limit(10).skip(_skip).orFail((err) => Error(err));
+      
         if (!dealsData)
             return res.status(405).send("Please enter data");
         res.send(dealsData);
@@ -226,7 +225,6 @@ exports.cart = async(req, res) => {
             let valu = new mongoose.Types.ObjectId(req.body.ids[x]);
             ids.push(valu);
         }
-        console.log(ids);
         let dealsData = await DealModel.find({
             _id: { $in: ids },
             isArchived: false
@@ -424,15 +422,18 @@ exports.requestDeal = async(req, res) => {
             }
             _requestData.sharePercentage = dealsData[z].sharePercentage;
             _requestData.status = "approved";
+            _requestData.categoryId = dealsData[z].categoryId._id;
             requests.push(_requestData);
         }
+        
         let requestData = RequestModel.create(requests);
+        console.log(requestDataFull);
+        
         if (!requestData)
             return res.status(401).send("error Happened while create requests");
         return res.send("Requests Created Success");
 
     } catch (err) {
-        console.log(err);
         return res.status(405).send({ data: err });
     }
 }
@@ -443,7 +444,9 @@ exports.DealData = async(req, res) => {
         if (!req.body.id)
             res.status(405).send("please enter valid data");
 
-        let _deal = await DealModel.findById({ _id: req.body.id, isArchived: false });
+        let _deal = await DealModel.findById({ _id: req.body.id, isArchived: false })
+        .populate('categoryId');
+     
         if (!_deal)
             return res.status(405).send("Please enter valid deal data");
         return res.send(_deal);
@@ -491,6 +494,8 @@ exports.AdminDealData = async(req, res) => {
             res.status(405).send("please enter valid data");
 
         let _deal = await DealModel.findById({ _id: req.body.id, isArchived: false });
+
+
         if (!_deal)
             return res.status(405).send("Please enter valid deal data");
         return res.send(_deal);
@@ -515,7 +520,6 @@ exports.MerchantDeals = async(req, res) => {
         } else {
             _req.type = 'deal';
         }
-        console.log(req.body.type);
         let _deal = await DealModel.find(_req).populate('categoryId');
         if (!_deal)
             return res.status(405).send("Please enter valid deal data");
@@ -547,6 +551,7 @@ exports.ActiveDealRequests = async(req, res) => {
         _query.deliveryRequested = false;
 
         let _checkDeal = await RequestModel.find(_query).sort('-creationDate').skip(pageNumber).limit(10).populate('userId').populate('transactionId');
+      
         if (!_checkDeal)
             return res.send([]);
         return res.send(_checkDeal)
@@ -609,12 +614,14 @@ exports.UserDealRequests = async(req, res) => {
         }
 
 
-        let _checkDeal = await RequestModel.find(_query).sort('-creationDate').skip(pageNumber).limit(10).populate('userId');
+        let _checkDeal = await RequestModel.find(_query).populate('categoryId').sort('-creationDate').skip(pageNumber).limit(10).populate('userId');
+        // .populate('categoryId')
+        console.log(_checkDeal);
+        
         if (!_checkDeal)
             return res.status(405).send("We doesnot found any deals");
         return res.send(_checkDeal);
     } catch (err) {
-        console.log(err);
         return res.status(405).send("Error Happened");
     }
 }

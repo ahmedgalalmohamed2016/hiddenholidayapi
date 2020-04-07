@@ -19,7 +19,8 @@ let Request = new Schema({
     sharePercentage: { type: String },
     count: { type: Number, required: true },
     comment: { type: String },
-
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Categories', required: true },
+    
     country: { type: String, required: true },
     maximumDays: { type: Number, required: true },
     timeUsed: { type: String, required: true },
