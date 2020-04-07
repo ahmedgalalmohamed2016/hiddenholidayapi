@@ -60,6 +60,83 @@ exports.adminCreateDeal = async(req, res) => {
         return res.status(405).send({ data: "Please Try in another time", error: err });
     }
 }
+exports.merchantCreateDeal = async(req, res) => {
+    try {
+
+        let _category = await CategoryModel.findById({ _id: req.body.categoryId });
+        if (!_category)
+            return res.status(405).send("Please enter valid category data");
+
+        let deal = {};
+        deal.merchantId = req.merchantData._id;
+        deal.categoryId = _category._id;
+        deal.countryId = req.merchantData.countryId;
+        deal.title = req.body.title;
+        deal.description = req.body.description;
+        deal.country = req.merchantData.country;
+        deal.currency = req.body.currency;
+        deal.type = 'deal';
+        deal.originalPrice = req.body.originalPrice;
+        deal.newPrice = req.body.newPrice;
+        deal.timeUsed = req.body.timeUsed;
+        deal.discountPercentage = req.body.discountPercentage;
+        deal.creationDate = new Date();
+        deal.sharePercentage = req.body.sharePercentage;
+        deal.titleAr = req.body.titleAr;
+        deal.descriptionAr = req.body.descriptionAr;
+        deal.maximumDays = req.body.maximumDays;
+        deal.isActive = true;
+
+        let dealData = await DealModel.create(deal);
+        if (_.isNil(dealData))
+            return res.status(401).send("Can not create this deal.");
+
+        return res.send({ data: "Deal Created Success." });
+    } catch (err) {
+        console.log(err);
+        return res.status(405).send({ data: "Please Try in another time", error: err });
+    }
+}
+
+exports.merchantCreateBid = async(req, res) => {
+    try {
+
+        let _category = await CategoryModel.findById({ _id: req.body.categoryId });
+        if (!_category)
+            return res.status(405).send("Please enter valid category data");
+
+        let deal = {};
+        deal.merchantId = req.merchantData.id;
+        deal.categoryId = _category._id;
+        deal.countryId = req.merchantData.countryId;
+        deal.title = req.body.title;
+        deal.description = req.body.description;
+        deal.country = req.merchantData.country;
+        deal.currency = req.body.currency;
+        deal.type = 'bid';
+        deal.originalPrice = req.body.originalPrice;
+        deal.newPrice = req.body.newPrice;
+        deal.timeUsed = req.body.timeUsed;
+        deal.discountPercentage = req.body.discountPercentage;
+        deal.creationDate = new Date();
+        deal.sharePercentage = req.body.sharePercentage;
+        deal.titleAr = req.body.titleAr;
+        deal.descriptionAr = req.body.descriptionAr;
+        deal.maximumDays = req.body.maximumDays;
+        deal.isActive = true;
+        deal.startDate = new Date();
+        deal.endDate = new Date();
+
+        let dealData = await DealModel.create(deal);
+        if (_.isNil(dealData))
+            return res.status(401).send("Can not create this bid.");
+
+        return res.send({ data: "Bid Created Success." });
+    } catch (err) {
+        console.log(err);
+        return res.status(405).send({ data: "Please Try in another time", error: err });
+    }
+}
 
 exports.adminCreateBid = async(req, res) => {
     try {

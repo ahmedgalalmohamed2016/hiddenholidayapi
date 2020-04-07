@@ -25,6 +25,10 @@ router.post('/request', middleware.mainAuth, deal_controller.requestDeal);
 router.post('/request/details', middleware.mainAuth, deal_controller.RequestData);
 
 router.post('/history', middleware.mainAuth, deal_controller.history);
+
+router.post('/merchant/create', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.merchantCreateDeal);
+router.post('/merchant/create/bid', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.merchantCreateBid);
+
 // router.get('/deal', deal_controller.DealByMerchantById);
 
 module.exports = router;
