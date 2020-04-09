@@ -124,7 +124,10 @@ exports.merchantCreateBid = async(req, res) => {
         deal.maximumDays = req.body.maximumDays;
         deal.isActive = true;
         deal.startDate = new Date();
-        deal.endDate = new Date();
+        var _date = new Date(); // Now
+        _date.setDate(_date.getDate() + 30);
+        deal.endDate = _date;
+
 
         let dealData = await DealModel.create(deal);
         if (_.isNil(dealData))
@@ -188,7 +191,7 @@ exports.deals = async(req, res) => {
         if (req.query.page)
             _skip = req.query.page * 10;
         let dealsData = await DealModel.find({ isArchived: false, country: req.query.country, type: 'deal' }).populate('categoryId').limit(10).skip(_skip).orFail((err) => Error(err));
-      
+
         if (!dealsData)
             return res.status(405).send("Please enter data");
         res.send(dealsData);
@@ -425,10 +428,10 @@ exports.requestDeal = async(req, res) => {
             _requestData.categoryId = dealsData[z].categoryId._id;
             requests.push(_requestData);
         }
-        
+
         let requestData = RequestModel.create(requests);
         console.log(requestDataFull);
-        
+
         if (!requestData)
             return res.status(401).send("error Happened while create requests");
         return res.send("Requests Created Success");
@@ -445,8 +448,8 @@ exports.DealData = async(req, res) => {
             res.status(405).send("please enter valid data");
 
         let _deal = await DealModel.findById({ _id: req.body.id, isArchived: false })
-        .populate('categoryId');
-     
+            .populate('categoryId');
+
         if (!_deal)
             return res.status(405).send("Please enter valid deal data");
         return res.send(_deal);
@@ -551,7 +554,7 @@ exports.ActiveDealRequests = async(req, res) => {
         _query.deliveryRequested = false;
 
         let _checkDeal = await RequestModel.find(_query).sort('-creationDate').skip(pageNumber).limit(10).populate('userId').populate('transactionId');
-      
+
         if (!_checkDeal)
             return res.send([]);
         return res.send(_checkDeal)
@@ -617,7 +620,7 @@ exports.UserDealRequests = async(req, res) => {
         let _checkDeal = await RequestModel.find(_query).populate('categoryId').sort('-creationDate').skip(pageNumber).limit(10).populate('userId');
         // .populate('categoryId')
         console.log(_checkDeal);
-        
+
         if (!_checkDeal)
             return res.status(405).send("We doesnot found any deals");
         return res.send(_checkDeal);

@@ -9,10 +9,10 @@ const adminMiddleware = require('../middleware/admin');
 const merchantMiddleware = require('../middleware/merchant');
 
 router.post('/admin/list', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.getAll);
-router.post('/merchant/me', middleware.mainAuth, TransactionController.me);
+router.post('/merchant/me', middleware.mainAuth, middleware.useAsAdminAuth, TransactionController.me);
 router.post('/admin/merchant', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.getByAdmin);
 
-router.post('/details', middleware.mainAuth, TransactionController.details);
+router.post('/details', middleware.mainAuth, middleware.useAsAdminAuth, TransactionController.details);
 
 router.post('/user/me', middleware.mainAuth, TransactionController.me);
 router.post('/main', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.hiddenHoliday);
@@ -20,8 +20,8 @@ router.post('/user', middleware.mainAuth, adminMiddleware.adminAuth, Transaction
 router.post('/merchant/balance', middleware.mainAuth, TransactionController.balance);
 
 router.post('/user/bill/request', middleware.mainAuth, userMiddleware.userAuth, TransactionController.requestBill);
-router.post('/merchant/bill', middleware.mainAuth, merchantMiddleware.merchantAuth, TransactionController.merchantGetBill);
-router.post('/merchant/bill/update', middleware.mainAuth, merchantMiddleware.merchantAuth, TransactionController.merchantUpdateBill);
+router.post('/merchant/bill', middleware.mainAuth, middleware.useAsAdminAuth, merchantMiddleware.merchantAuth, TransactionController.merchantGetBill);
+router.post('/merchant/bill/update', middleware.mainAuth, middleware.useAsAdminAuth, merchantMiddleware.merchantAuth, TransactionController.merchantUpdateBill);
 
 
 module.exports = router;

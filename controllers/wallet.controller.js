@@ -409,7 +409,8 @@ exports.merchantSummary = async(req, res) => {
         return res.send(summary);
 
     } catch (err) {
-        return res.res.status(401).send("error Happened while find summary");
+        console.log(err);
+        return res.status(405).send("error Happened while find summary");
     }
 }
 

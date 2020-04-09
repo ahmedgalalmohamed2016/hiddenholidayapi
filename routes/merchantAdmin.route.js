@@ -15,7 +15,7 @@ const merchantAdminController = require('../controllers/merchantAdmin.controller
 router.post('/changePassword',  middleware.mainAuth, adminMiddleware.adminAuth, merchantAdminController.adminChangePassword);
 //middleware.mainAuth, adminMiddleware.adminAuth, 
 router.post('/users', middleware.mainAuth, adminMiddleware.adminAuth, merchantAdminController.adminGetMerchantAdmins);
-router.post('/create', middleware.mainAuth, adminMiddleware.adminAuth, merchantAdminController.adminCreateMerchantAdmin);
+router.post('/create', merchantAdminController.adminCreateMerchantAdmin);
 router.post('/getUser', middleware.mainAuth, adminMiddleware.adminAuth, merchantAdminController.adminGetUserById);
 router.post('/getmerchants', middleware.mainAuth, adminAndMerchantMiddleware.adminAuth, merchantAdminController.adminMerchantsGetMerchants);
 

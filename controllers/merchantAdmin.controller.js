@@ -29,17 +29,18 @@ exports.adminCreateMerchantAdmin = async(req, res) => {
         saveData.userDevice = uuidv4();
         const userDevice = saveData.userDevice;
         const usersNamedFinn = await UserModel.find({ mobileNumber: req.body.mobileNumber });
+
         if (usersNamedFinn.length > 0 && req.body.mobileNumber == usersNamedFinn[0].mobileNumber)
-            return res.send("mobile number is not available try another one");
+            return res.status(405).send("mobile number is not available try another one");
 
         const password = await passwordService.generatePassword(req.body.password, saveData._id);
         if (_.isNil(password) || password == false)
-            return res.send("error Happened");
+            return res.status(405).send("error Happened");
 
         // Generate Token
         const token = await tokenService.generateLoginToken(saveData.userDevice, saveData._id, req.body.mobileNumber, 'merchantAdmin');
         if (_.isNil(token) || token == false)
-            return res.send("error Happened");
+            return res.status(405).send("error Happened");
 
         saveData.password = password;
         saveData.role = 'merchantAdmin';
@@ -55,11 +56,11 @@ exports.adminCreateMerchantAdmin = async(req, res) => {
 
         const user = await UserModel.create(saveData);
         if (_.isNil(user))
-            return res.send("error Happened while create new user.");
+            return res.status(405).send("error Happened while create new user.");
 
         return res.send(user);
     } catch (err) {
-        return res.send({ data: err || "error" });
+        return res.status(405).send({ data: err || "error" });
     }
 }
 

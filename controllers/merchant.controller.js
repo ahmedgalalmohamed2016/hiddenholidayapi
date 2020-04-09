@@ -18,132 +18,9 @@ const mongoose = require('mongoose');
 const uuidv4 = require('uuid/v4');
 
 
-exports.create = async(req, res) => {
-    try {
-        if (!req.body.mobileNumber || !req.body.password)
-            return res.send('Please enter required fields.');
-        let saveData = {};
-        let transactionData = {};
-        saveData._id = new mongoose.Types.ObjectId;
-        saveData.userDevice = uuidv4();
-        const userDevice = saveData.userDevice;
-
-        const usersNamedFinn = await UserModel.find({ mobileNumber: req.body.mobileNumber }).lean();
-        if (usersNamedFinn.length > 0 && req.body.mobileNumber == usersNamedFinn[0].mobileNumber)
-            return res.send("mobile number is not available try another one");
-
-        const merchantFinn = await merchant.find({ name: req.body.merchant.name });
-        if (merchantFinn.length > 0)
-            return res.send("Merchant common name is not available try another one");
-
-        const transactionFrom = await UserModel.findOne({ role: "superAdmin" });
-        if (!transactionFrom._id)
-            return res.send("Error Happened try in another time");
-
-        const categoryData = await CategoryModel.findOne({ enName: req.body.merchant.category });
-        if (!categoryData._id)
-            return res.send("Error Happened try in another time");
-
-        let packageId = await packageModel.findOne({ enName: "Free Package" });
-        if (!packageId._id)
-            return res.send("error Happened to find package");
-
-        let countryData = await countryModel.findOne({ enName: req.body.merchant.country });
-        if (!countryData._id)
-            return res.send("error Happened to find countryData");
-
-        // Generate Password
-        const password = await passwordService.generatePassword(req.body.password, saveData._id);
-        if (_.isNil(password) || password == false)
-            return res.send("error Happened");
-
-        // Generate Token
-        const token = await tokenService.generateLoginToken(saveData.userDevice, saveData._id, req.body.mobileNumber, 'merchant');
-        if (_.isNil(token) || token == false)
-            return res.send("error Happened");
-
-
-
-        saveData.password = password;
-        saveData.role = 'merchant';
-
-        saveData.mobileNumber = req.body.mobileNumber;
-        saveData.firstName = req.body.firstName;
-        saveData.lastName = req.body.lastName;
-        saveData.lastLoginDate = new Date();
-        saveData.userNumber = makeUserCode(10);
-        saveData.userToken = token;
-        saveData.country = req.body.country;
-        saveData.merchant = new mongoose.Types.ObjectId;
-        saveData.isApproved = false;
-
-        let merchantData = {};
-        merchantData._id = saveData.merchant;
-        merchantData.userId = saveData._id;
-        merchantData.country = req.body.merchant.country;
-        merchantData.clean_name = req.body.merchant.merchantName;
-        merchantData.name = req.body.merchant.merchantName;
-        merchantData.contact_person = req.body.firstName + ' ' + req.body.lastName;
-        merchantData.cat_name = req.body.merchant.category;
-        merchantData.address = req.body.merchant.fullAddress;
-        merchantData.packageId = packageId._id;
-        merchantData.merchantSource = "Application";
-
-        const _merchant = await merchant.create(merchantData);
-        if (_.isNil(_merchant))
-            return res.send("error Happened while create merchant account");
-
-        const user = await UserModel.create(saveData);
-        if (_.isNil(user))
-            return res.send("error Happened while create user account");
-
-        transactionData.fromUserId = transactionFrom._id;
-        transactionData.toUserId = user._id;
-        transactionData.amount = categoryData.initBalance * countryData.exRate;
-        transactionData.currency = countryData.currency;
-
-        transactionData.status = "approved";
-        transactionData.sourceType = "Init";
-        transactionData.comment = "This is free init balance.";
-        transactionData.paymentMethod = "virtual";
-        transactionData.code = makeUserCode(10);
-        transactionData.creationDate = new Date();
-
-        let transactionResult = await TransactionService.createTransaction(transactionData);
-        if (transactionResult == false)
-            return res.status(401).send("error Happened while create transaction");
-
-        // Verification Number
-        let verificationData = {};
-        verificationData.userId = saveData._id;
-        verificationData.userDevice = userDevice;
-        verificationData.mobileNumber = req.body.mobileNumber;
-        verificationData.verificationType = 'register';
-
-        let _a = String(Math.floor(Math.random() * 10));
-        let _b = String(Math.floor(Math.random() * 10));
-        let _c = String(Math.floor(Math.random() * 10));
-        let _d = String(Math.floor(Math.random() * 10));
-        let verificationCode = _a + _b + _c + _d;
-
-        verificationData.verificationCode = await passwordService.generatePassword(verificationCode, saveData.mobileNumber);
-        verificationData.isVerified = false;
-        let verfificationCreated = await VerificationModel.create(verificationData);
-        if (_.isNil(verfificationCreated))
-            return res.send("error Happened");
-        sendSmsService.sendActivationAccountsms(req, saveData.mobileNumber, verificationCode);
-        user._verificationCode = verificationCode;
-
-        return res.send({ user: user, merchant: _merchant });
-    } catch (err) {
-        console.log(err);
-        return res.send(err);
-    }
-};
-
 exports.adminCreate = async(req, res) => {
     try {
-        if (!req.body.mobileNumber || !req.body.password || !req.body.userId)
+        if (!req.body.mobileNumber || !req.body.password)
             return res.send('Please enter required fields.');
         let saveData = {};
         let transactionData = {};
@@ -163,10 +40,6 @@ exports.adminCreate = async(req, res) => {
         const transactionFrom = await UserModel.findOne({ role: "superAdmin" });
         if (!transactionFrom._id)
             return res.status(405).send("Error Happened try in another time");
-
-        const merchantAdmin = await UserModel.findOne({ role: "merchantAdmin", _id: req.body.userId });
-        if (!merchantAdmin._id)
-            return res.status(405).send("Error Happened try in another time 5");
 
         const categoryData = await CategoryModel.findOne({ enName: req.body.category });
         if (!categoryData._id)
@@ -205,7 +78,148 @@ exports.adminCreate = async(req, res) => {
 
         let merchantData = {};
         merchantData._id = saveData.merchant;
-        merchantData.userId = merchantAdmin._id;
+        merchantData.userId = req.userData._id;
+        merchantData.country = req.body.country;
+        merchantData.main_phone_number = req.body.main_phone_number;
+        merchantData.clean_name = req.body.clean_name;
+        merchantData.name = req.body.name;
+        merchantData.contact_person = req.body.firstName + ' ' + req.body.lastName;
+        merchantData.cat_name = req.body.category;
+        merchantData.categoryId = categoryData._id;
+        merchantData.address = req.body.address;
+        merchantData.packageId = packageId._id;
+        merchantData.merchantSource = "Application";
+        merchantData.emails = req.body.emails;
+        merchantData.countryId = countryData._id;
+
+        if (_.isNil(merchantData.categoryId))
+            return res.status(405).send({ category: merchantData.categoryId });
+
+        const _merchant = await merchant.create(merchantData);
+        if (_.isNil(_merchant))
+            return res.send("error Happened while create merchant account");
+
+        const user = await UserModel.create(saveData);
+        if (_.isNil(user))
+            return res.send("error Happened while create user account");
+
+        transactionData.fromUserId = transactionFrom._id;
+        transactionData.toUserId = saveData._id;
+        transactionData.grossAmount = categoryData.initBalance * countryData.exRate;
+        transactionData.netAmount = transactionData.grossAmount;
+        transactionData.merchantAmount = 0;
+        transactionData.currency = countryData.currency;
+
+        transactionData.status = "approved";
+        transactionData.sourceType = "Init";
+        transactionData.comment = "This is free init balance.";
+        transactionData.paymentMethod = "virtual";
+        transactionData.code = makeUserCode(10);
+        transactionData.creationDate = new Date();
+        transactionData.sharePercentage = '0';
+        //sourceData {senderName , recieverName  }
+        transactionData.sourceData = {};
+        transactionData.sourceData.senderName = transactionFrom.firstName + ' ' + transactionFrom.lastName;
+        transactionData.sourceData.receiverName = merchantData.name;
+
+        //sourceData {senderName , recieverName  }
+
+        let transactionResult = await TransactionService.createTransaction(transactionData);
+        if (transactionResult == false)
+            return res.status(401).send("error Happened while create transaction");
+
+        // Verification Number
+        let verificationData = {};
+        verificationData.userId = saveData._id;
+        verificationData.userDevice = userDevice;
+        verificationData.mobileNumber = req.body.mobileNumber;
+        verificationData.verificationType = 'register';
+
+        let _a = String(Math.floor(Math.random() * 10));
+        let _b = String(Math.floor(Math.random() * 10));
+        let _c = String(Math.floor(Math.random() * 10));
+        let _d = String(Math.floor(Math.random() * 10));
+        let verificationCode = _a + _b + _c + _d;
+
+        verificationData.verificationCode = await passwordService.generatePassword(verificationCode, saveData.mobileNumber);
+        verificationData.isVerified = false;
+        let verfificationCreated = await VerificationModel.create(verificationData);
+        if (_.isNil(verfificationCreated))
+            return res.send("error Happened");
+        sendSmsService.sendActivationAccountsms(req, saveData.mobileNumber, verificationCode);
+        user._verificationCode = verificationCode;
+
+        return res.send({ user: user, merchant: _merchant });
+    } catch (err) {
+        console.log(err);
+        return res.send(err);
+    }
+}
+exports.create = async(req, res) => {
+    try {
+        if (!req.body.mobileNumber || !req.body.password)
+            return res.send('Please enter required fields.');
+        let saveData = {};
+        let transactionData = {};
+        saveData._id = new mongoose.Types.ObjectId;
+        saveData.userDevice = uuidv4();
+        const userDevice = saveData.userDevice;
+
+        const usersNamedFinn = await UserModel.find({ mobileNumber: req.body.mobileNumber }).lean();
+        if (usersNamedFinn.length > 0 && req.body.mobileNumber == usersNamedFinn[0].mobileNumber)
+            return res.send("mobile number is not available try another one");
+
+        const merchantFinn = await merchant.find({ $or: [{ name: req.body.name }, { clean_name: req.body.clean_name }] });
+
+        if (merchantFinn.length > 0)
+            return res.status(405).send("Merchant name is not available try another one");
+
+        const transactionFrom = await UserModel.findOne({ role: "superAdmin" });
+        if (!transactionFrom._id)
+            return res.status(405).send("Error Happened try in another time");
+
+        // const merchantAdmin = await UserModel.findOne({ role: "merchantAdmin", _id: req.userData._id });
+        // if (!merchantAdmin._id)
+        //     return res.status(405).send("Error Happened try in another time 5");
+
+        const categoryData = await CategoryModel.findOne({ enName: req.body.category });
+        if (!categoryData._id)
+            return res.status(405).send("Error Happened try in another time");
+
+        let packageId = await packageModel.findOne({ enName: "Free Package" });
+        if (!packageId._id)
+            return res.status(405).send("error Happened to find package");
+
+        let countryData = await countryModel.findOne({ enName: req.body.country });
+        if (!countryData._id)
+            return res.status(405).send("error Happened to find countryData");
+
+        // Generate Password
+        const password = await passwordService.generatePassword(req.body.password, saveData._id);
+        if (_.isNil(password) || password == false)
+            return res.status(405).send("error Happened");
+
+        // Generate Token
+        const token = await tokenService.generateLoginToken(saveData.userDevice, saveData._id, req.body.mobileNumber, 'merchant');
+        if (_.isNil(token) || token == false)
+            return res.status(405).send("error Happened");
+
+        saveData.password = password;
+        saveData.role = 'merchant';
+
+        saveData.mobileNumber = req.body.mobileNumber;
+        saveData.firstName = req.body.firstName;
+        saveData.lastName = req.body.lastName;
+        saveData.lastLoginDate = new Date();
+        saveData.userNumber = makeUserCode(10);
+        saveData.userToken = token;
+        saveData.country = req.body.country;
+        saveData.merchant = new mongoose.Types.ObjectId;
+        saveData.isApproved = false;
+
+        let merchantData = {};
+        merchantData._id = saveData.merchant;
+        merchantData.userId = req.userData._id;
         merchantData.country = req.body.country;
         merchantData.main_phone_number = req.body.main_phone_number;
         merchantData.clean_name = req.body.clean_name;
@@ -405,15 +419,29 @@ exports.maps = async(req, res) => {
     }
 };
 
-exports.merchantById = async(req, res) => {
+exports.meMerchantById = async(req, res) => {
     try {
-        console.log(req.query.id);
-        let _merchants = await merchant.find({ _id: req.query.id }).populate('categoryId');
+        let _merchants = await merchant.find({ userId: req.userData._id }).populate('categoryId');
         if (!_merchants)
             return res.status(405).send("Please enter valid merchant data");
         return res.send(_merchants);
     } catch (err) {
         return res.send(err.message);
+    }
+};
+
+exports.listMerchantById = async(req, res) => {
+    try {
+        if (!req.body.id) {
+            return res.status(405).send("Please enter valid merchant id");
+        }
+        let _merchants = await merchant.findOne({ _id: req.body.id });
+        if (!_merchants)
+            return res.status(405).send("Please enter valid merchant data");
+        return res.send(_merchants);
+    } catch (err) {
+        console.log(err);
+        return res.status(405).send(err.message);
     }
 };
 
@@ -429,9 +457,21 @@ exports.adminMerchantById = async(req, res) => {
     }
 };
 
+exports.merchantById = async(req, res) => {
+    try {
+        console.log(req.body.id);
+        let _merchants = await merchant.find({ _id: req.merchantData.id }).populate('categoryId').populate('countryId').populate('userId');
+        if (!_merchants)
+            return res.status(405).send("Please enter valid merchant data");
+        return res.send(_merchants);
+    } catch (err) {
+        return res.send(err.message);
+    }
+};
+
 exports.me = async(req, res) => {
     try {
-        let _merchants = await merchant.findById({ _id: req.merchantData._id });
+        let _merchants = await merchant.findById({ _id: req.merchantData.id });
         if (!_merchants)
             return res.status(405).send("Please enter valid merchant data");
         req.userData.merchant = _merchants;

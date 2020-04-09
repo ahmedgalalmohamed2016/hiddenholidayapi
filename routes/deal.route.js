@@ -12,22 +12,22 @@ router.get('/bids', deal_controller.bids);
 router.post('/cart', deal_controller.cart);
 router.post('/admin/merchant', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.MerchantDeals);
 router.post('/me/deal', middleware.mainAuth, deal_controller.DealData);
-router.post('/merchant/deal', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.MerchantDealData);
+router.post('/merchant/deal', middleware.mainAuth, middleware.useAsAdminAuth, merchantMiddleware.merchantAuth, deal_controller.MerchantDealData);
 router.post('/admin/deal', middleware.mainAuth, adminMiddleware.adminAuth, deal_controller.AdminDealData);
-router.post('/merchants/me/active', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.ActiveDealRequests);
-router.post('/merchants/me/delivery', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.ActiveDealRequestsDelivery);
+router.post('/merchants/me/active', middleware.mainAuth, middleware.useAsAdminAuth, merchantMiddleware.merchantAuth, deal_controller.ActiveDealRequests);
+router.post('/merchants/me/delivery', middleware.mainAuth, middleware.useAsAdminAuth, merchantMiddleware.merchantAuth, deal_controller.ActiveDealRequestsDelivery);
 
 router.post('/user/me', middleware.mainAuth, deal_controller.UserDealRequests);
-router.post('/merchant/me', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.MerchantDeals);
+router.post('/merchant/me', middleware.mainAuth, middleware.useAsAdminAuth, merchantMiddleware.merchantAuth, deal_controller.MerchantDeals);
 
 
 router.post('/request', middleware.mainAuth, deal_controller.requestDeal);
-router.post('/request/details', middleware.mainAuth, deal_controller.RequestData);
+router.post('/request/details', middleware.mainAuth, middleware.useAsAdminAuth, deal_controller.RequestData);
 
 router.post('/history', middleware.mainAuth, deal_controller.history);
 
-router.post('/merchant/create', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.merchantCreateDeal);
-router.post('/merchant/create/bid', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.merchantCreateBid);
+router.post('/merchant/create', middleware.mainAuth, middleware.useAsAdminAuth, merchantMiddleware.merchantAuth, deal_controller.merchantCreateDeal);
+router.post('/merchant/create/bid', middleware.mainAuth, middleware.useAsAdminAuth, merchantMiddleware.merchantAuth, deal_controller.merchantCreateBid);
 
 // router.get('/deal', deal_controller.DealByMerchantById);
 

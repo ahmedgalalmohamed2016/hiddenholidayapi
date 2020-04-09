@@ -32,3 +32,28 @@ exports.mainAuth = async function(req, res, next) {
     }
 
 }
+
+exports.useAsAdminAuth = async function(req, res, next) {
+    try {
+
+        if (req.userData.role == 'merchantAdmin') {
+            if (!req.body.merchantId) {
+                return res.status(401).send("You dont have authority to access this page");
+            }
+
+            let _user = await UserModel.findOne({ merchant: req.body.merchantId });
+            if (_.isNil(_user))
+                return res.status(401).send("Token is not valid");
+
+            req.userData = _user;
+            return next()
+        } else {
+            return next();
+        }
+
+    } catch (err) {
+        return res.status(401).send("You need to login to access this page");
+    }
+
+
+}
