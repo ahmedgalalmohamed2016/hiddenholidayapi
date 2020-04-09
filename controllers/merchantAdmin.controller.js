@@ -64,6 +64,65 @@ exports.adminCreateMerchantAdmin = async(req, res) => {
     }
 }
 
+exports.adminCreateMerchantUser = async(req, res) => {
+    try {
+        if (!req.body.mobileNumber || !req.body.password || !req.body.firstName || !req.body.lastName)
+            return res.send('Please enter required fields.');
+
+        let saveData = {};
+        saveData._id = new mongoose.Types.ObjectId;
+        saveData.userDevice = uuidv4();
+        const userDevice = saveData.userDevice;
+        const usersNamedFinn = await UserModel.find({ mobileNumber: req.body.mobileNumber });
+
+        if (usersNamedFinn.length > 0 && req.body.mobileNumber == usersNamedFinn[0].mobileNumber)
+            return res.status(405).send("mobile number is not available try another one");
+
+        const password = await passwordService.generatePassword(req.body.password, saveData._id);
+        if (_.isNil(password) || password == false)
+            return res.status(405).send("error Happened");
+
+        // Generate Token
+        const token = await tokenService.generateLoginToken(saveData.userDevice, saveData._id, req.body.mobileNumber, 'merchantUser');
+        if (_.isNil(token) || token == false)
+            return res.status(405).send("error Happened");
+
+        saveData.password = password;
+        saveData.role = 'merchantUser';
+
+        saveData.mobileNumber = req.body.mobileNumber;
+        saveData.lastLoginDate = new Date();
+        saveData.userNumber = makeUserCode(10);
+        saveData.userToken = token;
+        saveData.verifiedMobileNumber = true;
+        saveData.firstName = req.body.firstName;
+        saveData.lastName = req.body.lastName;
+        saveData.merchant = req.body.merchantId;
+        saveData.country = req.merchantData.country;
+
+        const user = await UserModel.create(saveData);
+        if (_.isNil(user))
+            return res.status(405).send("error Happened while create new user.");
+
+        return res.send(user);
+    } catch (err) {
+        return res.status(405).send({ data: err || "error" });
+    }
+}
+
+
+exports.merchantUsers = async(req, res) => {
+    try {
+        console.log("Yyyyyyyyy")
+        let _users = await UserModel.find({ merchant: req.merchantData.id });
+        if (!_users)
+            return res.status(405).send("Please enter valid merchant data");
+        return res.send(_users);
+    } catch (err) {
+        return res.send(err.message);
+    }
+};
+
 
 exports.adminMerchantsGetMerchants = async(req, res) => {
     try {

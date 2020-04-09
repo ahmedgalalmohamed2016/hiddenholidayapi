@@ -18,7 +18,10 @@ router.post('/users', middleware.mainAuth, adminMiddleware.adminAuth, merchantAd
 router.post('/create', merchantAdminController.adminCreateMerchantAdmin);
 router.post('/getUser', middleware.mainAuth, adminMiddleware.adminAuth, merchantAdminController.adminGetUserById);
 router.post('/getmerchants', middleware.mainAuth, adminAndMerchantMiddleware.adminAuth, merchantAdminController.adminMerchantsGetMerchants);
-
 router.post('/update', middleware.mainAuth, adminMiddleware.adminAuth, merchantAdminController.adminUpdateUser);
+
+router.post('/create/user', middleware.mainAuth, middleware.useAsAdminAuth, merchantMiddleware.merchantAuth, merchantAdminController.adminCreateMerchantUser);
+router.post('/list/user', middleware.mainAuth, middleware.useAsAdminAuth, merchantMiddleware.merchantAuth, merchantAdminController.merchantUsers);
+
 
 module.exports = router;

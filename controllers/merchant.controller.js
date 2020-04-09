@@ -560,7 +560,6 @@ exports.totalSummary = async(req, res) => {
         data.totalDeals = await DealModel.count({ type: 'deal', merchantId: req.merchantData.id, isArchived: false, isActive: true });
         data.totalBids = await DealModel.count({ type: 'bid', merchantId: req.merchantData.id, isArchived: false, isActive: true });
 
-        console.log("**************");
         return res.send(data);
     } catch (err) {
         console.log(err);
