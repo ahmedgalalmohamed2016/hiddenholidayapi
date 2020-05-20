@@ -15,7 +15,15 @@ module.exports = {
             .then((message) => console.log(message.sid));
         return true;
     },
-
+    sendForgetPasswordsms: function(req, Phone, verificationCode) {
+        client.messages.create({
+                body: 'Welcome to drezzelUp your forget password number ' + verificationCode,
+                to: '+' + Phone, // Text this number
+                from: '+13852904826' // From a valid Twilio number
+            })
+            .then((message) => console.log(message.sid));
+        return true;
+    },
     sendResetPasswordsms: function(req, verificationCode) {
         return true;
     }

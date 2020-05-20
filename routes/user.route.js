@@ -33,7 +33,9 @@ router.post('/profileEdite', middleware.mainAuth, user_controller.profileEdite);
 router.post('/verifyPhone', middleware.mainAuth, user_controller.verifyPhone);
 router.post('/verifyPhone/resendSms', middleware.mainAuth, user_controller.resendSms);
 router.post('/login/facebook', user_controller.loginFB);
-
+router.post('/forgetPassword', user_controller.forgetPassword);
+router.post('/verifyForgetPassword', user_controller.verifyForgetPassword);
+router.post('/changePassword', middleware.mainAuth, user_controller.changePassword);
 //forget password
 // reset password
 // change password
