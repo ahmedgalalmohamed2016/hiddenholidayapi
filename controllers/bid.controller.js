@@ -148,7 +148,7 @@ exports.list = async(req, res) => {
         let _skip = 0;
         if (req.query.page)
             _skip = req.query.page * 10;
-        let dealsData = await DealModel.find({ isArchived: false, country: req.query.country, type: 'bid' }).populate('categoryId').limit(10).skip(_skip).orFail((err) => Error(err));
+        let dealsData = await DealModel.find({ isArchived: false, country: req.query.country, type: 'bid' }).populate('merchantId').populate('categoryId').limit(10).skip(_skip).orFail((err) => Error(err));
         if (!dealsData)
             return res.status(405).send("Please enter data");
         res.send(dealsData);
