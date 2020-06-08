@@ -252,11 +252,51 @@ exports.MerchantDeals = async(req, res) => {
         let dealsData = await DealModel.find({ merchantId: req.body.merchantId, type: 'deal' }).populate('categoryId').limit(10).skip(_skip).orFail((err) => Error(err));
         if (!dealsData)
             return res.status(405).send("Please enter valid data");
-        res.send(dealsData);
+        return res.send(dealsData);
     } catch (err) {
+        console.log(err);
         return res.send(err);
     }
 }
+
+exports.PublicMerchantDeals = async(req, res) => {
+    try {
+        if (!req.body.merchantId)
+            return res.status(405).send("Please enter valid merchant id");
+
+        // get deals
+        let _skip = 0;
+        if (req.query.page)
+            _skip = req.query.page * 10;
+        let dealsData = await DealModel.find({ merchantId: req.body.merchantId, type: 'deal' }).populate('categoryId').limit(10).skip(_skip).orFail((err) => Error(err));
+        if (!dealsData)
+            return res.status(405).send("Please enter valid data");
+        return res.send(dealsData);
+    } catch (err) {
+        console.log(err);
+        return res.send(err);
+    }
+}
+
+exports.PublicMerchantBids = async(req, res) => {
+    try {
+        if (!req.body.merchantId)
+            return res.status(405).send("Please enter valid merchant id");
+
+        // get deals
+        let _skip = 0;
+        if (req.query.page)
+            _skip = req.query.page * 10;
+        let dealsData = await DealModel.find({ merchantId: req.body.merchantId, type: 'bid' }).populate('categoryId').limit(10).skip(_skip).orFail((err) => Error(err));
+        if (!dealsData)
+            return res.status(405).send("Please enter valid data");
+        return res.send(dealsData);
+    } catch (err) {
+        console.log(err);
+        return res.send(err);
+    }
+}
+
 
 exports.MerchantBids = async(req, res) => {
     try {

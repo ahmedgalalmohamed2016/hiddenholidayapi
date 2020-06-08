@@ -654,7 +654,7 @@ exports.merchants_favourites = async(req, res) => {
             let d = mongoose.Types.ObjectId(req.body.merchants[x]);
             data.push(d);
         }
-        let _merchants = await merchant.find({ _id: { $in: data } }, null, { sort: { clean_name: 1 } });
+        let _merchants = await merchant.find({ _id: { $in: data } }, null, { sort: { clean_name: 1 } }).populate('categoryId');
         return res.send(_merchants);
     } catch (err) {
         return res.send(err);
