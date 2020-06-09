@@ -668,6 +668,44 @@ exports.UserDealRequests = async(req, res) => {
         return res.status(405).send("Error Happened");
     }
 }
+exports.UserDealRequestsUser = async(req, res) => {
+    try {
+        let _query = {};
+        let pageNumber;
+        _query.userId = req.userData._id;
+        _query.isSettled = false;
+
+        if (req.body.type) {
+            if (req.body.type != "deal" && req.body.type != "bid")
+                return res.send("Please enter valid deals type");
+            _query.type = req.body.type;
+        }
+
+        if (req.body.isUsed) {
+            _query.isUsed = req.body.isUsed;
+        }
+        if (req.body.dealId) {
+            _query._id = req.body.dealId;
+        }
+        if (req.body.page) {
+            pageNumber = parseInt(req.body.page) * 10;
+        } else {
+            pageNumber = 0;
+        }
+        let _checkDeal = await RequestModel.find(_query)
+        .populate('transactionId').populate('categoryId')
+        .populate('dealId')
+        .populate('merchantId')
+        .sort('-creationDate').skip(pageNumber).limit(10).populate('userId')
+        console.log(_checkDeal);
+
+        if (!_checkDeal)
+            return res.status(405).send("We doesnot found any deals");
+        return res.send(_checkDeal);
+    } catch (err) {
+        return res.status(405).send("Error Happened");
+    }
+}
 
 
 exports.history = async(req, res) => {

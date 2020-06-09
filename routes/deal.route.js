@@ -20,6 +20,7 @@ router.post('/merchants/me/active', middleware.mainAuth, middleware.useAsAdminAu
 router.post('/merchants/me/delivery', middleware.mainAuth, middleware.useAsAdminAuth, merchantMiddleware.merchantAuth, deal_controller.ActiveDealRequestsDelivery);
 
 router.post('/user/me', middleware.mainAuth, deal_controller.UserDealRequests);
+router.post('/UserDealRequests', middleware.mainAuth, deal_controller.UserDealRequestsUser);
 router.post('/merchant/me', middleware.mainAuth, middleware.useAsAdminAuth, merchantMiddleware.merchantAuth, deal_controller.MerchantDeals);
 
 
