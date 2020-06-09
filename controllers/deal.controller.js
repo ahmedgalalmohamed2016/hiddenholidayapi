@@ -646,7 +646,9 @@ exports.UserDealRequests = async(req, res) => {
         if (req.body.isUsed) {
             _query.isUsed = req.body.isUsed;
         }
-
+        if (req.body.dealId) {
+            _query._id = req.body.dealId;
+        }
         if (req.body.page) {
             pageNumber = parseInt(req.body.page) * 10;
         } else {
@@ -654,8 +656,9 @@ exports.UserDealRequests = async(req, res) => {
         }
         let _checkDeal = await RequestModel.find(_query)
         .populate('transactionId').populate('categoryId')
-        .sort('-creationDate').skip(pageNumber).limit(10).populate('userId');
-        // .populate('categoryId')
+        .populate('dealId')
+        .populate('merchantId')
+        .sort('-creationDate').skip(pageNumber).limit(10).populate('userId')
         console.log(_checkDeal);
 
         if (!_checkDeal)
