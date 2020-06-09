@@ -676,8 +676,9 @@ exports.UserDealRequestsUser = async(req, res) => {
         _query.isSettled = false;
 
         if (req.body.type) {
-            if (req.body.type != "deal" && req.body.type != "bid")
+            if (req.body.type != "deal" && req.body.type != "bid" && req.body.type != "any")
                 return res.send("Please enter valid deals type");
+                if(req.body.type != "any")
             _query.type = req.body.type;
         }
 
