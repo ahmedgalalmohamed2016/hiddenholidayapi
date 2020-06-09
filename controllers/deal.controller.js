@@ -330,19 +330,17 @@ exports.requestDeal = async(req, res) => {
 
         if (typeof req.body.data == "string")
             req.body.data = JSON.parse(req.body.data);
-
-
         for (let x = 0; x < req.body.data.length; x++) {
             let valu = new mongoose.Types.ObjectId(req.body.data[x].id);
             _ids.push(valu);
         }
-
         let dealsData = await DealModel.find({
             _id: { $in: _ids },
             // isArchived: false,
             // isActive: false
         }).populate('categoryId').populate('countryId').populate('merchantId');
         // return res.send(dealsData);
+
         if (!dealsData)
             return res.status(401).send("error happened while find deals");
 
@@ -351,7 +349,7 @@ exports.requestDeal = async(req, res) => {
 
         for (let y = 0; y < dealsData.length; y++) {
             if (dealsData[y].country != dealsData[0].country)
-                return res.send("Deals must be at the same country");
+                return res.status(404).send("Deals must be at the same country");
         }
 
         let countryData = await CountryModel.findOne({ enName: dealsData[0].country });
@@ -443,7 +441,6 @@ exports.requestDeal = async(req, res) => {
                     }
                 }
             }
-
             _requestData.title = dealsData[z].title;
             _requestData.description = dealsData[z].description;
             _requestData.arTitle = dealsData[z].arTitle;
@@ -470,7 +467,6 @@ exports.requestDeal = async(req, res) => {
         }
 
         let requestData = RequestModel.create(requests);
-        console.log(requestDataFull);
 
         if (!requestData)
             return res.status(401).send("error Happened while create requests");

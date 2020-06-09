@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+    const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 let Request = new Schema({
@@ -7,7 +7,7 @@ let Request = new Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     transactionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Transaction', required: true },
     dealId: { type: mongoose.Schema.Types.ObjectId, ref: 'Deal', required: true },
-    verificationCode: { type: String, required: true },
+    verificationCode: { type: String},
     title: { type: String },
     description: { type: String },
     arTitle: { type: String },
@@ -24,7 +24,7 @@ let Request = new Schema({
     country: { type: String, required: true },
     maximumDays: { type: Number, required: true },
     timeUsed: { type: String, required: true },
-    howManyUsed: { type: Number, required: true, default: 0 },
+    howManyUsed: { type: Number, default: 0 },
     status: { type: String }, //pending approved canceled 
     isSettled: { type: Boolean, default: false },
     isRefunded: { type: Boolean, default: false },
