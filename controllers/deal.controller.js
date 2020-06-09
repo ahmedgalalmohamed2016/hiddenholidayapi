@@ -466,11 +466,12 @@ exports.requestDeal = async(req, res) => {
             requests.push(_requestData);
         }
 
+        console.log(requests);
         let requestData = RequestModel.create(requests);
 
         if (!requestData)
             return res.status(401).send("error Happened while create requests");
-        return res.send("Requests Created Success");
+        return res.status(200).send("Requests Created Success");
 
     } catch (err) {
         return res.status(405).send({ data: err });
@@ -651,9 +652,9 @@ exports.UserDealRequests = async(req, res) => {
         } else {
             pageNumber = 0;
         }
-
-
-        let _checkDeal = await RequestModel.find(_query).populate('categoryId').sort('-creationDate').skip(pageNumber).limit(10).populate('userId');
+        let _checkDeal = await RequestModel.find(_query)
+        .populate('transactionId').populate('categoryId')
+        .sort('-creationDate').skip(pageNumber).limit(10).populate('userId');
         // .populate('categoryId')
         console.log(_checkDeal);
 
