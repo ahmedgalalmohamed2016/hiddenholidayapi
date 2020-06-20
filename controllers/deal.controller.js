@@ -527,6 +527,28 @@ exports.RequestData = async(req, res) => {
         return res.send("Error Happened");
     }
 }
+exports.useDeal = async(req, res) => {
+    try {
+        if (!req.body.id)
+            res.status(405).send("please enter valid data");
+
+        let _request = await RequestModel.findById({ _id: req.body.id }).populate('userId').populate('transactionId').populate('dealId');
+        
+        if (!_request)
+            return res.status(405).send("Please enter valid request data");
+            if(_request.count == 0)
+            return res.status(404).send("You alredy used the deal");
+
+            _request.count = _request.count - 1;
+            _request.timeUsed = "" + _request.count;
+            _request.isUsed = true;
+             await RequestModel.updateOne({ _id: req.body.id },_request).populate('userId').populate('transactionId').populate('dealId');
+             let _requestAfterUpdate = await RequestModel.findById({ _id: req.body.id }).populate('userId').populate('transactionId').populate('dealId');
+             return res.send(_requestAfterUpdate);
+    } catch (err) {
+        return res.send("Error Happened");
+    }
+}
 
 exports.AdminDealData = async(req, res) => {
     try {

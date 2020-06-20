@@ -26,6 +26,7 @@ router.post('/merchant/me', middleware.mainAuth, middleware.useAsAdminAuth, merc
 
 router.post('/request', middleware.mainAuth, deal_controller.requestDeal);
 router.post('/request/details', middleware.mainAuth, middleware.useAsAdminAuth, deal_controller.RequestData);
+router.post('/useDeal', middleware.mainAuth, middleware.useAsAdminAuth, deal_controller.useDeal);
 
 router.post('/history', middleware.mainAuth, deal_controller.history);
 

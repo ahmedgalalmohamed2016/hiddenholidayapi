@@ -14,5 +14,6 @@ router.post('/admin/bid', middleware.mainAuth, adminMiddleware.adminAuth, bidcon
 // router.post('/admin/merchant', middleware.mainAuth, adminMiddleware.adminAuth, bidcontroller.adminListbyMerchantId);
 router.get('/', bidcontroller.list);
 router.post('/admin/merchant', middleware.mainAuth, merchantMiddleware.merchantAuth, deal_controller.MerchantBids);
+router.post('/usebid', middleware.mainAuth, middleware.useAsAdminAuth, deal_controller.useDeal);
 
 module.exports = router;
