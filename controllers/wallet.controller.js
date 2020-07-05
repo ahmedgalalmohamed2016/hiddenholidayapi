@@ -291,7 +291,7 @@ exports.userCashin = async(req, res) => {
         if (!cardData)
             return res.status(401).send("error Happened to find card Data");
 
-        req.body.amount = req.body.amount * countryData.exRate;
+        // req.body.amount = req.body.amount * countryData.exRate;
 
         transactionData.fromUserId = req.userData._id;
         transactionData.toUserId = transactionTo._id;
