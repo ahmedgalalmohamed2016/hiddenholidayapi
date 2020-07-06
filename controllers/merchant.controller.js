@@ -462,7 +462,7 @@ exports.merchantById = async(req, res) => {
         console.log(req.body.id);
         let _merchants = await merchant.find({ _id: req.merchantData.id }).populate('categoryId').populate('countryId').populate('userId');
         if (!_merchants)
-            return res.status(405).send("Please enter valid merchant data");
+            return res.status(404).send("Please enter valid merchant data");
         return res.send(_merchants);
     } catch (err) {
         return res.send(err.message);

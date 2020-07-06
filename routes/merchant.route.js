@@ -26,8 +26,8 @@ router.post('/totalsummary', middleware.mainAuth, middleware.useAsAdminAuth, mer
 
 router.get('/maps', merchant_controller.maps);
 router.get('/merchantsById',  merchant_controller.merchantById);
-router.post('/merchantById',  merchant_controller.merchantById);
-router.post('/admin/merchantsById', middleware.mainAuth, adminMiddleware.adminAuth, merchant_controller.adminMerchantById);
+router.post('/merchantById',  middleware.mainAuth, merchant_controller.merchantById);
+router.post('/admin/merchantsById', adminMiddleware.adminAuth, merchant_controller.adminMerchantById);
 router.post('/me/merchantsById', middleware.mainAuth, merchant_controller.meMerchantById);
 
 router.post('/me', middleware.mainAuth, middleware.useAsAdminAuth, merchantMiddleware.merchantAuth, merchant_controller.me);
