@@ -7,7 +7,6 @@ const secretKey = 'asjhut^tg*(2@EASFQ!_+"?]>,nvgfQMIZK#$,Zx[]iwQUsjJ~+-o+ujlcH^^
 const _ = require("lodash");
 const TransactionModel = require('../models/transaction.model');
 const RequestModel = require('../models/request.model');
-
 module.exports = {
     createTransaction: function(transactionData) {
         const _transaction = TransactionModel.create(transactionData);
@@ -34,5 +33,21 @@ module.exports = {
         }
         let balance = pAmount - nAmount;
         return balance;
+    },
+    allTransactionsWithFilter: async (filter) =>{
+        try {
+            const page = filter.page;
+            _skip =  page * 10;
+            delete filter.page;
+            console.log(filter);
+            let transactions = await TransactionModel.find(filter).populate('fromUserId').populate('toUserId').sort('-creationDate').limit(10).skip(_skip);
+            if (_.isNil(transactions) || transactions.length == 0)
+                return null
+            let transactionsCount = await TransactionModel.count(filter).populate('fromUserId').populate('toUserId').sort('-creationDate');
+            return {"count":transactionsCount,"page":page,"transactions": transactions}
+        
+        } catch (error) {
+            return error
+        }
     }
 }

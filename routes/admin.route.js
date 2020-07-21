@@ -9,6 +9,7 @@ const merchantController = require('../controllers/admin/merchants.controller');
 const mainController = require('../controllers/admin/main.controller');
 const deal_controller = require('../controllers/deal.controller');
 const adminController = require('../controllers/admin.controller');
+const TransactionController = require('../controllers/transaction.controller');
 
 router.post('/merchants', middleware.mainAuth, adminMiddleware.adminAuth, merchantController.merchants);
 router.post('/deals', middleware.mainAuth, adminMiddleware.adminAuth, merchantController.deals);
@@ -25,5 +26,8 @@ router.post('/users', middleware.mainAuth, adminMiddleware.adminAuth,  adminCon
 router.post('/create', middleware.mainAuth, adminMiddleware.adminAuth,  adminController.adminCreateUser);
 router.post('/getUser', middleware.mainAuth, adminMiddleware.adminAuth, adminController.adminGetUserById);
 router.post('/update', middleware.mainAuth, adminMiddleware.adminAuth, adminController.adminUpdateUser);
+
+
+router.post('/transaction/settled', TransactionController.settledTransaction);
 
 module.exports = router;
