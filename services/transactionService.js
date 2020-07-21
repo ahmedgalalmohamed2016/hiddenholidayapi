@@ -7,6 +7,7 @@ const secretKey = 'asjhut^tg*(2@EASFQ!_+"?]>,nvgfQMIZK#$,Zx[]iwQUsjJ~+-o+ujlcH^^
 const _ = require("lodash");
 const TransactionModel = require('../models/transaction.model');
 const RequestModel = require('../models/request.model');
+const merchant = require('../models/merchant.model');
 module.exports = {
     createTransaction: function(transactionData) {
         const _transaction = TransactionModel.create(transactionData);
@@ -39,7 +40,6 @@ module.exports = {
             const page = filter.page;
             _skip =  page * 10;
             delete filter.page;
-            console.log(filter);
             let transactions = await TransactionModel.find(filter).populate('fromUserId').populate('toUserId').sort('-creationDate').limit(10).skip(_skip);
             if (_.isNil(transactions) || transactions.length == 0)
                 return null
@@ -49,5 +49,34 @@ module.exports = {
         } catch (error) {
             return error
         }
+    },
+    sattlementAmount: async (filter) =>{
+        filter.isSettled = false;
+        if(!filter.merchantId)
+        filter.merchantId = { $ne: null }
+        let resultData = {
+            data:[],
+            merchantsIds:[]
+        }
+        
+       const merchants = await TransactionModel.aggregate([
+        {
+            $match: filter
+        },   
+        {
+           $group : {
+               _id : {
+                   "merchantId":"$merchantId",
+                   "currency":"$currency"
+                }, merchantAmount : {$sum : "$merchantAmount"}}}])
+
+        for(var i in merchants){
+            resultData.data.push({merchantId:merchants[i]._id.merchantId,
+                merchantAmount:merchants[i].merchantAmount,
+                currency:merchants[i]._id.currency})
+            resultData.merchantsIds.push(merchants[i]._id.merchantId)
+        }
+       return resultData.data
     }
+
 }

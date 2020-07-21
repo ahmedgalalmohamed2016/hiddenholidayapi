@@ -10,6 +10,7 @@ const request = require("superagent");
 var fs = require("fs");
 const mongoose = require("mongoose");
 const config = require("../configs/main");
+const { filter } = require("lodash");
 const responses = require('../responses/responses.serves').response;
 
 exports.getAll = async (req, res) => {
@@ -291,13 +292,11 @@ exports.settledTransaction = async (req, res) => {
       filter.page = 0;
       filter._id = req.body.transactionId;
     }
-    
+
     filter.isSettled = false;
 
     
-    let transactions = await TransactionService.allTransactionsWithFilter(
-      filter
-    );
+    let transactions = await TransactionService.allTransactionsWithFilter(filter);
     if (transactions == null)
       return responses(res,"No Transaction found for this merchant in our system");
     return responses(res,null,transactions);
@@ -306,6 +305,16 @@ exports.settledTransaction = async (req, res) => {
     return responses("somthing went wrong, please try again..",null,res);
   }
 };
+exports.sattlementAmount = async(req,res)=>{
+  let filter = {};
+  if(req.body.merchantId)
+    filter.merchantId = req.body.merchantId
+    
+  let resualt = await TransactionService.sattlementAmount(filter);
+  // await merchant.find(_query)
+  return responses(res,null,resualt);
+}
+
 function makeUserCode(length) {
   var result = "";
   var characters =

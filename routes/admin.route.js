@@ -28,6 +28,7 @@ router.post('/getUser', middleware.mainAuth, adminMiddleware.adminAuth, adminCon
 router.post('/update', middleware.mainAuth, adminMiddleware.adminAuth, adminController.adminUpdateUser);
 
 
-router.post('/transaction/settled', TransactionController.settledTransaction);
+router.post('/merchant/transactions/notSettled', TransactionController.settledTransaction);
+router.post('/merchants/sattlementAmount', TransactionController.sattlementAmount);
 
 module.exports = router;
