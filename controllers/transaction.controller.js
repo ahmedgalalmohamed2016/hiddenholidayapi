@@ -314,7 +314,18 @@ exports.sattlementAmount = async(req,res)=>{
   // await merchant.find(_query)
   return responses(res,null,resualt);
 }
+exports.sattlementAmountList = async(req,res)=>{
+  let filter = {};
+  if(!req.body.list)
+  return responses(res,"please enter valid merchant list");
 
+
+    filter.list = req.body.list
+    
+  let resualt = await TransactionService.sattlementAmount(filter);
+  // await merchant.find(_query)
+  return responses(res,null,resualt);
+}
 function makeUserCode(length) {
   var result = "";
   var characters =

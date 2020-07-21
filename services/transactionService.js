@@ -8,6 +8,7 @@ const _ = require("lodash");
 const TransactionModel = require('../models/transaction.model');
 const RequestModel = require('../models/request.model');
 const merchant = require('../models/merchant.model');
+const mongoose = require('mongoose');
 module.exports = {
     createTransaction: function(transactionData) {
         const _transaction = TransactionModel.create(transactionData);
@@ -52,13 +53,24 @@ module.exports = {
     },
     sattlementAmount: async (filter) =>{
         filter.isSettled = false;
-        if(!filter.merchantId)
+        if(!filter.merchantId && !filter.list)
         filter.merchantId = { $ne: null }
+        if(filter.list)
+        try{
+            let ids = JSON.parse(filter.list)
+            for(var i in ids)
+                ids[i]=mongoose.Types.ObjectId(ids[i])
+                
+            filter.merchantId = {"$in":ids}
+        }catch(err){
+            console.log(err);
+        }
+        
         let resultData = {
             data:[],
             merchantsIds:[]
         }
-        
+        delete filter.list;
        const merchants = await TransactionModel.aggregate([
         {
             $match: filter
@@ -68,7 +80,10 @@ module.exports = {
                _id : {
                    "merchantId":"$merchantId",
                    "currency":"$currency"
-                }, merchantAmount : {$sum : "$merchantAmount"}}}])
+                }, merchantAmount : {$sum : "$merchantAmount"}
+            }
+        }
+    ])
 
         for(var i in merchants){
             resultData.data.push({merchantId:merchants[i]._id.merchantId,

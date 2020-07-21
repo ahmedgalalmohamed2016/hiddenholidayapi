@@ -28,7 +28,8 @@ router.post('/getUser', middleware.mainAuth, adminMiddleware.adminAuth, adminCon
 router.post('/update', middleware.mainAuth, adminMiddleware.adminAuth, adminController.adminUpdateUser);
 
 
-router.post('/merchant/transactions/notSettled', TransactionController.settledTransaction);
-router.post('/merchants/sattlementAmount', TransactionController.sattlementAmount);
+router.post('/merchant/transactions/notSettled', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.settledTransaction);
+router.post('/allMerchants/sattlementAmount', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.sattlementAmount);
+router.post('/merchants/sattlementAmount', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.sattlementAmountList);
 
 module.exports = router;
