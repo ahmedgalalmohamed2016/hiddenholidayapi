@@ -279,7 +279,7 @@ exports.balance = async (req, res) => {
     return res.send("Try in another time.");
   }
 };
-exports.settledTransaction = async (req, res) => {
+exports.notSettledTransaction = async (req, res) => {
   let filter = {};
   try {
     if (req.body.merchantId) filter.merchantId = req.body.merchantId;
@@ -294,6 +294,30 @@ exports.settledTransaction = async (req, res) => {
     }
 
     filter.isSettled = false;
+
+    
+    let transactions = await TransactionService.allTransactionsWithFilter(filter);
+    if (transactions == null)
+      return responses(res,"No Transaction found for this merchant in our system");
+    return responses(res,null,transactions);
+  } catch (error) {
+    console.log(error);
+    return responses("somthing went wrong, please try again..",null,res);
+  }
+};
+exports.settledTransaction = async (req, res) => {
+  let filter = {};
+  try {
+    if (req.body.merchantId) filter.merchantId = req.body.merchantId;
+  
+    req.body.page ? (filter.page = req.body.page) : (filter.page = 0);
+    
+    if (req.body.transactionId){
+      filter.page = 0;
+      filter._id = req.body.transactionId;
+    }
+
+    filter.isSettled = true;
 
     
     let transactions = await TransactionService.allTransactionsWithFilter(filter);
@@ -336,6 +360,23 @@ exports.transactionSattlement = async(req,res)=>{
   let resualt = await TransactionService.transactionSattlement(filter);
   // await merchant.find(_query)
   return responses(res,null,resualt);
+}
+exports.transactionTypeSattlement = async(req,res)=>{
+  let filter = {};
+  try {
+    if (req.body.tranactionId) filter._id = req.body.tranactionId;
+    req.body.page ? (filter.page = req.body.page) : (filter.page = 0);
+    
+      filter.sourceType = "settlement";
+    
+    let transactions = await TransactionService.allTransactionsWithFilter(filter);
+    if (transactions == null)
+      return responses(res,"No Transaction found in our system");
+    return responses(res,null,transactions);
+  } catch (error) {
+    console.log(error);
+    return responses("somthing went wrong, please try again..",null,res);
+  }
 }
 function makeUserCode(length) {
   var result = "";

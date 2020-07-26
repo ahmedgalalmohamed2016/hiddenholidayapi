@@ -10,6 +10,7 @@ const mainController = require('../controllers/admin/main.controller');
 const deal_controller = require('../controllers/deal.controller');
 const adminController = require('../controllers/admin.controller');
 const TransactionController = require('../controllers/transaction.controller');
+const BanckAcount = require('../controllers/bankAccount.controller');
 
 router.post('/merchants', middleware.mainAuth, adminMiddleware.adminAuth, merchantController.merchants);
 router.post('/deals', middleware.mainAuth, adminMiddleware.adminAuth, merchantController.deals);
@@ -28,10 +29,15 @@ router.post('/getUser', middleware.mainAuth, adminMiddleware.adminAuth, adminCon
 router.post('/update', middleware.mainAuth, adminMiddleware.adminAuth, adminController.adminUpdateUser);
 
 
-router.post('/merchant/transactions/notSettled', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.settledTransaction);
+router.post('/merchant/transactions/notSettled', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.notSettledTransaction);
+router.post('/merchant/transactions/settled', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.settledTransaction);
 router.post('/allMerchants/sattlementAmount', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.sattlementAmount);
 router.post('/merchants/sattlementAmount', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.sattlementAmountList);
 
-router.post('/transactions/sattle', TransactionController.transactionSattlement);
+router.post('/transactions/sattle', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.transactionSattlement);
+router.post('/transactions/settelment', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.transactionTypeSattlement);
+
+
+router.post('/merchant/banckAcount', BanckAcount.allBanckAcounts);
 
 module.exports = router;

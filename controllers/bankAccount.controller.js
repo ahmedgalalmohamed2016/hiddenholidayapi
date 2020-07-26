@@ -79,3 +79,36 @@ exports.delete = async(req, res) => {
         return res.status(405).send("Cannot remove this bank account,Try in another time.");
     }
 }
+
+exports.allBanckAcounts = async(req, res) => {
+    let filter = {}
+    try {
+        if(req.body.merchantId)
+        filter.merchantId = req.body.merchantId;
+
+        if(req.body.bankAccountId)
+        filter._id = req.body.merchantId;
+
+        filter.page = req.body.page ? req.body.page : 0;
+        filter.isDeleted = false;
+
+        let _skip = filter.page * 10;
+        const page = filter.page;
+        delete filter.page;
+        let bankData = await BankAcountModel.find(filter)
+        .sort("-creationDate")
+        .skip(_skip)
+        .limit(10);
+        if (!bankData)
+            return res.status(405).send("We don't found any accounts");
+        let bankCount = await BankAcountModel.count({isDeleted:false});
+        return res.send({statusCode:200,message:"success",data:{
+            count :bankCount,
+            page:page,
+            list:bankData
+        }});
+    } catch (err) {
+        console.log(err);
+        return res.status(405).send("Can not find bank accounts.");
+    }
+}

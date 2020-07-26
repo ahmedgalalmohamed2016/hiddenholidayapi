@@ -45,6 +45,7 @@ module.exports = {
             const page = filter.page;
             _skip = page * 10;
             delete filter.page;
+            console.log(filter);
             let transactions = await TransactionModel.find(filter)
                 .populate("fromUserId")
                 .populate("toUserId")
@@ -126,7 +127,7 @@ module.exports = {
                     },
                 },
             ]);
-
+            console.log(allData);
             for (let i in allData) {
                 allMerchants.push(mongoose.Types.ObjectId(allData[i]._id.merchantId));
             }
@@ -158,6 +159,7 @@ module.exports = {
                                     },
                                     merchantAmount: { $sum: "$merchantAmount" },
                                     netAmount: { $sum: "$netAmount" },
+                                    sharePercentage: { $sum: "$sharePercentage" },
                                     grossAmount: { $sum: "$grossAmount" },
                                 },
                             },
@@ -171,27 +173,27 @@ module.exports = {
                         });
                         if (_.isNil(updateTransaction))
                             return res.send("error Happened while create user account");
-
-                        const data = {
-                            isActive: true,
-                            isSettled: true,
-                            isRefunded: false,
-                            fromUserId: totalAmount[0]._id.fromUserId,
-                            toUserId: totalAmount[0]._id.merchantId,
-                            grossAmount: totalAmount[0].grossAmount,
-                            netAmount: totalAmount[0].netAmount,
-                            merchantAmount: totalAmount[0].merchantAmount,
-                            currency: totalAmount[0]._id.currency,
-                            status: 'pending',
-                            sourceType: 'settlement',
-                            comment: '',
-                            merchantId: totalAmount[0]._id.merchantId,
-                            paymentMethod: "settlement",
-                            isSettled: true,
-                            satteledAccount: elm._id
-                        }
-                        const creation = await TransactionModel.create(data);
-                        console.log(creation);
+                            let transactionData = {}
+                            transactionData.fromUserId = totalAmount[0]._id.fromUserId;
+                            transactionData.toUserId = totalAmount[0]._id.merchantId;
+                            transactionData.grossAmount = totalAmount[0].grossAmount;
+                            transactionData.netAmount = totalAmount[0].netAmount;
+                            transactionData.merchantAmount = totalAmount[0].merchantAmount;
+                            transactionData.currency = totalAmount[0]._id.currency;
+                            transactionData.status = "pending";
+                            transactionData.sourceType = "settlement";
+                            transactionData.comment = "This is free init balance.";
+                            transactionData.paymentMethod = "settlement";
+                            transactionData.code = makeUserCode(10);
+                            transactionData.creationDate = new Date();
+                            transactionData.sharePercentage = '0';
+                            //sourceData {senderName , recieverName  }
+                            transactionData.sourceData = {};
+                            transactionData.sourceData.senderName = "";
+                            transactionData.sourceData.receiverName = "";
+                            transactionData.paymentId = null;
+                      
+                        const creation = await TransactionModel.create(transactionData);
                     }
                 })
             }
@@ -208,3 +210,14 @@ module.exports = {
         }
     },
 };
+
+
+function makeUserCode(length) {
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
