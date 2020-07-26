@@ -19,12 +19,14 @@ let TransactionSchema = new Schema({
     comment: { type: String },
     exRate: { type: Number },
     paymentMethod: { type: String, required: true }, // virtual cash credit
+    paymentId: {  type: mongoose.Schema.Types.ObjectId, required: false }, // virtual cash credit
     isActive: { type: Boolean, required: true, default: true },
     code: { type: String, required: true },
     isSettled: { type: Boolean, default: false },
     isRefunded: { type: Boolean, default: false },
     transactionSource: { type: String }, // if refund must insert source transaction id
     bankAccount: { type: String },
+    satteledAccount:{type: mongoose.Schema.Types.ObjectId , required: false}
 });
 
 //sourceData [{senderName , recieverName , dealTitle, dealDescription  }]

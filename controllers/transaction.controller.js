@@ -149,7 +149,7 @@ exports.requestBill = async (req, res) => {
     transactionData.creationDate = new Date();
     transactionData.exRate = countryData.exRate;
     transactionData.merchantId = merchantData[0]._id;
-
+    transactionData.paymentId = req.body.cardId;
     // //sourceData {senderName , recieverName  }
     transactionData.sourceData = {};
     transactionData.sourceData.senderName =
@@ -323,6 +323,17 @@ exports.sattlementAmountList = async(req,res)=>{
     filter.list = req.body.list
     
   let resualt = await TransactionService.sattlementAmount(filter);
+  // await merchant.find(_query)
+  return responses(res,null,resualt);
+}
+exports.transactionSattlement = async(req,res)=>{
+  let filter = {};
+  if(!req.body.transactions)
+  return responses(res,"please enter valid merchant list");
+
+    filter = req.body.transactions
+    
+  let resualt = await TransactionService.transactionSattlement(filter);
   // await merchant.find(_query)
   return responses(res,null,resualt);
 }

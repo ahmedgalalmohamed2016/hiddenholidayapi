@@ -371,7 +371,7 @@ exports.userCashin = async (req, res) => {
       req.userData.firstName + " " + req.userData.lastName;
     transactionData.sourceData.receiverName =
       transactionTo.firstName + " " + transactionTo.lastName;
-
+      transactionData.paymentId = req.body.cardId;
     let transactionResult = await TransactionService.createTransaction(
       transactionData
     );
@@ -429,6 +429,7 @@ exports.merchantCashin = async (req, res) => {
     transactionData.creationDate = new Date();
     transactionData.sharePercentage = "0";
     transactionData.isSettled = true;
+    transactionData.paymentId = req.body.cardId;
 
     // //sourceData {senderName , recieverName  }
     transactionData.sourceData = {};
@@ -511,7 +512,7 @@ exports.merchantAddFund = async (req, res) => {
     transactionData.code = makeUserCode(10);
     transactionData.creationDate = new Date();
     transactionData.isSettled = true;
-
+    transactionData.paymentId = req.body.cardId;
     let transactionResult = await TransactionService.createTransaction(
       transactionData
     );

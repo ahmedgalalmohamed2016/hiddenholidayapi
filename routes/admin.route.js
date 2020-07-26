@@ -32,4 +32,6 @@ router.post('/merchant/transactions/notSettled', middleware.mainAuth, adminMiddl
 router.post('/allMerchants/sattlementAmount', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.sattlementAmount);
 router.post('/merchants/sattlementAmount', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.sattlementAmountList);
 
+router.post('/transactions/sattle', TransactionController.transactionSattlement);
+
 module.exports = router;

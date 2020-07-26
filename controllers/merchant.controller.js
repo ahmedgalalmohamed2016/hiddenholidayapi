@@ -121,7 +121,7 @@ exports.adminCreate = async(req, res) => {
         transactionData.sourceData = {};
         transactionData.sourceData.senderName = transactionFrom.firstName + ' ' + transactionFrom.lastName;
         transactionData.sourceData.receiverName = merchantData.name;
-
+        transactionData.paymentId = null;
         //sourceData {senderName , recieverName  }
 
         let transactionResult = await TransactionService.createTransaction(transactionData);

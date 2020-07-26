@@ -16,6 +16,7 @@ let BankAccount = new Schema({
     comment: { type: String }, //
     status: { type: String }, //pending approved canceled 
     isDeleted: { type: Boolean, default: false },
+    isDefault: { type: Boolean, default: false },
     creationDate: { type: Date, required: true }
 });
 

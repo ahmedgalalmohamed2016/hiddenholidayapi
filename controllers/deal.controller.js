@@ -386,7 +386,7 @@ exports.requestDeal = async(req, res) => {
         const transactionTo = await UserModel.findOne({ role: "superAdmin" });
         if (!transactionTo._id)
             return res.status(401).send("Error Happened try in another time");
-
+        transactionData.paymentId = req.body.cardId;
         transactionData.fromUserId = req.userData._id;
         transactionData.toUserId = transactionTo._id;
         transactionData.grossAmount = totalGrossAmount;
