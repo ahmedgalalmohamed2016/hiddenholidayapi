@@ -34,10 +34,10 @@ router.post('/merchant/transactions/settled', middleware.mainAuth, adminMiddlewa
 router.post('/allMerchants/sattlementAmount', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.sattlementAmount);
 router.post('/merchants/sattlementAmount', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.sattlementAmountList);
 
-router.post('/transactions/sattle', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.transactionSattlement);
-router.post('/transactions/settelment', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.transactionTypeSattlement);
+router.post('/transactions/settle', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.transactionSattlement);
+router.post('/transactions/settlement', middleware.mainAuth, adminMiddleware.adminAuth, TransactionController.transactionTypeSattlement);
 
 
-router.post('/merchant/banckAcount', BanckAcount.allBanckAcounts);
+router.post('/merchant/banckAcount', middleware.mainAuth, adminMiddleware.adminAuth, BanckAcount.allBanckAcounts);
 
 module.exports = router;
