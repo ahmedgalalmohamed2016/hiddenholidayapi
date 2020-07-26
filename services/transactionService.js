@@ -116,7 +116,7 @@ module.exports = {
             let allMerchants = [];
             const allData = await TransactionModel.aggregate([
                 {
-                    $match: { _id: { $in: ids }, merchantId: { $ne: null } },
+                    $match: { _id: { $in: ids }, isSettled: false, merchantId: { $ne: null } },
                 },
                 {
                     $group: {
@@ -126,6 +126,7 @@ module.exports = {
                     },
                 },
             ]);
+
             for (let i in allData) {
                 allMerchants.push(mongoose.Types.ObjectId(allData[i]._id.merchantId));
             }
@@ -137,26 +138,72 @@ module.exports = {
 
             const notSetDefault = [];
             const haveDefault = [];
-            for(let ind in allMerchants){
+            for (let ind in allMerchants) {
                 banckAcounts.map(async (elm) => {
-                    if(elm.merchantId == allMerchants[ind].toString()){
+                    if (elm.merchantId == allMerchants[ind].toString()) {
                         notSetDefault.push(mongoose.Types.ObjectId(elm.merchantId));
                     } else {
-                        const allTransactions = await TransactionModel.update({
-                            merchantId: elm.merchantId
-                        },{
-                            isSettled:true,
+                        const totalAmount = await TransactionModel.aggregate([
+                            {
+                                $match: {
+                                    merchantId: elm.merchantId,
+                                    isSettled: false
+                                },
+                            },
+                            {
+                                $group: {
+                                    _id: {
+                                        merchantId: "$merchantId",
+                                        currency: "$currency",
+                                        fromUserId:"$fromUserId"
+                                    },
+                                    merchantAmount: { $sum: "$merchantAmount" },
+                                    netAmount: { $sum: "$netAmount" },
+                                    grossAmount: { $sum: "$grossAmount" },
+                                },
+                            },
+                        ]);
+                        const updateTransaction = await TransactionModel.updateMany({
+                            merchantId: elm.merchantId,
+                            isSettled: false
+                        }, {
+                            isSettled: true,
                             satteledAccount: elm._id
                         });
-                    
+                        if (_.isNil(updateTransaction))
+                            return res.send("error Happened while create user account");
+
+                        const data = {
+                            isActive: true,
+                            isSettled: true,
+                            isRefunded: false,
+                            fromUserId: totalAmount[0]._id.fromUserId,
+                            toUserId: totalAmount[0]._id.merchantId,
+                            grossAmount: totalAmount[0].grossAmount,
+                            netAmount: totalAmount[0].netAmount,
+                            merchantAmount: totalAmount[0].merchantAmount,
+                            currency: totalAmount[0]._id.currency,
+                            status: 'pending',
+                            sourceType: 'settlement',
+                            comment: '',
+                            merchantId: totalAmount[0]._id.merchantId,
+                            paymentMethod: "settlement",
+                            isSettled: true,
+                            satteledAccount: elm._id
+                        }
+                        const creation = await TransactionModel.create(data);
+                        console.log(creation);
                     }
                 })
             }
-            if(notSetDefault.length>0)
-            return {message:"this merchants cannot settled, must set default banck account ",
-        merchantIds:notSetDefault}
+
+            if (notSetDefault.length > 0)
+                return res.send({
+                    message: "this merchants cannot settled, must set default banck account ",
+                    merchantIds: notSetDefault
+                })
             else
-            return {};
+                return {};
         } catch (err) {
             return err;
         }
