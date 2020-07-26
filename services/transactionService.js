@@ -137,7 +137,6 @@ module.exports = {
             });
 
             const notSetDefault = [];
-            const haveDefault = [];
             for (let ind in allMerchants) {
                 banckAcounts.map(async (elm) => {
                     if (elm.merchantId == allMerchants[ind].toString()) {
