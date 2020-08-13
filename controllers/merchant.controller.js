@@ -18,10 +18,10 @@ const mongoose = require('mongoose');
 const uuidv4 = require('uuid/v4');
 
 
-exports.adminCreate = async(req, res) => {
+exports.adminCreate = async (req, res) => {
     try {
         if (!req.body.mobileNumber || !req.body.password)
-            return res.send('Please enter required fields.');
+            return res.status(404).send({ statusCode: 404, message: 'Please enter required fields.' });
         let saveData = {};
         let transactionData = {};
         saveData._id = new mongoose.Types.ObjectId;
@@ -30,38 +30,38 @@ exports.adminCreate = async(req, res) => {
 
         const usersNamedFinn = await UserModel.find({ mobileNumber: req.body.mobileNumber }).lean();
         if (usersNamedFinn.length > 0 && req.body.mobileNumber == usersNamedFinn[0].mobileNumber)
-            return res.send("mobile number is not available try another one");
+            return res.status(404).send({ statusCode: 404, message: "mobile number is not available try another one" });
 
         const merchantFinn = await merchant.find({ $or: [{ name: req.body.name }, { clean_name: req.body.clean_name }] });
 
         if (merchantFinn.length > 0)
-            return res.status(405).send("Merchant name is not available try another one");
+            return res.send({ statusCode: 405, message: "Merchant name is not available try another one" });
 
         const transactionFrom = await UserModel.findOne({ role: "superAdmin" });
         if (!transactionFrom._id)
-            return res.status(405).send("Error Happened try in another time");
+            return res.send({ statusCode: 405, message: "Error Happened try in another time" });
 
         const categoryData = await CategoryModel.findOne({ enName: req.body.category });
         if (!categoryData._id)
-            return res.status(405).send("Error Happened try in another time");
+            return res.send({ statusCode: 405, message: "Error Happened try in another time" });
 
         let packageId = await packageModel.findOne({ enName: "Free Package" });
         if (!packageId._id)
-            return res.status(405).send("error Happened to find package");
+            return res.send({ statusCode: 405, message: "error Happened to find package" });
 
         let countryData = await countryModel.findOne({ enName: req.body.country });
         if (!countryData._id)
-            return res.status(405).send("error Happened to find countryData");
+            return res.send({ statusCode: 405, message: "error Happened to find countryData" });
 
         // Generate Password
         const password = await passwordService.generatePassword(req.body.password, saveData._id);
         if (_.isNil(password) || password == false)
-            return res.status(405).send("error Happened");
+            return res.send({ statusCode: 405, message: "error Happened" });
 
         // Generate Token
         const token = await tokenService.generateLoginToken(saveData.userDevice, saveData._id, req.body.mobileNumber, 'merchant');
         if (_.isNil(token) || token == false)
-            return res.status(405).send("error Happened");
+            return res.send({ statusCode: 405, message: "error Happened" });
 
         saveData.password = password;
         saveData.role = 'merchant';
@@ -93,15 +93,15 @@ exports.adminCreate = async(req, res) => {
         merchantData.countryId = countryData._id;
 
         if (_.isNil(merchantData.categoryId))
-            return res.status(405).send({ category: merchantData.categoryId });
+            return res.send({ statusCode: 405, message: "Error", data: { category: merchantData.categoryId } });
 
         const _merchant = await merchant.create(merchantData);
         if (_.isNil(_merchant))
-            return res.send("error Happened while create merchant account");
+            return res.status(404).send({ statusCode: 404, message: "error Happened while create merchant account" });
 
         const user = await UserModel.create(saveData);
         if (_.isNil(user))
-            return res.send("error Happened while create user account");
+            return res.status(404).send({ statusCode: 404, message: "error Happened while create user account" });
 
         transactionData.fromUserId = transactionFrom._id;
         transactionData.toUserId = saveData._id;
@@ -145,20 +145,19 @@ exports.adminCreate = async(req, res) => {
         verificationData.isVerified = false;
         let verfificationCreated = await VerificationModel.create(verificationData);
         if (_.isNil(verfificationCreated))
-            return res.send("error Happened");
+            return res.status(404).send({ statusCode: 404, message: "error Happened" });
         sendSmsService.sendActivationAccountsms(req, saveData.mobileNumber, verificationCode);
         user._verificationCode = verificationCode;
 
-        return res.send({ user: user, merchant: _merchant });
+        return res.status(200).send({ statusCode: 200, message: "Success", data: { user: user, merchant: _merchant } });
     } catch (err) {
-        console.log(err);
-        return res.send(err);
+        return res.status(404).send({ statusCode: 404, message: "Error", data: err });
     }
 }
-exports.create = async(req, res) => {
+exports.create = async (req, res) => {
     try {
         if (!req.body.mobileNumber || !req.body.password)
-            return res.send('Please enter required fields.');
+            return res.status(404).send({ statusCode: 404, message: 'Please enter required fields.' });
         let saveData = {};
         let transactionData = {};
         saveData._id = new mongoose.Types.ObjectId;
@@ -167,16 +166,16 @@ exports.create = async(req, res) => {
 
         const usersNamedFinn = await UserModel.find({ mobileNumber: req.body.mobileNumber }).lean();
         if (usersNamedFinn.length > 0 && req.body.mobileNumber == usersNamedFinn[0].mobileNumber)
-            return res.send("mobile number is not available try another one");
+            return res.status(404).send({ statusCode: 404, message: "mobile number is not available try another one" });
 
         const merchantFinn = await merchant.find({ $or: [{ name: req.body.name }, { clean_name: req.body.clean_name }] });
 
         if (merchantFinn.length > 0)
-            return res.status(405).send("Merchant name is not available try another one");
+            return res.status(404).send({ statusCode: 404, message: "Merchant name is not available try another one" });
 
         const transactionFrom = await UserModel.findOne({ role: "superAdmin" });
         if (!transactionFrom._id)
-            return res.status(405).send("Error Happened try in another time");
+            return res.status(404).send({ statusCode: 404, message: "Error Happened try in another time" });
 
         // const merchantAdmin = await UserModel.findOne({ role: "merchantAdmin", _id: req.userData._id });
         // if (!merchantAdmin._id)
@@ -184,25 +183,25 @@ exports.create = async(req, res) => {
 
         const categoryData = await CategoryModel.findOne({ enName: req.body.category });
         if (!categoryData._id)
-            return res.status(405).send("Error Happened try in another time");
+            return res.status(404).send({ statusCode: 404, message: "Error Happened try in another time" });
 
         let packageId = await packageModel.findOne({ enName: "Free Package" });
         if (!packageId._id)
-            return res.status(405).send("error Happened to find package");
+            return res.status(404).send({ statusCode: 404, message: "error Happened to find package" });
 
         let countryData = await countryModel.findOne({ enName: req.body.country });
         if (!countryData._id)
-            return res.status(405).send("error Happened to find countryData");
+            return res.status(404).send({ statusCode: 404, message: "error Happened to find countryData" });
 
         // Generate Password
         const password = await passwordService.generatePassword(req.body.password, saveData._id);
         if (_.isNil(password) || password == false)
-            return res.status(405).send("error Happened");
+            return res.status(404).send({ statusCode: 404, message: "error Happened" });
 
         // Generate Token
         const token = await tokenService.generateLoginToken(saveData.userDevice, saveData._id, req.body.mobileNumber, 'merchant');
         if (_.isNil(token) || token == false)
-            return res.status(405).send("error Happened");
+            return res.status(404).send({ statusCode: 404, message: "error Happened" });
 
         saveData.password = password;
         saveData.role = 'merchant';
@@ -234,15 +233,15 @@ exports.create = async(req, res) => {
         merchantData.countryId = countryData._id;
 
         if (_.isNil(merchantData.categoryId))
-            return res.status(405).send({ dd: merchantData.categoryId });
+            return res.send({ statusCode: 405, message: "Error", data: { dd: merchantData.categoryId } });
 
         const _merchant = await merchant.create(merchantData);
         if (_.isNil(_merchant))
-            return res.send("error Happened while create merchant account");
+            return res.status(404).send({ statusCode: 404, message: "error Happened while create merchant account" });
 
         const user = await UserModel.create(saveData);
         if (_.isNil(user))
-            return res.send("error Happened while create user account");
+            return res.status(404).send({ statusCode: 404, message: "error Happened while create user account" });
 
         transactionData.fromUserId = transactionFrom._id;
         transactionData.toUserId = saveData._id;
@@ -267,7 +266,7 @@ exports.create = async(req, res) => {
 
         let transactionResult = await TransactionService.createTransaction(transactionData);
         if (transactionResult == false)
-            return res.status(401).send("error Happened while create transaction");
+            return res.send({ statusCode: 401, message: "error Happened while create transaction" });
 
         // Verification Number
         let verificationData = {};
@@ -286,48 +285,47 @@ exports.create = async(req, res) => {
         verificationData.isVerified = false;
         let verfificationCreated = await VerificationModel.create(verificationData);
         if (_.isNil(verfificationCreated))
-            return res.send("error Happened");
+            return res.status(404).send({ statusCode: 404, message: "error Happened" });
         sendSmsService.sendActivationAccountsms(req, saveData.mobileNumber, verificationCode);
         user._verificationCode = verificationCode;
 
-        return res.send({ user: user, merchant: _merchant });
+        return res.status(200).send({ statusCode: 200, message: "Success", data: { user: user, merchant: _merchant } });
     } catch (err) {
-        console.log(err);
-        return res.send(err);
+        return res.status(404).send({ statusCode: 404, message: "Error", data: err });
     }
 }
 
-exports.adminUpdate = async(req, res) => {
+exports.adminUpdate = async (req, res) => {
     try {
         if (!req.body.id)
-            return res.status(405).send("No merchant found with this data");
+            return res.status(404).send({ statusCode: 404, message: "No merchant found with this data" });
 
         if (req.body.country)
             delete req.body.country;
 
         let _merchant = await merchant.findOne({ _id: req.body.id });
         if (!_merchant)
-            return res.status(405).send("No bid found with this data");
+            return res.status(404).send({ statusCode: 404, message: "No bid found with this data" });
 
         let _res = await merchant.findOneAndUpdate({ _id: req.body.id }, { $set: req.body }, { new: true });
         if (!_res)
-            return res.status(405).send("Can not update this merchant,try in another time.");
-        return res.send(_res);
+            return res.status(404).send({ statusCode: 404, message: "Can not update this merchant,try in another time." });
+        return res.status(200).send({ statusCode: 200, message: "Success", data: _res });
     } catch (err) {
-        return res.send(err || "Error Happened");
+        return res.status(404).send({ statusCode: 404, message: "Error", data: err || "Error Happened" });
     }
 }
 
-exports.checkPassword = async(req, res) => {
+exports.checkPassword = async (req, res) => {
     try {
         console.log(req.body.password);
         if (!req.body.password) {
-            return res.status(405).send({ error: "Please enter valid password" });
+            return res.send({ statusCode: 405, message: "Please enter valid password" });
         }
         const password = await passwordService.comparePassword(req.body.password, req.userData.password, req.userData._id);
         console.log(password);
         if (_.isNil(password) || password != true)
-            return res.status(405).send({ error: "Please enter valid password" });
+            return res.send({ statusCode: 405, message: "Please enter valid password" });
         res.send(true);
     } catch (err) {
 
@@ -336,11 +334,11 @@ exports.checkPassword = async(req, res) => {
 
 
 
-exports.registerMerchant = async(req, res) => {
+exports.registerMerchant = async (req, res) => {
     try {
 
         if (!req.body.mobileNumber || !req.body.firstName || !req.body.lastName || !req.body.password)
-            return res.send('Please enter required fields.');
+            return res.status(404).send({ statusCode: 404, message: 'Please enter required fields.' });
         let saveData = {};
         saveData._id = new mongoose.Types.ObjectId;
         saveData.userDevice = uuidv4();
@@ -349,23 +347,23 @@ exports.registerMerchant = async(req, res) => {
             $or: [{ mobileNumber: req.body.mobileNumber }, { email: req.body.email }]
         });
         if (usersNamedFinn.length > 0 && req.body.mobileNumber == usersNamedFinn[0].mobileNumber)
-            return res.send("mobile number is not available try another one");
+            return res.status(404).send({ statusCode: 404, message: "mobile number is not available try another one" });
 
         else if (usersNamedFinn.length > 0 && req.body.email == usersNamedFinn[0].email)
-            return res.send("email is not available try another one");
+            return res.status(404).send({ statusCode: 404, message: "email is not available try another one" });
 
         else if (usersNamedFinn.length > 0)
-            return res.send("mobile number or email is duplicated");
+            return res.status(404).send({ statusCode: 404, message: "mobile number or email is duplicated" });
 
         // Generate Password
         const password = await passwordService.generatePassword(req.body.password, saveData._id);
         if (_.isNil(password) || password == false)
-            return res.send("error Happened");
+            return res.status(404).send({ statusCode: 404, message: "error Happened" });
 
         // Generate Token
         const token = await tokenService.generateLoginToken(saveData.userDevice, saveData._id, req.body.mobileNumber, 'merchant');
         if (_.isNil(token) || token == false)
-            return res.send("error Happened");
+            return res.status(404).send({ statusCode: 404, message: "error Happened" });
 
         saveData.password = password;
         saveData.role = 'user';
@@ -380,7 +378,7 @@ exports.registerMerchant = async(req, res) => {
 
         const user = await UserModel.create(saveData);
         if (_.isNil(user))
-            return res.send("error Happened");
+            return res.status(404).send({ statusCode: 404, message: "error Happened" });
 
         // Verification Number
         let verificationData = {};
@@ -400,90 +398,89 @@ exports.registerMerchant = async(req, res) => {
         verificationData.isVerified = false;
         let verfificationCreated = await VerificationModel.create(verificationData);
         if (_.isNil(verfificationCreated))
-            return res.send("error Happened");
+            return res.status(404).send({ statusCode: 404, message: "error Happened" });
         await sendSmsService.sendActivationAccountsms(req, saveData.mobileNumber, verificationCode);
         user._verificationCode = verificationCode;
         console.log(verificationCode);
-        return res.send(user);
+        return res.status(200).send({ statusCode: 200, message: "Success", data: user });
     } catch (err) {
-        return res.send({ data: "error" });
+        return res.status(404).send({ statusCode: 404, message: "error" });
     }
 }
 
-exports.maps = async(req, res) => {
+exports.maps = async (req, res) => {
     try {
         let result = await merchant.find({}, 'clean_name cat_name location_long location_lat _id');
-        return res.send(result);
+        return res.status(404).send({ statusCode: 404, message: "Success", data: result });
     } catch (err) {
-        return res.send(err.message);
+        return res.status(404).send({ statusCode: 404, message: err.message });
     }
 };
 
-exports.meMerchantById = async(req, res) => {
+exports.meMerchantById = async (req, res) => {
     try {
         let _merchants = await merchant.find({ userId: req.userData._id }).populate('categoryId');
         if (!_merchants)
-            return res.status(405).send("Please enter valid merchant data");
-        return res.send(_merchants);
+            return res.send({ statusCode: 405, message: "Please enter valid merchant data" });
+        return res.status(200).send({ statusCode: 200, message: "Success", data: _merchants });
     } catch (err) {
-        return res.send(err.message);
+        return res.status(404).send({ statusCode: 404, message: err.message });
     }
 };
 
-exports.listMerchantById = async(req, res) => {
+exports.listMerchantById = async (req, res) => {
     try {
         if (!req.body.id) {
-            return res.status(405).send("Please enter valid merchant id");
+            return res.status(404).send({ statusCode: 404, message: "Please enter valid merchant id" });
         }
         let _merchants = await merchant.findOne({ _id: req.body.id });
         if (!_merchants)
-            return res.status(405).send("Please enter valid merchant data");
-        return res.send(_merchants);
+            return res.status(404).send({ statusCode: 404, message:"Please enter valid merchant data"});
+        return res.status(200).send({ statusCode: 200, message: "Success", data: _merchants });
     } catch (err) {
         console.log(err);
-        return res.status(405).send(err.message);
+        return res.status(404).send({ statusCode: 404, message:err.message});
     }
 };
 
-exports.adminMerchantById = async(req, res) => {
+exports.adminMerchantById = async (req, res) => {
     try {
         console.log(req.body.id);
         let _merchants = await merchant.find({ _id: req.body.id }).populate('categoryId').populate('countryId').populate('userId');
         if (!_merchants)
-            return res.status(405).send("Please enter valid merchant data");
-        return res.send(_merchants);
+            return res.status(404).send({ statusCode: 404, message:"Please enter valid merchant data"});
+        return res.status(200).send({ statusCode: 200, message:"Success",data:_merchants});
     } catch (err) {
-        return res.send(err.message);
+        return res.status(404).send({ statusCode: 404, message:err.message});
     }
 };
 
-exports.merchantById = async(req, res) => {
+exports.merchantById = async (req, res) => {
     try {
-        console.log(req.body.id);
-        let _merchants = await merchant.find({ _id: req.merchantData.id }).populate('categoryId').populate('countryId').populate('userId');
+        let _merchants = await merchant.find({ _id: req.body.id }).populate('categoryId').populate('countryId').populate('userId');
         if (!_merchants)
-            return res.status(404).send("Please enter valid merchant data");
-        return res.send(_merchants);
+            return res.status(404).send({ statusCode: 404, message:"Please enter valid merchant data"});
+        return res.status(404).send({ statusCode: 404, message:"Success",data:_merchants});
     } catch (err) {
-        return res.send(err.message);
+        return res.status(404).send({ statusCode: 404, message:err.message});
     }
 };
 
-exports.me = async(req, res) => {
+exports.me = async (req, res) => {
     try {
         let _merchants = await merchant.findById({ _id: req.merchantData.id });
         if (!_merchants)
-            return res.status(405).send("Please enter valid merchant data");
+            return res.status(404).send({ statusCode: 404, message:"Please enter valid merchant data"});
         req.userData.merchant = _merchants;
-        return res.send(req.userData);
+        return res.status(200).send({ statusCode: 200, message:"Success",data:req.userData});
     } catch (err) {
-        return res.send(err.message);
+        return res.status(404).send({ statusCode: 404, message:err.message});
     }
 };
 
 
 
-exports.totalDeals = async(req, res) => {
+exports.totalDeals = async (req, res) => {
     try {
         let data = {};
 
@@ -492,7 +489,7 @@ exports.totalDeals = async(req, res) => {
 
         let _Deals = await DealModel.find({ merchantId: req.merchantData._id });
         if (!_Deals)
-            return res.status(405).send("Please enter valid merchant data");
+            return res.status(404).send({ statusCode: 404, message:"Please enter valid merchant data"});
 
         data.dealRequests = _Deals.length;
         data.bidsRequests = 0;
@@ -510,13 +507,13 @@ exports.totalDeals = async(req, res) => {
         }
 
 
-        return res.send(data);
+        return res.status(200).send({ statusCode: 200, message:"Success",data:data});
     } catch (err) {
-        return res.send(err.message);
+        return res.status(404).send({ statusCode: 404, message:err.message});
     }
 };
 
-exports.update = async(req, res) => {
+exports.update = async (req, res) => {
     try {
         let _query = {};
         if (req.body.merchant.isActiveMerchant) {
@@ -544,14 +541,14 @@ exports.update = async(req, res) => {
 
         const updatedMerchant = await merchant.updateOne({ clean_name: req.merchantData.name }, { $set: _query }, { new: true });
         if (_.isNil(updatedMerchant))
-            return res.status(405).send({ message: "We can not update merchant.Try in another time." });
-        return res.send({ message: "Updated Success." });
+            return res.status(404).send({ statusCode: 404, message: "We can not update merchant.Try in another time." });
+        return res.status(200).send({ statusCode: 200,message: "Updated Success."  });
     } catch (err) {
-        return res.send(err.message || "We can not update merchant.Try in another time.");
+        return res.status(404).send({ statusCode: 404, message:err.message || "We can not update merchant.Try in another time."});
     }
 };
 
-exports.totalSummary = async(req, res) => {
+exports.totalSummary = async (req, res) => {
     try {
         let data = {};
 
@@ -560,15 +557,14 @@ exports.totalSummary = async(req, res) => {
         data.totalDeals = await DealModel.count({ type: 'deal', merchantId: req.merchantData.id, isArchived: false, isActive: true });
         data.totalBids = await DealModel.count({ type: 'bid', merchantId: req.merchantData.id, isArchived: false, isActive: true });
 
-        return res.send(data);
+        return res.status(200).send({ statusCode: 200, message:"Success",data:data});
     } catch (err) {
-        console.log(err);
-        return res.send(err);
+        return res.status(404).send({ statusCode: 404, message:err});
     }
 }
 
 
-exports.home = async(req, res) => {
+exports.home = async (req, res) => {
     try {
         let data = {};
 
@@ -589,9 +585,9 @@ exports.home = async(req, res) => {
 
         data._deals = await merchant.find({ promotion: { $ne: null } }).limit(8).orFail((err) => Error(err));
 
-        return res.send(data);
+        return res.status(200).send({ statusCode: 200, message:"Success",data:data});
     } catch (err) {
-        return res.send(err.message);
+        return res.status(404).send({ statusCode: 404, message:err.message});
     }
 };
 
@@ -599,7 +595,7 @@ function getRandomArbitrary(min, max) {
     return parseInt((Math.random() * (max - min) + min));
 }
 
-exports.merchants = async(req, res) => {
+exports.merchants = async (req, res) => {
     try {
         let _query = {};
         let _skip = 0;
@@ -630,21 +626,21 @@ exports.merchants = async(req, res) => {
 
 
 
-exports.merchantsDummy = async(req, res) => {
+exports.merchantsDummy = async (req, res) => {
     try {
         let rawdata = fs.readFileSync('./json/dummy.json');
         let _cresult = JSON.parse(rawdata);
         let _merchants = await merchant.create(_cresult);
-        return res.send(_merchants);
+        return res.status(200).send({ statusCode: 200, message:"Success",data:_merchants});
     } catch (err) {
-        return res.send(err.message);
+        return res.status(404).send({ statusCode: 404, message:err.message});
     }
 };
 
-exports.merchants_favourites = async(req, res) => {
+exports.merchants_favourites = async (req, res) => {
     try {
         if (!req.body.merchants || req.body.merchants.length < 1)
-            return res.status(405).send("Please enter valid favourites data");
+            return res.status(404).send({ statusCode: 404, message:"Please enter valid favourites data"});
 
         let data = [];
         console.log(typeof req.body);
@@ -655,9 +651,9 @@ exports.merchants_favourites = async(req, res) => {
             data.push(d);
         }
         let _merchants = await merchant.find({ _id: { $in: data } }, null, { sort: { clean_name: 1 } }).populate('categoryId');
-        return res.send(_merchants);
+        return res.status(200).send({ statusCode: 200, message:"Success",data:_merchants});
     } catch (err) {
-        return res.send(err);
+        return res.status(404).send({ statusCode: 404, message:err});
     }
 };
 
@@ -684,7 +680,7 @@ exports.merchants_favourites = async(req, res) => {
 //     }
 // };
 
-exports.merchant_prepare = async(req, res) => {
+exports.merchant_prepare = async (req, res) => {
     try {
         let rawdata = fs.readFileSync("items.json");
         let data = JSON.parse(rawdata);
@@ -697,10 +693,10 @@ exports.merchant_prepare = async(req, res) => {
         // return res.send(data);
         // let merchantdata = new merchant(data);
         let result = await merchant.insertMany(data);
-        return res.send(result);
+        return res.status(200).send({ statusCode: 200, message:"Success",data:result});
     } catch (err) {
 
-        return res.send(err.message);
+        return res.status(404).send({ statusCode: 404, message:err.message});
     }
 };
 

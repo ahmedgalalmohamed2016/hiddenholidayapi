@@ -29,15 +29,15 @@ exports.adminCreate = async(req, res) => {
 
         let _merchant = await MerchantModel.findOne({ _id: req.body.merchantId }).populate('packageId');
         if (!_merchant || !_merchant.categoryId)
-            return res.status(405).send("No merchant found with this data");
+            return res.send({statusCode:405,message:"No merchant found with this data"});
 
         let _totalBids = await DealModel.count({ merchantId: req.body.merchantId, type: 'bid' });
 
         if (_merchant.packageId.maxBids <= _totalBids)
-            return res.status(405).send("Merchant have maximum limit on bids, please upgrade plan");
+            return res.send({statusCode:405,message:"Merchant have maximum limit on bids, please upgrade plan"});
 
         if (!_merchant.country)
-            return res.status(405).send("You must update merchant country before you create bid.");
+            return res.send({statusCode:405,message:"You must update merchant country before you create bid."});
 
         data.categoryId = _merchant.categoryId;
         data.country = _merchant.country;
@@ -45,9 +45,9 @@ exports.adminCreate = async(req, res) => {
         let _res = await DealModel.create(data);
         if (!_res)
             return res.status(405).send("Can not create bid,try i another time.");
-        return res.send({ data: data, t: _totalBids, p: _merchant.packageId });
+        return res.send({statusCode:200,message:"Success",data:{ data: data, t: _totalBids, p: _merchant.packageId }});
     } catch (err) {
-        return res.send("Error Happened");
+        return res.send({statusCode:404,message:"Error Happened"});
     }
 }
 
@@ -65,14 +65,14 @@ exports.adminUpdate = async(req, res) => {
 
         let _bid = await DealModel.findOne({ _id: req.body.id, type: 'bid' });
         if (!_bid)
-            return res.status(405).send("No bid found with this data");
+            return res.send({statusCode:405,message:"No bid found with this data"});
 
         let _res = await DealModel.findOneAndUpdate({ _id: req.body.id }, { $set: data }, { new: true });
         if (!_res)
-            return res.status(405).send("Can not update this bid,try i another time.");
-        return res.send(_res);
+            return res.send({statusCode:405,message:"Can not update this bid,try i another time."});
+        return res.send({statusCode:200,message:"Success",data:_res});
     } catch (err) {
-        return res.send("Error Happened");
+        return res.send({statusCode:404,message:"Error Happened"});
     }
 }
 
@@ -101,10 +101,10 @@ exports.adminList = async(req, res) => {
             }, _query)
             .populate('merchantId').populate('categoryId').limit(10).skip(_skip).orFail((err) => Error(err));
         if (!BidsData)
-            return res.status(405).send("No bids found with this data.");
-        return res.send(BidsData);
+            return res.send({statusCode:405,message:"No bids found with this data."});
+        return res.send({statusCode:200,message:"Success",data:BidsData});
     } catch (err) {
-        return res.status(405).send(err);
+        return res.send({statusCode:405,message:"Error",data:err});
     }
 }
 
@@ -114,28 +114,28 @@ exports.adminListbyMerchantId = async(req, res) => {
         let _bids = await DealModel.find({ merchantId: req.body.id }).sort('endDate')
             .populate('merchantId').populate('categoryId');
         if (!_bids)
-            return res.status(405).send("No bids found with this data.");
-        return res.send(_bids);
+            return res.send({statusCode:405,message:"No bids found with this data."});
+        return res.send({statusCode:200,message:"Success",data:_bids});
     } catch (err) {
-        return res.status(405).send(err);
+        return res.send({statusCode:405,message:"Can not find bank accounts.",data:err});
     }
 }
 
 exports.adminGetBid = async(req, res) => {
     try {
         if (!req.body.id) {
-            return res.status(405).send("Error Happened");
+            return res.send({statusCode:404,message:"Error Happened"});
         }
 
         let bid = await DealModel.findOne({ _id: req.body.id, type: 'bid' });
 
         if (!bid) {
-            return res.status(405).send("No bids found with this data.");
+            return res.send({statusCode:404,message:"No bids found with this data."});
         }
 
-        return res.send(bid);
+        return res.send({statusCode:200,message:"Success",data:bid});
     } catch (err) {
-        return res.status(405).send(err);
+        return res.send({statusCode:404,message:"Error",data:err});
     }
 }
 
@@ -143,16 +143,16 @@ exports.list = async(req, res) => {
     try {
 
         if (!req.query.country)
-            return res.status(405).send("Please enter valid country data");
+            return res.send({statusCode:404,message:"Please enter valid country data"});
         // get deals
         let _skip = 0;
         if (req.query.page)
             _skip = req.query.page * 10;
         let dealsData = await DealModel.find({ isArchived: false, country: req.query.country, type: 'bid' }).populate('merchantId').populate('categoryId').limit(10).skip(_skip).orFail((err) => Error(err));
         if (!dealsData)
-            return res.status(405).send("Please enter data");
-        res.send(dealsData);
+            return res.send({statusCode:404,message:"Please enter data"});
+        res.send({statusCode:200,message:"Success",data:dealsData});
     } catch (err) {
-        return res.send(err);
+        return res.send({statusCode:404,message:"Error", data:err});
     }
 }

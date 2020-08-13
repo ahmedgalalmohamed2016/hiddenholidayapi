@@ -22,18 +22,18 @@ exports.getCountries = async (req, res) => {
       { isActive: true },
       "-encExRate"
     ).sort("enName");
-    return res.send(countries);
+    return res.status(200).send({ statusCode: 200, message:"Success",data:countries});
   } catch (err) {
-    return res.send(err || { data: "Try in another time." });
+    return res.status(404).send({ statusCode: 404, message:err || "Try in another time." });
   }
 };
 
 exports.getCategories = async (req, res) => {
   try {
     let categoriesData = await CategoryModel.find({ isActive: true });
-    return res.send(categoriesData);
+    return res.status(200).send({ statusCode: 200, message:"Success",data:categoriesData});
   } catch (err) {
-    return res.send({ data: "Try in another time." });
+    return res.status(404).send({ statusCode: 404, message:"Try in another time." });
   }
 };
 
@@ -60,23 +60,23 @@ exports.adminGetUsers = async (req, res) => {
       .limit(50)
       .skip(_skip)
       .sort("-lastLoginDate");
-    return res.send(_users);
+    return res.status(200).send({ statusCode: 200, message:"Success",data:_users});
   } catch (err) {
-    return res.status(405).send(err);
+    return res.status(404).send({ statusCode: 404, message:err});
   }
 };
 
 exports.adminGetUserById = async (req, res) => {
   try {
     if (!req.body.id)
-      return res.status(405).send("No user valid with this data");
+      return res.status(404).send({ statusCode: 404, message:"No user valid with this data"});
     let _user = await UserModel.findOne(
       { _id: req.body.id, role: "user" },
       "-password -userToken"
     );
-    return res.send(_user);
+    return res.status(200).send({ statusCode: 200, message:"Success",data:_user});
   } catch (err) {
-    return res.status(405).send(err);
+    return res.status(404).send({ statusCode: 404, message:err});
   }
 };
 
@@ -89,7 +89,7 @@ exports.adminUpdateUser = async (req, res) => {
       !req.body.firstName ||
       !req.body.lastName
     )
-      return res.send("Please enter required fields.");
+      return res.status(404).send({ statusCode: 404, message:"Please enter required fields."});
 
     console.log(req.body);
     let data = {};
@@ -102,7 +102,7 @@ exports.adminUpdateUser = async (req, res) => {
     data.verifiedMobileNumber = req.body.verifiedMobileNumber;
 
     let _user = await UserModel.findOne({ _id: req.body.id });
-    if (!_user) return res.status(405).send("No bid found with this data");
+    if (!_user) return res.status(404).send({ statusCode: 404, message:"No bid found with this data"});
 
     let _mobile = await UserModel.findOne({
       mobileNumber: req.body.mobileNumber,
@@ -121,11 +121,10 @@ exports.adminUpdateUser = async (req, res) => {
     );
     if (!_res)
       return res
-        .status(405)
-        .send("Can not update this user,try in another time.");
-    return res.send(_res);
+        .send({ statusCode: 404, message:"Can not update this user,try in another time."});
+    return res.status(200).send({ statusCode: 200, message:"Success",data:_res});
   } catch (err) {
-    return res.send("Error Happened");
+    return res.status(404).send({ statusCode: 404, message:"Error Happened"});
   }
 };
 
@@ -138,11 +137,11 @@ exports.adminCreateUser = async (req, res) => {
       !req.body.firstName ||
       !req.body.lastName
     )
-      return res.send("Please enter required fields.");
+      return res.status(404).send({ statusCode: 404, message:"Please enter required fields."});
     const _country = await CountryModel.findOne({ enName: req.body.country });
 
     if (_.isNil(_country))
-      return res.status(405).send("Please enter valid country");
+      return res.status(404).send({ statusCode: 404, message:"Please enter valid country"});
 
     let saveData = {};
     saveData._id = new mongoose.Types.ObjectId();
@@ -155,14 +154,14 @@ exports.adminCreateUser = async (req, res) => {
       usersNamedFinn.length > 0 &&
       req.body.mobileNumber == usersNamedFinn[0].mobileNumber
     )
-      return res.send("mobile number is not available try another one");
+      return res.status(404).send({ statusCode: 404, message:"mobile number is not available try another one"});
 
     const password = await passwordService.generatePassword(
       req.body.password,
       saveData._id
     );
     if (_.isNil(password) || password == false)
-      return res.send("error Happened");
+      return res.status(404).send({ statusCode: 404, message:"error Happened"});
 
     // Generate Token
     const token = await tokenService.generateLoginToken(
@@ -171,7 +170,7 @@ exports.adminCreateUser = async (req, res) => {
       req.body.mobileNumber,
       "user"
     );
-    if (_.isNil(token) || token == false) return res.send("error Happened");
+    if (_.isNil(token) || token == false) return res.status(404).send({ statusCode: 404, message:"error Happened"});
 
     saveData.password = password;
     saveData.role = "user";
@@ -186,21 +185,21 @@ exports.adminCreateUser = async (req, res) => {
     saveData.lastName = req.body.lastName;
 
     const user = await UserModel.create(saveData);
-    if (_.isNil(user)) return res.send("error Happened while create new user.");
+    if (_.isNil(user)) return res.status(404).send({ statusCode: 404, message:"error Happened while create new user."});
 
-    return res.send(user);
+    return res.status(200).send({ statusCode: 200, message:"Success",data:user});
   } catch (err) {
-    return res.send({ data: err || "error" });
+    return res.status(404).send({ statusCode: 404, message: err || "error" });
   }
 };
 
 exports.adminChangePassword = async (req, res) => {
   try {
     if (!req.body.id || !req.body.password)
-      return res.status(405).send("Please enter required fields.");
+      return res.status(404).send({ statusCode: 404, message:"Please enter required fields."});
 
     const _user = await UserModel.findOne({ _id: req.body.id, role: "user" });
-    if (!_user) return res.status(405).send("No user found with this data");
+    if (!_user) return res.status(404).send({ statusCode: 404, message:"No user found with this data"});
 
     // Generate Password
     const password = await passwordService.generatePassword(
@@ -208,7 +207,7 @@ exports.adminChangePassword = async (req, res) => {
       _user._id
     );
     if (_.isNil(password) || password == false)
-      return res.status(405).send("error Happened while generate new password");
+      return res.status(404).send({ statusCode: 404, message:"error Happened while generate new password"});
 
     const updatedUser = await UserModel.findOneAndUpdate(
       { _id: req.body.id },
@@ -216,23 +215,23 @@ exports.adminChangePassword = async (req, res) => {
       { new: true }
     );
     if (!updatedUser)
-      return res.status(405).send("No user found with this data");
-    return res.send({ message: "Password Updated Successfully." });
+      return res.status(404).send({ statusCode: 404, message:"No user found with this data"});
+    return res.status(404).send({ statusCode: 404, message:"Password Updated Successfully." });
   } catch (err) {
-    return res.status(405).send("Error happened while update user data");
+    return res.status(404).send({ statusCode: 404, message:"Error happened while update user data"});
   }
 };
 exports.changePassword = async (req, res) => {
   try {
     if (!req.body.password)
-      return res.status(405).send("Please enter required fields.");
+      return res.status(404).send({ statusCode: 404, message:"Please enter required fields."});
     const password = await passwordService.comparePassword(
       req.body.password,
       req.userData.password,
       req.userData._id
     );
     if (_.isNil(password) || password != true)
-      return res.status(405).send({ error: "Please enter valid password" });
+      return res.status(404).send({ statusCode: 404, message: "Please enter valid password" });
 
     // // Generate Password
     const newPassword = await passwordService.generatePassword(
@@ -240,36 +239,36 @@ exports.changePassword = async (req, res) => {
       req.userData._id
     );
     if (_.isNil(password) || password == false)
-      return res.status(405).send("error Happened while generate new password");
+      return res.status(404).send({ statusCode: 404, message:"error Happened while generate new password"});
 
     const updatedUser = await UserModel.findOneAndUpdate(
       { _id: req.userData._id },
       { $set: { password: newPassword } }
     );
     if (!updatedUser)
-      return res.status(405).send("No user found with this data");
-    return res.send({ message: "Password Updated Successfully." });
+      return res.status(404).send({ statusCode: 404, message:"No user found with this data"});
+    return res.status(200).send({ statusCode: 200, message: "Password Updated Successfully." });
   } catch (err) {
-    return res.status(405).send("Error happened while update user data");
+    return res.status(404).send({ statusCode: 404, message:"Error happened while update user data"});
   }
 };
 
 exports.register = async (req, res) => {
   try {
     if (!req.body.mobileNumber)
-      return res.send("Please enter required fields (mobileNumber).");
+      return res.status(404).send({ statusCode: 404, message:"Please enter required fields (mobileNumber)."});
     if (!req.body.password)
-      return res.send("Please enter required fields (password).");
+      return res.status(404).send({ statusCode: 404, message:"Please enter required fields (password)."});
     if (!req.body.country)
-      return res.send("Please enter required fields (country).");
+      return res.status(404).send({ statusCode: 404, message:"Please enter required fields (country)."});
     if (!req.body.firstName)
-      return res.send("Please enter required fields (firstName).");
+      return res.status(404).send({ statusCode: 404, message:"Please enter required fields (firstName)."});
     if (!req.body.lastName)
-      return res.send("Please enter required fields (lastName).");
+      return res.status(404).send({ statusCode: 404, message:"Please enter required fields (lastName)."});
     const _country = await CountryModel.findOne({ enName: req.body.country });
 
     if (_.isNil(_country))
-      return res.status(405).send("Please enter valid country");
+      return res.status(404).send({ statusCode: 404, message:"Please enter valid country"});
 
     let saveData = {};
     saveData._id = new mongoose.Types.ObjectId();
@@ -282,14 +281,14 @@ exports.register = async (req, res) => {
       usersNamedFinn.length > 0 &&
       req.body.mobileNumber == usersNamedFinn[0].mobileNumber
     )
-      return res.send("mobile number is not available try another one");
+      return res.status(404).send({ statusCode: 404, message:"mobile number is not available try another one"});
     // Generate Password
     const password = await passwordService.generatePassword(
       req.body.password,
       saveData._id
     );
     if (_.isNil(password) || password == false)
-      return res.send("error Happened");
+      return res.status(404).send({ statusCode: 404, message:"error Happened"});
 
     // Generate Token
     const token = await tokenService.generateLoginToken(
@@ -298,7 +297,7 @@ exports.register = async (req, res) => {
       req.body.mobileNumber,
       "user"
     );
-    if (_.isNil(token) || token == false) return res.send("error Happened");
+    if (_.isNil(token) || token == false) return res.status(404).send({ statusCode: 404, message:"error Happened"});
 
     saveData.password = password;
     saveData.role = "user";
@@ -312,7 +311,7 @@ exports.register = async (req, res) => {
     saveData.userToken = token;
 
     const user = await UserModel.create(saveData);
-    if (_.isNil(user)) return res.send("error Happened");
+    if (_.isNil(user)) return res.status(404).send({ statusCode: 404, message:"error Happened"});
 
     // Verification Number
     let verificationData = {};
@@ -333,7 +332,7 @@ exports.register = async (req, res) => {
     );
     verificationData.isVerified = false;
     let verfificationCreated = await VerificationModel.create(verificationData);
-    if (_.isNil(verfificationCreated)) return res.send("error Happened");
+    if (_.isNil(verfificationCreated)) return res.status(404).send({ statusCode: 404, message:"error Happened"});
 
     sendSmsService.sendActivationAccountsms(
       req,
@@ -341,9 +340,9 @@ exports.register = async (req, res) => {
       verificationCode
     );
     user._verificationCode = verificationCode;
-    return res.send(user);
+    return res.status(200).send({ statusCode: 200, message:"Success",data:user});
   } catch (err) {
-    return res.send({ data: err || "error" });
+    return res.status(404).send({ statusCode: 404, message: err || "error" });
   }
 };
 
@@ -376,25 +375,26 @@ exports.resendSms = async (req, res) => {
     );
     verificationData.isVerified = false;
     let verfificationCreated = await VerificationModel.create(verificationData);
-    if (_.isNil(verfificationCreated)) return res.send("error Happened");
+    if (_.isNil(verfificationCreated)) 
+    return res.status(404).send({ statusCode: 404, message:"error Happened"});
     sendSmsService.sendActivationAccountsms(
       req,
       req.userData.mobileNumber,
       verificationCode
     );
-    return res.send("message send success to your mobile phone");
+    return res.status(404).send({ statusCode: 404, message:"message send success to your mobile phone"});
   } catch (err) {
-    return res.send(err);
+    return res.status(404).send({ statusCode: 404, message:err});
   }
 };
 
 exports.verifyPhone = async (req, res) => {
   try {
     if (req.userData.verifiedMobileNumber == true)
-      return res.send("Your Phone number already verified before");
+      return res.status(404).send({ statusCode: 404, message:"Your Phone number already verified before"});
 
     if (!req.body.code || req.body.code.length != 4)
-      return res.status(401).send("Please enter valid code");
+      return res.status(404).send({ statusCode: 404, message:"Please enter valid code"});
     let _verificationCode = await passwordService.generatePassword(
       req.body.code,
       req.userData.mobileNumber
@@ -406,14 +406,14 @@ exports.verifyPhone = async (req, res) => {
       isVerified: false,
     }).lean();
     if (_.isNil(_getVerification))
-      return res.status(401).send("Please Enter Valid Code.");
+      return res.status(404).send({ statusCode: 404, message:"Please Enter Valid Code."});
 
     const updatedVerify = await VerificationModel.findByIdAndUpdate(
       _getVerification._id,
       { isVerified: true }
     ).lean();
     if (_.isNil(updatedVerify))
-      return res.status(401).send("Error Happened ,contact our support.");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened ,contact our support."});
 
     // enc code
     //find with phone in verification
@@ -425,10 +425,10 @@ exports.verifyPhone = async (req, res) => {
       verifiedMobileNumber: true,
     }).lean();
     if (_.isNil(updatedUser))
-      return res.status(401).send("Error Happened ,contact our support.");
-    return res.status(200).send("Mobile Verified Successfull.");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened ,contact our support."});
+    return res.status(200).send({ statusCode: 200, message:"Mobile Verified Successfull."});
   } catch (err) {
-    return res.status(404).send(err);
+    return res.status(404).send({ statusCode: 404, message:err});
   }
 };
 exports.verifyForgetPassword = async (req, res) => {
@@ -438,11 +438,11 @@ exports.verifyForgetPassword = async (req, res) => {
     });
     if (usersNamedFinn.length < 1)
       return res
-        .status(404)
-        .send({ error: "Please enter valid mobile number" });
+      
+        .send({ statusCode: 404, message: "Please enter valid mobile number" });
 
     if (!req.body.code || req.body.code.length != 4)
-      return res.status(401).send("Please enter valid code");
+      return res.send({ statusCode: 401, message:"Please enter valid code"});
     let _verificationCode = await passwordService.generatePassword(
       req.body.code,
       req.body.mobileNumber
@@ -454,14 +454,14 @@ exports.verifyForgetPassword = async (req, res) => {
       isVerified: false,
     }).lean();
     if (_.isNil(_getVerification))
-      return res.status(401).send("Please Enter Valid Code.");
+      return res.send({ statusCode: 401, message:"Please Enter Valid Code."});
 
     const updatedVerify = await VerificationModel.findByIdAndUpdate(
       _getVerification._id,
       { isVerified: true }
     ).lean();
     if (_.isNil(updatedVerify))
-      return res.status(401).send("Error Happened ,contact our support.");
+      return res.send({ statusCode: 401, message:"Error Happened ,contact our support."});
 
     let saveData = {};
     saveData._id = new mongoose.Types.ObjectId();
@@ -472,7 +472,7 @@ exports.verifyForgetPassword = async (req, res) => {
       usersNamedFinn[0]._id
     );
     if (_.isNil(password) || password == false)
-      return res.send("error Happened");
+      return res.send({ statusCode: 401, message:"error Happened"});
     // enc code
     //find with phone in verification
     // same data update verification
@@ -485,11 +485,11 @@ exports.verifyForgetPassword = async (req, res) => {
       { password: password }
     ).lean();
     if (_.isNil(updatedUser))
-      return res.status(401).send("Error Happened ,contact our support.");
+      return res.send({ statusCode: 401, message:"Error Happened ,contact our support."});
 
-    return res.status(200).send("password changed successfully");
+    return res.status(200).send({ statusCode: 200, message:"password changed successfully"});
   } catch (error) {
-    return res.status(404).send(error.message);
+    return res.status(404).send({ statusCode: 404, message:error.message});
   }
 };
 exports.forgetPassword = async (req, res) => {
@@ -527,22 +527,22 @@ exports.forgetPassword = async (req, res) => {
     verificationData.isVerified = false;
     let verfificationCreated = await VerificationModel.create(verificationData);
     if (_.isNil(verfificationCreated))
-      return res.status(404).send("Cannot send SMS, please tray agian");
+      return res.status(404).send({ statusCode: 404, message:"Cannot send SMS, please tray agian"});
     sendSmsService.sendForgetPasswordsms(
       req,
       req.body.mobileNumber,
       verificationCode
     );
-    return res.send("message send success to your mobile phone");
+    return res.status(404).send({ statusCode: 404, message:"message send success to your mobile phone"});
   } catch (error) {
-    return res.status(404).send(error.message);
+    return res.status(404).send({ statusCode: 404, message:error.message});
   }
 };
 exports.getUserData = async (req, res) => {
   try {
-    return res.send(req.userData);
+    return res.status(200).send({ statusCode: 200, message:"Success",data:req.userData});
   } catch (err) {
-    return res.send(err);
+    return res.status(404).send({ statusCode: 404, message:err});
   }
 };
 
@@ -560,10 +560,10 @@ exports.profileEdite = async (req, res) => {
       { new: true }
     );
     if (!updatedUser)
-      return res.status(405).send("No user found with this data");
-    return res.send(updatedUser);
+      return res.status(404).send({ statusCode: 404, message:"No user found with this data"});
+    return res.status(200).send({ statusCode: 200, message:"Success",data:updatedUser});
   } catch (err) {
-    return res.status(405).send("Error happened while update user data");
+    return res.status(404).send({ statusCode: 404, message:"Error happened while update user data"});
   }
 };
 
@@ -579,9 +579,9 @@ exports.loginFB = async (req, res) => {
     let result = await superagent
       .get("https://graph.facebook.com/me")
       .query({ access_token: req.body.accessToken });
-    return res.send(result);
+    return res.status(200).send({ statusCode: 200, message:"Success",data:result});
   } catch (err) {
-    return res.send(err);
+    return res.status(404).send({ statusCode: 404, message:err});
   }
 };
 
@@ -649,16 +649,16 @@ exports.login = async (req, res) => {
       return res
         .status(405)
         .send({ error: "Please enter valid username and password" });
-    return res.send(getUser);
+    return res.status(404).send({ statusCode: 404, message:"Success",data:getUser});
   } catch (err) {
-    return res.status(405).send(err);
+    return res.status(404).send({ statusCode: 404, message:err});
   }
 };
 
 exports.checkPassword = async (req, res) => {
   try {
     if (!req.body.password) {
-      return res.status(405).send({ error: "Please enter valid password" });
+      return res.status(404).send({ statusCode: 404, message: "Please enter valid password" });
     }
     const password = await passwordService.comparePassword(
       req.body.password,
@@ -666,8 +666,8 @@ exports.checkPassword = async (req, res) => {
       req.userData._id
     );
     if (_.isNil(password) || password != true)
-      return res.status(405).send({ error: "Please enter valid password" });
-    res.send(true);
+      return res.status(404).send({ statusCode: 404, message:"Please enter valid password" });
+    res.status(200).send({ statusCode: 200, message:"Success"});
   } catch (err) {}
 };
 
@@ -678,8 +678,7 @@ exports.loginAdmin = async (req, res) => {
     });
     if (usersNamedFinn.length < 1)
       return res
-        .status(405)
-        .send({ error: "Please enter valid username and password" });
+        .send({ statusCode: 404, message: "Please enter valid username and password" });
     const password = await passwordService.comparePassword(
       req.body.password,
       usersNamedFinn[0].password,
@@ -688,13 +687,11 @@ exports.loginAdmin = async (req, res) => {
 
     if (_.isNil(password) || password != true)
       return res
-        .status(405)
-        .send({ error: "Please enter valid username and password" });
+        .send({ statusCode: 404, message: "Please enter valid username and password" });
 
     if (usersNamedFinn[0].isLockedOut == true) {
       return res
-        .status(405)
-        .send({ error: "Your account is locked,contact our support." });
+        .send({ statusCode: 404, message:"Your account is locked,contact our support." });
     }
 
     // Generate Token
@@ -710,8 +707,7 @@ exports.loginAdmin = async (req, res) => {
     );
     if (_.isNil(userToken) || userToken == false)
       return res
-        .status(405)
-        .send({ error: "Please enter valid username and password" });
+        .send({ statusCode: 404, message: "Please enter valid username and password" });
 
     saveData.userToken = userToken;
     saveData.lastLoginDate = new Date();
@@ -722,8 +718,7 @@ exports.loginAdmin = async (req, res) => {
     );
     if (_.isNil(updatedUser) || updatedUser.length < 1)
       return res
-        .status(405)
-        .send({ error: "Please enter valid username and password" });
+        .send({ statusCode: 404, message:"Please enter valid username and password" });
 
     let getUser = await UserModel.findOne({
       _id: usersNamedFinn[0]._id,
@@ -731,15 +726,14 @@ exports.loginAdmin = async (req, res) => {
     if (_.isNil(getUser))
       return res
         .status(405)
-        .send({ error: "Please enter valid username and password" });
+        .send({ statusCode: 404, message: "Please enter valid username and password" });
 
     if (getUser.role != "admin" && getUser.role != "superAdmin")
       return res
-        .status(405)
-        .send({ error: "Only Admin can access this portal" });
-    return res.send(getUser);
+        .send({ statusCode: 404, message: "Only Admin can access this portal" });
+    return res.status(200).send({ statusCode: 200, message:"Success",data:getUser});
   } catch (err) {
-    return res.send(err);
+    return res.status(404).send({ statusCode: 404, message:err});
   }
 };
 
@@ -750,10 +744,10 @@ exports.logout = async (req, res) => {
       userToken: null,
     }).lean();
     if (_.isNil(updatedUser))
-      return res.status(401).send("Error Happened ,contact our support.");
-    return res.send("logout successful");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened ,contact our support."});
+    return res.status(200).send({ statusCode: 200, message:"logout successful"});
   } catch (err) {
-    return res.send(err);
+    return res.status(404).send({ statusCode: 404, message:err});
   }
 };
 
@@ -781,14 +775,14 @@ exports.updateProfile = async (req, res) => {
         usersNamedFinn.length > 0 &&
         req.body.mobileNumber == usersNamedFinn[0].mobileNumber
       )
-        return res.send("mobile number is not available try another one");
+        return res.status(404).send({ statusCode: 404, message:"mobile number is not available try another one"});
       else if (
         usersNamedFinn.length > 0 &&
         req.body.email == usersNamedFinn[0].email
       )
-        return res.send("email is not available try another one");
+        return res.status(404).send({ statusCode: 404, message:"email is not available try another one"});
       else if (usersNamedFinn.length > 0)
-        return res.send("mobile number or email is duplicated");
+        return res.status(404).send({ statusCode: 404, message:"mobile number or email is duplicated"});
     }
 
     if (req.body.mobileNumber != req.userData.mobileNumber) {
@@ -810,7 +804,7 @@ exports.updateProfile = async (req, res) => {
       let verfificationCreated = await VerificationModel.create(
         verificationData
       );
-      if (_.isNil(verfificationCreated)) return res.send("error Happened");
+      if (_.isNil(verfificationCreated)) return res.status(404).send({ statusCode: 404, message:"error Happened"});
       await sendSmsService.sendActivationAccountsms(
         req,
         req.body.mobileNumber,
@@ -829,25 +823,25 @@ exports.updateProfile = async (req, res) => {
       data
     ).lean();
     if (_.isNil(updatedUser))
-      return res.status(401).send("Error Happened ,contact our support.");
-    return res.send(updatedUser);
+      return res.send({ statusCode: 401, message:"Error Happened ,contact our support."});
+    return res.status(200).send({ statusCode: 200, message:"Success",data:updatedUser});
   } catch (err) {
-    return res.send(err);
+    return res.status(404).send({ statusCode: 404, message:err});
   }
 };
 
 exports.updateSocket = async (req, res) => {
   try {
-    if (!req.body.socketId) return res.send("enter valid socket id");
+    if (!req.body.socketId) return res.status(404).send({ statusCode: 404, message:"enter valid socket id"});
 
     const updatedUser = await UserModel.findByIdAndUpdate(req.userData._id, {
       socketId: req.body.socketId,
     }).lean();
     if (_.isNil(updatedUser))
-      return res.status(401).send("Error Happened ,contact our support.");
-    return res.send(updatedUser);
+      return res.send({ statusCode: 401, message:"Error Happened ,contact our support."});
+    return res.status(404).send({ statusCode: 404, message:"Success",data:updatedUser});
   } catch (err) {
-    return res.send(err);
+    return res.status(404).send({ statusCode: 404, message:err});
   }
 };
 

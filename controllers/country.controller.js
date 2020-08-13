@@ -15,11 +15,11 @@ exports.getCountries = async(req, res) => {
     try {
         let countries = await country.find({ isActive: true }, '-encExRate').sort('enName');
         if (!countries)
-            return res.status(405).send(err || { data: "Try in another time." });
-        return res.send(countries);
+            return res.send({statusCode:404,message:"Error", data: err || "Try in another time." });
+        return res.send({statusCode:200,message:"Success", data:countries});
 
     } catch (err) {
-        return res.status(405).send(err || { data: "Try in another time." });
+        return res.send({statusCode:404,message:"Error", data: err || "Try in another time." });
     }
 }
 
@@ -27,11 +27,11 @@ exports.getAllCountries = async(req, res) => {
     try {
         let countries = await country.find({}, '-encExRate').sort('enName');
         if (!countries)
-            return res.status(405).send(err || { data: "Try in another time." });
-        return res.send(countries);
+            return res.send({statusCode:404,message:"Error", data:err || "Try in another time." });
+        return res.send({statusCode:200,message:"Success", data:countries});
 
     } catch (err) {
-        return res.status(405).send(err || { data: "Try in another time." });
+        return res.send({statusCode:404,message:"Error", data: err ||  "Try in another time." });
     }
 }
 
@@ -42,10 +42,10 @@ exports.adminGetCountries = async(req, res) => {
             _query.enName = { $regex: req.body.name, $options: "i" }
 
         let countries = await country.find(_query, '-encExRate');
-        return res.send(countries);
+        return res.send({statusCode:200,message:"Success", data: countries});
 
     } catch (err) {
-        return res.send(err || { data: "Try in another time." });
+        return res.send({statusCode:404,message:"Error", data: err ||  "Try in another time." });
     }
 }
 
@@ -56,10 +56,10 @@ exports.getCountry = async(req, res) => {
     try {
 
         let countries = await country.findById({ _id: req.body.id }, '-encExRate');
-        return res.send(countries);
+        return res.send({statusCode:404,message:"Success", data: countries});
 
     } catch (err) {
-        return res.send(err || { data: "No country find with this data." });
+        return res.send({statusCode:404,message:"Error", data: err ||  "No country find with this data." });
     }
 }
 
@@ -70,17 +70,17 @@ exports.updateCountry = async(req, res) => {
 
         let countries = await country.findById({ _id: req.body.id }, '-encExRate');
         if (!countries || countries.length > 1)
-            return res.status(405).send("no country found with this data");
+            return res.send({statusCode:404,message:"no country found with this data"});
         let _data = req.body;
 
         let updatedCountry = await country.findByIdAndUpdate({ _id: req.body.id }, { $set: _data }, { new: true });
         if (_.isNil(updatedCountry) || updatedCountry.length < 1)
-            return res.status(405).send("We can not update country.Try in another time.");
+            return res.send({statusCode:404,message:"We can not update country.Try in another time."});
 
-        return res.send(updatedCountry);
+        return res.send({statusCode:200,message:"Success", data:updatedCountry});
 
     } catch (err) {
-        return res.send(err || { data: "No country find with this data." });
+        return res.send({statusCode:404,message:"Error", data: err ||  "No country find with this data." });
     }
 }
 

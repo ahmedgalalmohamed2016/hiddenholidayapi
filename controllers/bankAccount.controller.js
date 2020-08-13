@@ -23,17 +23,17 @@ exports.create = async(req, res) => {
 
         let countryData = await CountryModel.findOne({ _id: req.body.countryId });
         if (!countryData._id)
-            return res.send("error Happened to find countryData");
+            return res.send({statusCode:404,message:"error Happened to find countryData"});
 
         data.country = countryData.enName;
 
         let bankData = await BankAcountModel.create(data);
         if (_.isNil(bankData))
-            return res.status(401).send("Can not add bank account.");
+            return res.send({statusCode:401,message:"Can not add bank account."});
         return res.send(bankData);
 
     } catch (err) {
-        return res.status(401).send("Can not add bank account.");
+        return res.send({statusCode:401,message:"Can not add bank account."});
     }
 }
 
@@ -41,11 +41,10 @@ exports.merchantList = async(req, res) => {
     try {
         let bankData = await BankAcountModel.find({ merchantId: req.merchantData._id, isDeleted: false });
         if (!bankData)
-            return res.status(405).send("We don't found any accounts");
-        return res.send(bankData);
+            return res.send({statusCode:405,message:"We don't found any accounts"});
+        return res.send({statusCode:200,message:"success",data:bankData});
     } catch (err) {
-        console.log(err);
-        return res.status(405).send("Can not find bank accounts.");
+        return res.send({statusCode:405,message:"Can not find bank accounts."});
     }
 }
 
@@ -53,30 +52,30 @@ exports.details = async(req, res) => {
     try {
 
         if (!req.body.id)
-            return res.status(405).send("Can not find bank accounts.");
+            return res.send({statusCode:405,message:"Can not find bank accounts."});
 
         let bankAccount = await BankAcountModel.findOne({ _id: req.body.id, isDeleted: false });
         if (_.isNil(bankAccount))
-            return res.send("No Accounts found in our system");
-        return res.send(bankAccount);
+            return res.send({statusCode:404,message:"No Accounts found in our system"});
+        return res.send({statusCode:200,message:"Success",data:bankAccount});
 
     } catch (err) {
-        return res.send("Try in another time.");
+        return res.send({statusCode:404,message:"Try in another time."});
     }
 }
 
 exports.delete = async(req, res) => {
     try {
         if (_.isNil(req.body.id))
-            return res.status(405).send("Bank id is required.");
+            return res.send({statusCode:405,message:"Bank id is required."});
 
         let bankAccount = await BankAcountModel.updateOne({ _id: req.body.id, merchantId: req.merchantData._id }, { $set: { isDeleted: true } }, { new: true });
 
         if (_.isNil(bankAccount))
-            return res.status(405).send("Cannot remove this bank account.");
-        return res.send(bankAccount);
+            return res.send({statusCode:405,message:"Cannot remove this bank account."});
+        return res.send({statusCode:200,message:"Success",data:bankAccount});
     } catch (err) {
-        return res.status(405).send("Cannot remove this bank account,Try in another time.");
+        return res.send({statusCode:405,message:"Cannot remove this bank account,Try in another time."});
     }
 }
 
@@ -108,7 +107,6 @@ exports.allBanckAcounts = async(req, res) => {
             list:bankData
         }});
     } catch (err) {
-        console.log(err);
-        return res.status(405).send("Can not find bank accounts.");
+        return res.send({statusCode:405,message:"Can not find bank accounts."});
     }
 }

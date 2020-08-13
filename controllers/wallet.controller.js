@@ -30,14 +30,14 @@ exports.balance = async (req, res) => {
       "-_id currency"
     );
     if (!data.currency)
-      return res.status(405).send("Error Happened please try again later.");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened please try again later."});
 
     let transactions = await TransactionModel.find({
       status: "approved",
       $or: [{ fromUserId: req.userData._id }, { toUserId: req.userData._id }],
     });
     if (!transactions)
-      return res.status(405).send("Error Happened please try again later.");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened please try again later."});
 
     for (let x = 0; x < transactions.length; x++) {
       if (transactions[x].paymentMethod == "virtual") {
@@ -64,9 +64,9 @@ exports.balance = async (req, res) => {
     data.availableBalance = parseInt(data.availableBalance);
     data.virtualBalance = parseInt(data.virtualBalance);
     data.currentBalance = data.availableBalance + data.virtualBalance;
-    res.send(data);
+    res.status(200).send({ statusCode: 200, message:"Success",data:data});
   } catch (err) {
-    return res.send(err.message);
+    return res.status(404).send({ statusCode: 404, message:err.message});
   }
 };
 
@@ -79,24 +79,24 @@ exports.adminMerchantBalance = async (req, res) => {
 
     let _merchant = await merchant.findById({ _id: req.body.merchantId });
     if (!_merchant)
-      return res.status(405).send("Please enter valid merchant data");
+      return res.status(404).send({ statusCode: 404, message:"Please enter valid merchant data"});
 
     let _user = await UserModel.findOne({ merchant: req.body.merchantId });
-    if (!_user) return res.status(405).send("Please enter valid merchant data");
+    if (!_user) return res.status(404).send({ statusCode: 404, message:"Please enter valid merchant data"});
 
     data.currency = await countryModel.findOne(
       { enName: _merchant.country },
       "-_id currency"
     );
     if (!data.currency)
-      return res.status(405).send("Error Happened please try again later.");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened please try again later."});
 
     let transactions = await TransactionModel.find({
       status: "approved",
       $or: [{ fromUserId: _user._id }, { toUserId: _user._id }],
     });
     if (!transactions)
-      return res.status(405).send("Error Happened please try again later.");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened please try again later."});
     for (let x = 0; x < transactions.length; x++) {
       if (transactions[x].paymentMethod == "virtual") {
         if (String(transactions[x].toUserId) == String(_user._id)) {
@@ -120,9 +120,9 @@ exports.adminMerchantBalance = async (req, res) => {
     data.availableBalance = parseInt(data.availableBalance);
     data.virtualBalance = parseInt(data.virtualBalance);
     data.currentBalance = data.availableBalance + data.virtualBalance;
-    res.send(data);
+    res.status(200).send({ statusCode: 200, message:"Success",data:data});
   } catch (err) {
-    return res.send(err.message);
+    return res.status(404).send({ statusCode: 404, message:err.message});
   }
 };
 
@@ -138,14 +138,14 @@ exports.merchantBalance = async (req, res) => {
       "-_id currency"
     );
     if (!data.currency)
-      return res.status(405).send("Error Happened please try again later.");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened please try again later."});
 
     let transactions = await TransactionModel.find({
       status: "approved",
       $or: [{ fromUserId: req.userData._id }, { toUserId: req.userData._id }],
     });
     if (!transactions)
-      return res.status(405).send("Error Happened please try again later.");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened please try again later."});
 
     for (let x = 0; x < transactions.length; x++) {
       if (transactions[x].paymentMethod == "virtual") {
@@ -174,9 +174,9 @@ exports.merchantBalance = async (req, res) => {
     data.availableBalance = parseInt(data.availableBalance);
     data.virtualBalance = parseInt(data.virtualBalance);
     data.currentBalance = data.availableBalance + data.virtualBalance;
-    res.send(data);
+    res.status(200).send({ statusCode: 200, message:"Success",data:data});
   } catch (err) {
-    return res.send(err.message);
+    return res.status(404).send({ statusCode: 404, message:err.message});
   }
 };
 
@@ -192,14 +192,14 @@ exports.userBalance = async (req, res) => {
       "-_id currency"
     );
     if (!data.currency)
-      return res.status(405).send("Error Happened please try again later.");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened please try again later."});
 
     let transactions = await TransactionModel.find({
       status: "approved",
       $or: [{ fromUserId: req.userData._id }, { toUserId: req.userData._id }],
     });
     if (!transactions)
-      return res.status(405).send("Error Happened please try again later.");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened please try again later."});
 
     for (let x = 0; x < transactions.length; x++) {
       if (transactions[x].paymentMethod == "virtual") {
@@ -228,9 +228,9 @@ exports.userBalance = async (req, res) => {
     data.availableBalance = parseInt(data.availableBalance);
     data.virtualBalance = parseInt(data.virtualBalance);
     data.currentBalance = data.availableBalance + data.virtualBalance;
-    res.send(data);
+    res.status(404).send({ statusCode: 404, message:"Success",data:data});
   } catch (err) {
-    return res.send(err.message);
+    return res.status(404).send({ statusCode: 404, message:err.message});
   }
 };
 
@@ -243,26 +243,26 @@ exports.hiddenHolidayBalance = async (req, res) => {
 
     let _mainUser = await UserModel.findOne({ role: "superAdmin" });
     if (!_mainUser)
-      return res.status(405).send("Error Happened please try again later.");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened please try again later."});
     req.userData = _mainUser;
 
     let _country = await countryModel.findOne({ enName: req.userData.country });
     if (!_country)
-      return res.status(405).send("Error Happened please try again later.");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened please try again later."});
 
     data.currency = _country.currency;
     data.exRate = _country.exRate;
 
     let _countries = await countryModel.find({});
     if (!_countries)
-      return res.status(405).send("Error Happened please try again later.");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened please try again later."});
 
     let transactions = await TransactionModel.find({
       status: "approved",
       $or: [{ fromUserId: req.userData._id }, { toUserId: req.userData._id }],
     });
     if (!transactions)
-      return res.status(405).send("Error Happened please try again later.");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened please try again later."});
 
     for (let x = 0; x < transactions.length; x++) {
       if (data.currency != transactions[x].currency) {
@@ -302,9 +302,9 @@ exports.hiddenHolidayBalance = async (req, res) => {
     data.availableBalance = parseInt(data.availableBalance);
     data.virtualBalance = parseInt(data.virtualBalance);
     data.currentBalance = data.availableBalance + data.virtualBalance;
-    return res.send(data);
+    return res.status(404).send({ statusCode: 404, message:"Success",data:data});
   } catch (err) {
-    return res.send(err.message);
+    return res.status(404).send({ statusCode: 404, message:err.message});
   }
 };
 
@@ -317,15 +317,15 @@ exports.userCashin = async (req, res) => {
       country = req.body.country;
     }
     if (!req.body.cardId || !req.body.amount)
-      return res.status(401).send("card id and amount is required");
+      return res.status(404).send({ statusCode: 404, message:"card id and amount is required"});
 
     if (req.body.amount > 1000)
-      return res.status(401).send("you have maximum limit exceed");
+      return res.status(404).send({ statusCode: 404, message:"you have maximum limit exceed"});
 
     let transactionData = {};
     const transactionTo = await UserModel.findOne({ role: "superAdmin" });
     if (!transactionTo._id)
-      return res.status(401).send("Error Happened try in another time");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened try in another time"});
 
     let selectedCountry;
     let countryData;
@@ -340,14 +340,14 @@ exports.userCashin = async (req, res) => {
 
     countryData = await countryModel.findOne({ enName: req.userData.country });
     if (!countryData._id)
-      return res.status(401).send("error Happened to find countryData");
+      return res.status(404).send({ statusCode: 404, message:"error Happened to find countryData"});
 
     let cardData = await CardModel.findOne({
       _id: req.body.cardId,
       userId: req.userData._id,
     });
     if (!cardData)
-      return res.status(401).send("error Happened to find card Data");
+      return res.status(404).send({ statusCode: 404, message:"error Happened to find card Data"});
 
     transactionData.fromUserId = req.userData._id;
     transactionData.toUserId = transactionTo._id;
@@ -376,40 +376,40 @@ exports.userCashin = async (req, res) => {
       transactionData
     );
     if (transactionResult == false)
-      return res.status(401).send("error Happened while create transaction");
-    return res.send(transactionResult);
+      return res.status(404).send({ statusCode: 404, message:"error Happened while create transaction"});
+    return res.status(404).send({ statusCode: 404, message:"Success",data:transactionResult});
   } catch (err) {
     console.log(err);
-    return res.res.status(401).send("error Happened while create transaction");
+    return res.res.status(404).send({ statusCode: 404, message:"error Happened while create transaction"});
   }
 };
 exports.merchantCashin = async (req, res) => {
   try {
     if (!req.body.cardId || !req.body.amount)
-      return res.status(405).send("card id and amount is required");
+      return res.status(404).send({ statusCode: 404, message:"card id and amount is required"});
 
-    if (req.body.amount < 1) return res.status(405).send("Enter valid amount");
+    if (req.body.amount < 1) return res.status(404).send({ statusCode: 404, message:"Enter valid amount"});
 
     if (req.body.amount > 1000)
-      return res.status(405).send("you have maximum limit exceed");
+      return res.status(404).send({ statusCode: 404, message:"you have maximum limit exceed"});
 
     let transactionData = {};
     const transactionTo = await UserModel.findOne({ role: "superAdmin" });
     if (!transactionTo._id)
-      return res.status(405).send("Error Happened try in another time");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened try in another time"});
 
     let countryData = await countryModel.findOne({
       enName: req.userData.country,
     });
     if (!countryData._id)
-      return res.status(405).send("error Happened to find countryData");
+      return res.status(404).send({ statusCode: 404, message:"error Happened to find countryData"});
 
     let cardData = await CardModel.findOne({
       _id: req.body.cardId,
       userId: req.userData._id,
     });
     if (!cardData)
-      return res.status(405).send("error Happened to find card Data");
+      return res.status(404).send({ statusCode: 404, message:"error Happened to find card Data"});
 
     // req.body.amount = req.body.amount;
     req.body.amount = parseInt(req.body.amount);
@@ -441,11 +441,10 @@ exports.merchantCashin = async (req, res) => {
       transactionData
     );
     if (transactionResult == false)
-      return res.status(405).send("error Happened while create transaction");
-    return res.send(transactionResult);
+      return res.status(404).send({ statusCode: 404, message:"error Happened while create transaction"});
+    return res.status(200).send({ statusCode: 200, message:"Success",data:transactionResult});
   } catch (err) {
-    console.log(err);
-    return res.res.status(405).send("error Happened while create transaction");
+    return res.status(404).send({ statusCode: 404, message:"error Happened while create transaction"});
   }
 };
 
@@ -461,7 +460,7 @@ exports.merchantSummary = async (req, res) => {
       isSettled: false,
     });
     if (!_dealRequest)
-      return res.status(405).send("Please enter valid deal data");
+      return res.status(404).send({ statusCode: 404, message:"Please enter valid deal data"});
 
     let _bills = await TransactionModel.find({
       merchantId: req.merchantData._id,
@@ -469,7 +468,7 @@ exports.merchantSummary = async (req, res) => {
       sourceType: "bill",
       status: "approved",
     });
-    if (!_bills) return res.status(405).send("Please enter valid deal data");
+    if (!_bills) return res.status(404).send({ statusCode: 404, message:"Please enter valid deal data"});
 
     for (let y = 0; y < _bills.length; y++) {
       summary.bills = summary.bills + _bills[y].merchantAmount;
@@ -481,10 +480,10 @@ exports.merchantSummary = async (req, res) => {
       summary.total = summary.total + _dealRequest[x].grossAmount;
     }
     summary.currency = req.merchantData.countryId.currency;
-    return res.send(summary);
+    return res.status(200).send({ statusCode: 200, message:"Success",data:summary});
   } catch (err) {
     console.log(err);
-    return res.status(405).send("error Happened while find summary");
+    return res.status(404).send({ statusCode: 404, message:"error Happened while find summary"});
   }
 };
 
@@ -493,12 +492,12 @@ exports.merchantAddFund = async (req, res) => {
     let transactionData = {};
     const transactionTo = await UserModel.findOne({ role: "superAdmin" });
     if (!transactionTo._id)
-      return res.send("Error Happened try in another time");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened try in another time"});
 
     let countryData = await countryModel.findOne({
       enName: req.merchantData.country,
     });
-    if (!countryData._id) return res.send("error Happened to find countryData");
+    if (!countryData._id) return res.status(404).send({ statusCode: 404, message:"error Happened to find countryData"});
 
     transactionData.fromUserId = req.userData._id;
     transactionData.toUserId = transactionTo._id;
@@ -517,10 +516,10 @@ exports.merchantAddFund = async (req, res) => {
       transactionData
     );
     if (transactionResult == false)
-      return res.status(401).send("error Happened while create transaction");
-    return res.send(transactionResult);
+      return res.status(404).send({ statusCode: 404, message:"error Happened while create transaction"});
+    return res.status(404).send({ statusCode: 404, message:"Success",data:transactionResult});
   } catch (err) {
-    return res.res.status(401).send("error Happened while create transaction");
+    return res.status(404).send({ statusCode: 404, message:"error Happened while create transaction"});
   }
 };
 
@@ -532,11 +531,10 @@ exports.subwallets = async (req, res) => {
       })
       .populate("categoryId")
       .populate("userId");
-    if (!_merchants) return res.status(405).send("Error Happened");
-    return res.send(_merchants);
+    if (!_merchants) return res.status(404).send({ statusCode: 404, message:"Error Happened"});
+    return res.status(200).send({ statusCode: 200, message:"Success",data:_merchants});
   } catch (err) {
-    // mongoose.connection.close();
-    return res.send(err.message);
+    return res.status(404).send({ statusCode: 404, message:err.message});
   }
 };
 

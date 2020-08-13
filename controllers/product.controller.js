@@ -11,10 +11,10 @@ exports.product_create = async  (req, res) => {
         }
     );
     let result = await product.save();
-     return res.send(result);
+     return res.status(200).send({ statusCode: 200, message:"Success",data:result});
     }catch(err){
         
-        return res.send(err.message);
+        return res.status(404).send({ statusCode: 404, message:err.message});
     }
 
 };
@@ -22,27 +22,27 @@ exports.product_create = async  (req, res) => {
 exports.product_details = function (req, res) {
     Product.findById(req.params.id, function (err, product) {
         if (err) return next(err);
-        res.send(product);
+        res.status(200).send({ statusCode: 200, message:"Success",data:product});
     })
 };
 
 exports.products = function (req, res) {
     Product.find({}, function (err, product) {
         if (err) return next(err);
-        res.send(product);
+        res.status(200).send({ statusCode: 200, message:"Success",data:product});
     })
 };
 
 exports.product_update = function (req, res) {
     Product.findByIdAndUpdate(req.params.id, { $set: req.body }, function (err, product) {
         if (err) return next(err);
-        res.send('Product udpated.');
+        res.status(200).send({ statusCode: 200, message:'Product udpated.'});
     });
 };
 
 exports.product_delete = function (req, res) {
     Product.findByIdAndRemove(req.params.id, function (err) {
         if (err) return next(err);
-        res.send('Deleted successfully!');
+        res.status(200).send({ statusCode: 200, message:'Deleted successfully'});
     })
 };

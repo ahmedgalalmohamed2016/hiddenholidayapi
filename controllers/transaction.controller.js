@@ -19,10 +19,10 @@ exports.getAll = async (req, res) => {
       .populate("fromUserId")
       .populate("toUserId");
     if (_.isNil(transactions))
-      return res.send("No Transaction found in our system");
-    return res.send(transactions);
+      return res.status(404).send({ statusCode: 404, message:"No Transaction found in our system"});
+    return res.status(200).send({ statusCode: 200, message:"Success",data: transactions});
   } catch (err) {
-    return res.send("Try in another time.");
+    return res.status(404).send({ statusCode: 404, message:"Try in another time."});
   }
 };
 
@@ -40,20 +40,20 @@ exports.merchantGetBill = async (req, res) => {
       .populate("fromUserId")
       .populate("toUserId");
     if (_.isNil(transactions))
-      return res.status(405).send("No Transaction found in our system");
-    return res.send(transactions);
+      return res.status(404).send({ statusCode: 404, message:"No Transaction found in our system"});
+    return res.status(200).send({ statusCode: 200, message:"Success",data:transactions});
   } catch (err) {
-    return res.status(405).send("Try in another time.");
+    return res.status(404).send({ statusCode: 404, message:"Try in another time."});
   }
 };
 
 exports.merchantUpdateBill = async (req, res) => {
   try {
     if (!req.body.status || !req.body.transactionId)
-      return res.status(405).send("Please choose required status to update");
+      return res.status(404).send({ statusCode: 404, message:"Please choose required status to update"});
     console.log(req.body.status);
     if (req.body.status != "approved" && req.body.status != "decline")
-      return res.status(405).send("Please choose valid status to update");
+      return res.status(404).send({ statusCode: 404, message:"Please choose valid status to update"});
 
     let transactions = await TransactionModel.updateOne(
       {
@@ -67,10 +67,10 @@ exports.merchantUpdateBill = async (req, res) => {
     );
 
     if (_.isNil(transactions))
-      return res.status(405).send("No Transaction found in our system");
-    return res.send(transactions);
+      return res.status(404).send({ statusCode: 404, message:"No Transaction found in our system"});
+    return res.status(200).send({ statusCode: 200, message:"Success",data:transactions});
   } catch (err) {
-    return res.status(405).send("Try in another time.");
+    return res.status(404).send({ statusCode: 404, message:"Try in another time."});
   }
 };
 
@@ -78,16 +78,16 @@ exports.requestBill = async (req, res) => {
   try {
     let transactionData = {};
     if (!req.body.paymentType || !req.body.merchantId || !req.body.amount)
-      return res.status(405).send("paymentType and amount is required");
+      return res.status(404).send({ statusCode: 404, message:"paymentType and amount is required"});
 
     if (req.body.paymentType != "card" && req.body.paymentType != "balance")
-      return res.status(405).send("Please enter valid payment method");
+      return res.status(404).send({ statusCode: 404, message:"Please enter valid payment method"});
 
     if (req.body.paymentType == "card" && !req.body.cardId)
-      return res.status(405).send("cardId is required");
+      return res.status(404).send({ statusCode: 404, message:"cardId is required"});
 
     if (req.body.amount < 1)
-      return res.status(405).send("amount must be greather than limit");
+      return res.status(404).send({ statusCode: 404, message:"amount must be greather than limit"});
 
     if (typeof req.body.data == "string")
       req.body.data = JSON.parse(req.body.data);
@@ -95,13 +95,13 @@ exports.requestBill = async (req, res) => {
     let merchantData = await merchant
       .find({ _id: req.body.merchantId })
       .populate("countryId");
-    if (_.isNil(merchantData)) return res.status(405).send("No Merchant found");
+    if (_.isNil(merchantData)) return res.status(404).send({ statusCode: 404, message:"No Merchant found"});
 
     let countryData = await CountryModel.findOne({
       enName: merchantData[0].countryId.enName,
     });
     if (!countryData._id)
-      return res.status(405).send("error Happened to find countryData");
+      return res.status(404).send({ statusCode: 404, message:"error Happened to find countryData"});
 
     if (req.body.paymentType == "card") {
       let cardData = await CardModel.findOne({
@@ -110,15 +110,13 @@ exports.requestBill = async (req, res) => {
         isDeleted: false,
       });
       if (!cardData)
-        return res.status(401).send("error Happened to find card Data");
+        return res.status(404).send({ statusCode: 404, message:"error Happened to find card Data"});
       transactionData.sharePercentage = 4; //config.sharePercentage;
     } else if (req.body.paymentType == "balance") {
       let _uBalance = await TransactionService.getUserBalance(req.userData.id);
       _uBalance = _uBalance / countryData.exRate;
       if (req.body.amount < _uBalance)
-        return res
-          .status(401)
-          .send("You does not have enough balance to purchase");
+        return res.status(404).send({ statusCode: 404, message:"You does not have enough balance to purchase"});
       transactionData.sharePercentage = 1;
     }
     // console.log(config.sharePercentage);
@@ -128,7 +126,7 @@ exports.requestBill = async (req, res) => {
 
     const transactionTo = await UserModel.findOne({ role: "superAdmin" });
     if (!transactionTo._id)
-      return res.status(401).send("Error Happened try in another time");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened try in another time"});
 
     transactionData.fromUserId = req.userData._id;
     transactionData.toUserId = transactionTo._id;
@@ -160,13 +158,11 @@ exports.requestBill = async (req, res) => {
       transactionData
     );
     if (!transactionResult)
-      return res.status(401).send("error Happened while create transaction");
+      return res.status(404).send({ statusCode: 404, message:"error Happened while create transaction"});
     // create Deals Requests
-
-    return res.send(transactionResult);
+    return res.status(200).send({ statusCode: 200, message:"Success",data:transactionResult});
   } catch (err) {
-    console.log(err);
-    return res.status(405).send({ data: err });
+    return res.status(404).send({ statusCode: 404, message: err });
   }
 };
 
@@ -180,24 +176,24 @@ exports.me = async (req, res) => {
       .sort("-creationDate")
       .limit(10);
     if (_.isNil(transactions))
-      return res.status(405).send("No Transaction found in our system");
-    return res.send(transactions);
+      return res.status(404).send({ statusCode: 404, message:"No Transaction found in our system"});
+    return res.status(200).send({ statusCode: 200, message:"Success",data:transactions});
   } catch (err) {
-    return res.send("Try in another time.");
+    return res.status(404).send({ statusCode: 404, message:"Try in another time."});
   }
 };
 
 exports.merchantById = async (req, res) => {
   try {
     if (!req.body.id)
-      return res.status(405).send("Please choose valid merchant");
+      return res.status(404).send({ statusCode: 404, message:"Please choose valid merchant"});
 
     let _merchant = await merchant.findById({ _id: req.body.id });
     if (!_merchant)
-      return res.status(405).send("Please enter valid merchant data");
+      return res.status(404).send({ statusCode: 404, message:"Please enter valid merchant data"});
 
     let _user = await UserModel.findOne({ merchant: req.body.id });
-    if (!_user) return res.status(405).send("Please enter valid merchant data");
+    if (!_user) return res.status(404).send({ statusCode: 404, message:"Please enter valid merchant data"});
 
     let transactions = await TransactionModel.find({
       $or: [{ fromUserId: _user._id }, { toUserId: _user._id }],
@@ -206,17 +202,17 @@ exports.merchantById = async (req, res) => {
       .populate("toUserId")
       .sort("-creationDate");
     if (_.isNil(transactions))
-      return res.send("No Transaction found for this merchant in our system");
-    return res.send(transactions);
+      return res.status(404).send({ statusCode: 404, message:"No Transaction found for this merchant in our system"});
+    return res.status(200).send({ statusCode: 200, message:"Sucess",data:transactions});
   } catch (err) {
-    return res.send("Try in another time.");
+    return res.status(404).send({ statusCode: 404, message:"Try in another time."});
   }
 };
 exports.hiddenHoliday = async (req, res) => {
   try {
     let _mainUser = await UserModel.findOne({ role: "superAdmin" });
     if (!_mainUser)
-      return res.status(405).send("Error Happened please try again later.");
+      return res.status(404).send({ statusCode: 404, message:"Error Happened please try again later."});
 
     let transactions = await TransactionModel.find({
       $or: [{ fromUserId: _mainUser._id }, { toUserId: _mainUser._id }],
@@ -225,10 +221,10 @@ exports.hiddenHoliday = async (req, res) => {
       .populate("toUserId")
       .sort("-creationDate");
     if (_.isNil(transactions))
-      return res.send("No Transaction found in our system");
-    return res.send(transactions);
+      return res.status(404).send({ statusCode: 404, message:"No Transaction found in our system"});
+    return res.status(200).send({ statusCode: 200, message:"Success",data:transactions});
   } catch (err) {
-    return res.send("Try in another time.");
+    return res.status(404).send({ statusCode: 404, message:"Try in another time."});
   }
 };
 
@@ -243,10 +239,10 @@ exports.getByAdmin = async (req, res) => {
       .populate("fromUserId")
       .populate("toUserId");
     if (_.isNil(transactions))
-      return res.send("No Transaction found in our system");
-    return res.send(transactions);
+      return res.status(404).send({ statusCode: 404, message:"No Transaction found in our system"});
+    return res.status(200).send({ statusCode: 200, message:"Success",data:transactions});
   } catch (err) {
-    return res.send("Try in another time.");
+    return res.status(404).send({ statusCode: 404, message:"Try in another time."});
   }
 };
 
@@ -256,11 +252,11 @@ exports.details = async (req, res) => {
       .populate("fromUserId")
       .populate("toUserId");
     if (_.isNil(transactions))
-      return res.send("No Transaction found in our system");
+      return res.status(404).send({ statusCode: 404, message:"No Transaction found in our system"});
 
-    return res.send(transactions);
+    return res.status(200).send({ statusCode: 200, message:"Success",data:transactions});
   } catch (err) {
-    return res.send("Try in another time.");
+    return res.status(404).send({ statusCode: 404, message:"Try in another time."});
   }
 };
 
@@ -272,11 +268,11 @@ exports.balance = async (req, res) => {
       .populate("fromUserId")
       .populate("toUserId");
     if (_.isNil(transactions))
-      return res.send("No Transaction found in our system");
+      return res.status(404).send({ statusCode: 404, message:"No Transaction found in our system"});
 
-    return res.send(transactions);
+    return res.status(200).send({ statusCode: 200, message:"Success",data:transactions});
   } catch (err) {
-    return res.send("Try in another time.");
+    return res.status(404).send({ statusCode: 404, message:"Try in another time."});
   }
 };
 exports.notSettledTransaction = async (req, res) => {
