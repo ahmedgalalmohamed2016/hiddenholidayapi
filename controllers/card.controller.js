@@ -20,11 +20,11 @@ exports.add = async(req, res) => {
         data.creationDate = new Date();
         let cardData = await CardModel.create(data);
         if (_.isNil(cardData))
-            return res.send({statusCode:404,message:"Can not add this card."});
-        return res.send({statusCode:200,message:"Success", data:cardData});
+            return res.status(404).send({ statusCode: 404,message:"Can not add this card."});
+        return res.status(200).send({ statusCode: 200,message:"Success", data:cardData});
 
     } catch (err) {
-        return res.send({statusCode:404,message:"Can not add this card."});
+        return res.status(404).send({ statusCode: 404,message:"Can not add this card."});
     }
 }
 
@@ -40,11 +40,11 @@ exports.merchantAdd = async(req, res) => {
         data.creationDate = new Date();
         let cardData = await CardModel.create(data);
         if (_.isNil(cardData))
-            return res.send({statusCode:404,message:"Can not add this card."});
-        return res.send({statusCode:200,message:"Success", data:cardData});
+            return res.status(404).send({ statusCode: 404,message:"Can not add this card."});
+        return res.status(200).send({ statusCode: 200,message:"Success", data:cardData});
 
     } catch (err) {
-        return res.send({statusCode:404,message:"Can not add this card."});
+        return res.status(404).send({ statusCode: 404,message:"Can not add this card."});
     }
 }
 
@@ -52,25 +52,25 @@ exports.cards = async(req, res) => {
     try {
         let cards = await CardModel.find({ userId: req.userData._id, isDeleted: false });
         if (_.isNil(cards))
-            return res.send({statusCode:404,message:"No Cards found for this user"});
-        return res.send({statusCode:200,message:"Success", data:cards});
+            return res.status(404).send({ statusCode: 404,message:"No Cards found for this user"});
+        return res.status(200).send({ statusCode: 200,message:"Success", data:cards});
 
     } catch (err) {
-        return res.send({statusCode:404,message:"Try in another time."});
+        return res.status(404).send({ statusCode: 404,message:"Try in another time."});
     }
 }
 
 exports.delete = async(req, res) => {
     try {
         if (_.isNil(req.body.id))
-            return res.send({statusCode:404,message:"Card id is required."});
+            return res.status(404).send({ statusCode: 404,message:"Card id is required."});
 
         let cards = await CardModel.updateOne({ _id: req.body.id, userId: req.userData._id }, { $set: { isDeleted: true } }, { new: true });
 
         if (_.isNil(cards))
-            return res.send({statusCode:404,message:"Cannot remove this card."});
-        return res.send({statusCode:200,message:"Success", data:cards});
+            return res.status(404).send({ statusCode: 404,message:"Cannot remove this card."});
+        return res.status(200).send({ statusCode: 200,message:"Success", data:cards});
     } catch (err) {
-        return res.send({statusCode:404,message:"Cannot remove this card,Try in another time."});
+        return res.status(404).send({ statusCode: 404,message:"Cannot remove this card,Try in another time."});
     }
 }

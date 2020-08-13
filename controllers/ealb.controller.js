@@ -18,11 +18,11 @@ const uuidv4 = require('uuid/v4');
 exports.adminCreateUser = async(req, res) => {
     try {
         if (!req.body.mobileNumber || !req.body.password || !req.body.country || !req.body.firstName || !req.body.lastName)
-            return res.send({statusCode:404,message:'Please enter required fields.'});
+            return res.status(404).send({ statusCode: 404,message:'Please enter required fields.'});
         const _country = await CountryModel.findOne({ enName: req.body.country });
 
         if (_.isNil(_country))
-            return res.send({statusCode:404,message:"Please enter valid country"});
+            return res.status(404).send({ statusCode: 404,message:"Please enter valid country"});
 
         let saveData = {};
         saveData._id = new mongoose.Types.ObjectId;
@@ -30,16 +30,16 @@ exports.adminCreateUser = async(req, res) => {
         const userDevice = saveData.userDevice;
         const usersNamedFinn = await UserModel.find({ mobileNumber: req.body.mobileNumber });
         if (usersNamedFinn.length > 0 && req.body.mobileNumber == usersNamedFinn[0].mobileNumber)
-            return res.send({statusCode:404,message:"mobile number is not available try another one"});
+            return res.status(404).send({ statusCode: 404,message:"mobile number is not available try another one"});
 
         const password = await passwordService.generatePassword(req.body.password, saveData._id);
         if (_.isNil(password) || password == false)
-            return res.send({statusCode:404,message:"error Happened"});
+            return res.status(404).send({ statusCode: 404,message:"error Happened"});
 
         // Generate Token
         const token = await tokenService.generateLoginToken(saveData.userDevice, saveData._id, req.body.mobileNumber, 'user');
         if (_.isNil(token) || token == false)
-            return res.send({statusCode:404,message:"error Happened"});
+            return res.status(404).send({ statusCode: 404,message:"error Happened"});
 
         saveData.password = password;
         saveData.role = 'ealb';
@@ -55,11 +55,11 @@ exports.adminCreateUser = async(req, res) => {
 
         const user = await UserModel.create(saveData);
         if (_.isNil(user))
-            return res.send({statusCode:404,message:"error Happened while create new user."});
+            return res.status(404).send({ statusCode: 404,message:"error Happened while create new user."});
 
-        return res.send({statusCode:200,message:"Success",data:user});
+        return res.status(200).send({ statusCode: 200,message:"Success",data:user});
     } catch (err) {
-        return res.send({statusCode:404,message:"Error", data: err || "error" });
+        return res.status(404).send({ statusCode: 404,message:"Error", data: err || "error" });
     }
 }
 
@@ -84,52 +84,52 @@ exports.adminGetUsers = async(req, res) => {
             ],
             role: 'ealb'
         }, '-password -userToken').limit(50).skip(_skip).sort('-lastLoginDate');
-        return res.send({statusCode:200,message:"Success",data:_users});
+        return res.status(200).send({ statusCode: 200,message:"Success",data:_users});
     } catch (err) {
-        return res.send({statusCode:404,message:"Error",data:err});
+        return res.status(404).send({ statusCode: 404,message:"Error",data:err});
     }
 }
 
 exports.adminChangePassword = async(req, res) => {
     try {
         if (!req.body.id || !req.body.password)
-            return res.send({statusCode:404,message:'Please enter required fields.'});
+            return res.status(404).send({ statusCode: 404,message:'Please enter required fields.'});
 
         const _user = await UserModel.findOne({ _id: req.body.id, role: 'ealb' });
         if (!_user)
-            return res.send({statusCode:404,message:"No user found with this data"});
+            return res.status(404).send({ statusCode: 404,message:"No user found with this data"});
 
         // Generate Password
         const password = await passwordService.generatePassword(req.body.password, _user._id);
         if (_.isNil(password) || password == false)
-            return res.send({statusCode:404,message:"error Happened while generate new password"});
+            return res.status(404).send({ statusCode: 404,message:"error Happened while generate new password"});
 
         const updatedUser = await UserModel.findOneAndUpdate({ _id: req.body.id, }, { $set: { password: password } }, { new: true })
         if (!updatedUser)
-            return res.send({statusCode:404,message:"No user found with this data"});
-        return res.send({statusCode:200,message:"Password Updated Successfully."});
+            return res.status(404).send({ statusCode: 404,message:"No user found with this data"});
+        return res.status(200).send({ statusCode: 200,message:"Password Updated Successfully."});
     } catch (err) {
-        return res.send({statusCode:404,message:"Error happened while update user data"});
+        return res.status(404).send({ statusCode: 404,message:"Error happened while update user data"});
     }
 }
 
 exports.adminGetUserById = async(req, res) => {
     try {
         if (!req.body.id)
-            return res.send({statusCode:404,message:"No user valid with this data"});
+            return res.status(404).send({ statusCode: 404,message:"No user valid with this data"});
         let _user = await UserModel.findOne({ _id: req.body.id, role: 'ealb' }, '-password -userToken');
-        return res.send({statusCode:404,message:"Success",data:_user});
+        return res.status(404).send({ statusCode: 404,message:"Success",data:_user});
     } catch (err) {
-        return res.send({statusCode:404,message:"Error", data:err});
+        return res.status(404).send({ statusCode: 404,message:"Error", data:err});
     }
 }
 
 exports.adminUpdateUser = async(req, res) => {
     try {
         if (!req.body.id)
-            return res.send({statusCode:404,message:"No user valid with this data"});
+            return res.status(404).send({ statusCode: 404,message:"No user valid with this data"});
         if (!req.body.id || !req.body.mobileNumber || !req.body.country || !req.body.firstName || !req.body.lastName)
-            return res.send({statusCode:404,message:'Please enter required fields.'});
+            return res.status(404).send({ statusCode: 404,message:'Please enter required fields.'});
 
         let data = {};
         data.firstName = req.body.firstName;
@@ -141,19 +141,19 @@ exports.adminUpdateUser = async(req, res) => {
 
         let _user = await UserModel.findOne({ _id: req.body.id });
         if (!_user)
-            return res.send({statusCode:404,message:"No bid found with this data"});
+            return res.status(404).send({ statusCode: 404,message:"No bid found with this data"});
 
         let _mobile = await UserModel.findOne({ mobileNumber: req.body.mobileNumber });
 
         if (_mobile && String(_mobile._id) != String(_user._id))
-            return res.send({statusCode:404,message:"this mobile number already registered for another user before ."});
+            return res.status(404).send({ statusCode: 404,message:"this mobile number already registered for another user before ."});
 
         let _res = await UserModel.findOneAndUpdate({ _id: req.body.id }, { $set: data }, { new: true });
         if (!_res)
-            return res.send({statusCode:404,message:"Can not update this user,try in another time."});
-        return res.send({statusCode:200,message:"Success",data:_res});
+            return res.status(404).send({ statusCode: 404,message:"Can not update this user,try in another time."});
+        return res.status(200).send({ statusCode: 200,message:"Success",data:_res});
     } catch (err) {
-        return res.send({statusCode:404,message:"Error Happened"});
+        return res.status(404).send({ statusCode: 404,message:"Error Happened"});
     }
 }
 
