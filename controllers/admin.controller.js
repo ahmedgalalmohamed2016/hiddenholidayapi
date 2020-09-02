@@ -110,7 +110,7 @@ exports.adminUpdateUser = async(req, res) => {
             return res.status(405).send({ statusCode: 405,message:"Can not update this user,try in another time."});
         return res.status(200).send({ statusCode: 200,message:"success",data: _res});
     } catch (err) {
-        return res.send("Error Happened");
+        return res.status(404).send({ statusCode: 404,message:"Error Happened"});
     }
 }
 

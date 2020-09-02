@@ -22,8 +22,7 @@ const walletRoutes = require('./routes/wallet.route');
 const bidRoutes = require('./routes/bid.route');
 const merchantAdminRoutes = require('./routes/merchantAdmin.route');
 const ealbRoutes = require('./routes/ealb.route');
-
-
+const httpService = require("./services/httpService");
 
 const app = express();
 // Set up mongoose connection
@@ -51,20 +50,25 @@ mongoose.Promise = global.Promise;
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-app.use(function(req, res, next) {
-
-    res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-
-    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Credentials', false);
-
-    next();
-});
-
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(async function(req, res, next) {
+  await httpService._handleHeader(res);
+  await httpService._logSystem(req, res);
+  await httpService._checkValidation(req, async function (err, result) {
+    if (!!err) {
+        var results = ({
+            statusCode: 404,
+            message: err
+        });
+        await httpService._logSystem(req, res);
+        return res.json(results);
+    } 
+  })
+  next();
+});
+
 app.use('/merchants', merchant);
 app.use('/user', userRoutes);
 app.use('/api/bank', bankAccountRoutes);
@@ -86,11 +90,12 @@ app.use('/api/ealb', ealbRoutes);
 let port = 3100;
 
 app.listen(port, () => {
-   
-      console.log(makeLine(5));
+    console.log(makeLine(5));
     console.log('Server is up and running on port numner ' + port);
     console.log(revertmakeLine(5));
 });
+
+
 
 function revertmakeLine(length) {
     // length has the number of lines the triangle should have

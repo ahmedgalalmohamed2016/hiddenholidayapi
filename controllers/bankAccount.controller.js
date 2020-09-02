@@ -29,11 +29,11 @@ exports.create = async(req, res) => {
 
         let bankData = await BankAcountModel.create(data);
         if (_.isNil(bankData))
-            return res.send({statusCode:401,message:"Can not add bank account."});
-        return res.send(bankData);
+            return res.status(401).send({ statusCode: 401,message:"Can not add bank account."});
+        return res.status(200).send({ statusCode: 200,message:"Success",data:bankData});
 
     } catch (err) {
-        return res.send({statusCode:401,message:"Can not add bank account."});
+        return res.status(401).send({ statusCode: 401,message:"Can not add bank account."});
     }
 }
 

@@ -31,8 +31,8 @@ exports.dashboard = async(req, res) => {
         data.totalActiveMerchants = await MerchantModel.count({ isActiveMerchant: true });
         data.totalNotActiveMerchants = await MerchantModel.count({ isActiveMerchant: false });
 
-        return res.send(data);
+        return res.status(200).send({ statusCode: 200,message:"Success",data:data});
     } catch (err) {
-        return res.send(err);
+        return res.status(404).send({ statusCode: 404,message:err});
     }
 };

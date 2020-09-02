@@ -172,7 +172,7 @@ module.exports = {
                             satteledAccount: elm._id
                         });
                         if (_.isNil(updateTransaction))
-                            return res.send("error Happened while create user account");
+                            return res.status(404).send({ statusCode: 404,message:"error Happened while create user account"});
                             let transactionData = {}
                             transactionData.fromUserId = totalAmount[0]._id.fromUserId;
                             transactionData.toUserId = totalAmount[0]._id.merchantId;
@@ -199,10 +199,10 @@ module.exports = {
             }
 
             if (notSetDefault.length > 0)
-                return res.send({
-                    message: "this merchants cannot settled, must set default banck account ",
+                return res.status(404).send({ statusCode: 404,message:"this merchants cannot settled, must set default banck account ",
+                data:{
                     merchantIds: notSetDefault
-                })
+                }})
             else
                 return {};
         } catch (err) {

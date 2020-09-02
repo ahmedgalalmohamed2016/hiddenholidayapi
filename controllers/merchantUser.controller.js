@@ -14,7 +14,7 @@ exports.assign = async(req, res) => {
 
             let _user = await UserModel.findOne({ mobileNumber: req.body.user });
             if (_.isNil(_user))
-                return res.send({ statusCode: 401, message:"no user found for this data."});
+                return res.status(401).send({ statusCode: 401, message:"no user found for this data."});
 
             // let _merchants = await merchantModel.findById({ _id: req.body.merchant });
             let _merchants = await merchantModel.findOne({ clean_name: req.body.merchant });

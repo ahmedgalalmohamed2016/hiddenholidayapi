@@ -228,7 +228,7 @@ exports.userBalance = async (req, res) => {
     data.availableBalance = parseInt(data.availableBalance);
     data.virtualBalance = parseInt(data.virtualBalance);
     data.currentBalance = data.availableBalance + data.virtualBalance;
-    res.status(404).send({ statusCode: 404, message:"Success",data:data});
+    res.status(200).send({ statusCode: 200, message:"Success",data:data});
   } catch (err) {
     return res.status(404).send({ statusCode: 404, message:err.message});
   }
@@ -302,7 +302,7 @@ exports.hiddenHolidayBalance = async (req, res) => {
     data.availableBalance = parseInt(data.availableBalance);
     data.virtualBalance = parseInt(data.virtualBalance);
     data.currentBalance = data.availableBalance + data.virtualBalance;
-    return res.status(404).send({ statusCode: 404, message:"Success",data:data});
+    return res.status(200).send({ statusCode: 200, message:"Success",data:data});
   } catch (err) {
     return res.status(404).send({ statusCode: 404, message:err.message});
   }
@@ -377,7 +377,7 @@ exports.userCashin = async (req, res) => {
     );
     if (transactionResult == false)
       return res.status(404).send({ statusCode: 404, message:"error Happened while create transaction"});
-    return res.status(404).send({ statusCode: 404, message:"Success",data:transactionResult});
+    return res.status(200).send({ statusCode: 200, message:"Success",data:transactionResult});
   } catch (err) {
     console.log(err);
     return res.res.status(404).send({ statusCode: 404, message:"error Happened while create transaction"});
@@ -517,7 +517,7 @@ exports.merchantAddFund = async (req, res) => {
     );
     if (transactionResult == false)
       return res.status(404).send({ statusCode: 404, message:"error Happened while create transaction"});
-    return res.status(404).send({ statusCode: 404, message:"Success",data:transactionResult});
+    return res.status(200).send({ statusCode: 200, message:"Success",data:transactionResult});
   } catch (err) {
     return res.status(404).send({ statusCode: 404, message:"error Happened while create transaction"});
   }

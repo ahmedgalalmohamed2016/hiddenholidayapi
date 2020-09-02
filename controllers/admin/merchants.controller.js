@@ -32,9 +32,9 @@ exports.merchants = async(req, res) => {
         data.totalSuccessDeals = await DealModel.count({ status: 'accept' }).orFail((err) => Error(err));
         data.totalPendingDeals = await DealModel.count({ status: 'pending' }).orFail((err) => Error(err));
         // data._deals = await merchant.find({ promotion: { $ne: null } }).limit(8).orFail((err) => Error(err));
-        return res.send(data);
+        return res.status(200).send({ statusCode: 200,message:"Success",data:data});
     } catch (err) {
-        return res.send(err);
+        return res.status(404).send({ statusCode: 404,message:err});
     }
 };
 
@@ -53,9 +53,9 @@ exports.deals = async(req, res) => {
         data.merchants = await DealModel.find(_query).populate('merchantId').limit(10).skip(_skip).orFail((err) => Error(err));
         data.totalMerchants = await DealModel.count({ type: 'deal' }).orFail((err) => Error(err));
 
-        return res.send(data);
+        return res.status(200).send({ statusCode: 200,message:"Success",data:data});
     } catch (err) {
-        return res.send(err);
+        return res.status(404).send({ statusCode: 404,message:err});
     }
 };
 
@@ -74,8 +74,8 @@ exports.bids = async(req, res) => {
         data.merchants = await DealModel.find(_query).populate('merchantId').limit(10).skip(_skip).orFail((err) => Error(err));
         data.totalMerchants = await DealModel.count({ type: 'bid' }).orFail((err) => Error(err));
 
-        return res.send(data);
+        return res.status(200).send({ statusCode: 200,message:"Success",data:data});
     } catch (err) {
-        return res.send(err);
+        return res.status(404).send({ statusCode: 404,message:err});
     }
 };

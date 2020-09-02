@@ -228,7 +228,7 @@ exports.adminUpdateUser = async(req, res) => {
         let _res = await UserModel.findOneAndUpdate({ _id: req.body.id }, { $set: data }, { new: true });
         if (!_res)
             return res.status(404).send({ statusCode: 404, message:"Can not update this user,try in another time."});
-        return res.status(404).send({ statusCode: 404, message:"Success",data:_res});
+        return res.status(200).send({ statusCode: 200, message:"Success",data:_res});
     } catch (err) {
         return res.status(404).send({ statusCode: 404, message:"Error Happened"});
     }

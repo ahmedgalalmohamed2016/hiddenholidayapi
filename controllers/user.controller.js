@@ -442,7 +442,7 @@ exports.verifyForgetPassword = async (req, res) => {
         .send({ statusCode: 404, message: "Please enter valid mobile number" });
 
     if (!req.body.code || req.body.code.length != 4)
-      return res.send({ statusCode: 401, message:"Please enter valid code"});
+      return res.status(401).send({ statusCode: 401, message:"Please enter valid code"});
     let _verificationCode = await passwordService.generatePassword(
       req.body.code,
       req.body.mobileNumber
@@ -454,14 +454,14 @@ exports.verifyForgetPassword = async (req, res) => {
       isVerified: false,
     }).lean();
     if (_.isNil(_getVerification))
-      return res.send({ statusCode: 401, message:"Please Enter Valid Code."});
+      return res.status(401).send({ statusCode: 401, message:"Please Enter Valid Code."});
 
     const updatedVerify = await VerificationModel.findByIdAndUpdate(
       _getVerification._id,
       { isVerified: true }
     ).lean();
     if (_.isNil(updatedVerify))
-      return res.send({ statusCode: 401, message:"Error Happened ,contact our support."});
+      return res.status(401).send({ statusCode: 401, message:"Error Happened ,contact our support."});
 
     let saveData = {};
     saveData._id = new mongoose.Types.ObjectId();
@@ -472,7 +472,7 @@ exports.verifyForgetPassword = async (req, res) => {
       usersNamedFinn[0]._id
     );
     if (_.isNil(password) || password == false)
-      return res.send({ statusCode: 401, message:"error Happened"});
+      return res.status(401).send({ statusCode: 401, message:"error Happened"});
     // enc code
     //find with phone in verification
     // same data update verification
@@ -485,7 +485,7 @@ exports.verifyForgetPassword = async (req, res) => {
       { password: password }
     ).lean();
     if (_.isNil(updatedUser))
-      return res.send({ statusCode: 401, message:"Error Happened ,contact our support."});
+      return res.status(401).send({ statusCode: 401, message:"Error Happened ,contact our support."});
 
     return res.status(200).send({ statusCode: 200, message:"password changed successfully"});
   } catch (error) {
@@ -649,7 +649,7 @@ exports.login = async (req, res) => {
       return res
         .status(405)
         .send({ error: "Please enter valid username and password" });
-    return res.status(404).send({ statusCode: 404, message:"Success",data:getUser});
+    return res.status(200).send({ statusCode: 200, message:"Success",data:getUser});
   } catch (err) {
     return res.status(404).send({ statusCode: 404, message:err});
   }
@@ -823,7 +823,7 @@ exports.updateProfile = async (req, res) => {
       data
     ).lean();
     if (_.isNil(updatedUser))
-      return res.send({ statusCode: 401, message:"Error Happened ,contact our support."});
+      return res.status(401).send({ statusCode: 401, message:"Error Happened ,contact our support."});
     return res.status(200).send({ statusCode: 200, message:"Success",data:updatedUser});
   } catch (err) {
     return res.status(404).send({ statusCode: 404, message:err});
@@ -838,8 +838,8 @@ exports.updateSocket = async (req, res) => {
       socketId: req.body.socketId,
     }).lean();
     if (_.isNil(updatedUser))
-      return res.send({ statusCode: 401, message:"Error Happened ,contact our support."});
-    return res.status(404).send({ statusCode: 404, message:"Success",data:updatedUser});
+      return res.status(401).send({ statusCode: 401, message:"Error Happened ,contact our support."});
+    return res.status(200).send({ statusCode: 200, message:"Success",data:updatedUser});
   } catch (err) {
     return res.status(404).send({ statusCode: 404, message:err});
   }
