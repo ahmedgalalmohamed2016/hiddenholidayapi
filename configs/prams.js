@@ -175,20 +175,25 @@ module.exports.params = {
 
     //merchant routs ---------------------------------------------------
     'user_register': {
-        "mauth": true,
-        "userDevice": true
+        "country": true,
+        "firstName": true,
+        "lastName": true,
+        "mobileNumber": true,
+        "password": true
     },
     'user_login': {
-        "mauth": true,
-        "userDevice": true
+        "username": true,
+        "password": true
     },
     'user_login_admin': {
-        "mauth": true,
-        "userDevice": true
+        "mauth": false,
+        "userDevice": false
     },
     'user_logout': {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "username:": true,
+        "password": true
     },
     'user_updatesocket': {
         "mauth": true,

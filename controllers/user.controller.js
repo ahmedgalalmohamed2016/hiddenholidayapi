@@ -120,7 +120,7 @@ exports.adminUpdateUser = async (req, res) => {
       { new: true }
     );
     if (!_res)
-      return res
+      return res.status(404)
         .send({ statusCode: 404, message:"Can not update this user,try in another time."});
     return res.status(200).send({ statusCode: 200, message:"Success",data:_res});
   } catch (err) {
@@ -590,13 +590,14 @@ exports.login = async (req, res) => {
     const usersNamedFinn = await UserModel.find({
       mobileNumber: req.body.username,
     });
+    console.log(req.body);
     if (usersNamedFinn.length < 1)
       return res
         .status(405)
-        .send({ error: "Please enter valid username and password" });
+        .send({  statusCode: 405, message: "Please enter valid username and password" });
 
     // if (usersNamedFinn[0].role != 'user')
-    //     return res.status(405).send({ error: "Please enter valid username and password" });
+    //     return res.status(405).send({  statusCode: 405, message: "Please enter valid username and password" });
 
     const password = await passwordService.comparePassword(
       req.body.password,
@@ -606,8 +607,8 @@ exports.login = async (req, res) => {
     if (_.isNil(password) || password != true)
       return res
         .status(405)
-        .send({ error: "Please enter valid username and password" });
-
+        .send({  statusCode: 405, message: "Please enter valid username and password" });
+       
     if (usersNamedFinn[0].isLockedOut == true) {
       return res
         .status(405)
@@ -628,7 +629,7 @@ exports.login = async (req, res) => {
     if (_.isNil(userToken) || userToken == false)
       return res
         .status(405)
-        .send({ error: "Please enter valid username and password" });
+        .send({  statusCode: 405, message: "Please enter valid username and password" });
 
     saveData.userToken = userToken;
     saveData.lastLoginDate = new Date();
@@ -640,7 +641,7 @@ exports.login = async (req, res) => {
     if (_.isNil(updatedUser) || updatedUser.length < 1)
       return res
         .status(405)
-        .send({ error: "Please enter valid username and password" });
+        .send({  statusCode: 405, message: "Please enter valid username and password" });
 
     let getUser = await UserModel.findOne({
       _id: usersNamedFinn[0]._id,
@@ -648,7 +649,7 @@ exports.login = async (req, res) => {
     if (_.isNil(getUser))
       return res
         .status(405)
-        .send({ error: "Please enter valid username and password" });
+        .send({  statusCode: 405, message: "Please enter valid username and password" });
     return res.status(200).send({ statusCode: 200, message:"Success",data:getUser});
   } catch (err) {
     return res.status(404).send({ statusCode: 404, message:err});
@@ -677,7 +678,7 @@ exports.loginAdmin = async (req, res) => {
       mobileNumber: req.body.username,
     });
     if (usersNamedFinn.length < 1)
-      return res
+      return res.status(404)
         .send({ statusCode: 404, message: "Please enter valid username and password" });
     const password = await passwordService.comparePassword(
       req.body.password,
@@ -686,11 +687,11 @@ exports.loginAdmin = async (req, res) => {
     );
 
     if (_.isNil(password) || password != true)
-      return res
+      return res.status(404)
         .send({ statusCode: 404, message: "Please enter valid username and password" });
 
     if (usersNamedFinn[0].isLockedOut == true) {
-      return res
+      return res.status(404)
         .send({ statusCode: 404, message:"Your account is locked,contact our support." });
     }
 
@@ -706,7 +707,7 @@ exports.loginAdmin = async (req, res) => {
       usersNamedFinn[0].role
     );
     if (_.isNil(userToken) || userToken == false)
-      return res
+      return res.status(404)
         .send({ statusCode: 404, message: "Please enter valid username and password" });
 
     saveData.userToken = userToken;
@@ -717,7 +718,7 @@ exports.loginAdmin = async (req, res) => {
       { $set: saveData }
     );
     if (_.isNil(updatedUser) || updatedUser.length < 1)
-      return res
+      return res.status(404)
         .send({ statusCode: 404, message:"Please enter valid username and password" });
 
     let getUser = await UserModel.findOne({
@@ -729,7 +730,7 @@ exports.loginAdmin = async (req, res) => {
         .send({ statusCode: 404, message: "Please enter valid username and password" });
 
     if (getUser.role != "admin" && getUser.role != "superAdmin")
-      return res
+      return res.status(404)
         .send({ statusCode: 404, message: "Only Admin can access this portal" });
     return res.status(200).send({ statusCode: 200, message:"Success",data:getUser});
   } catch (err) {

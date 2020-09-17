@@ -50,9 +50,9 @@ mongoose.Promise = global.Promise;
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true })); // for encoded bodies
+
 app.use(async function(req, res, next) {
   await httpService._handleHeader(res);
   await httpService._logSystem(req, res);
@@ -63,7 +63,7 @@ app.use(async function(req, res, next) {
             message: err
         });
         await httpService._logSystem(req, res);
-        return res.json(results);
+        return res.status(404).send(results);
     } 
   })
   next();
