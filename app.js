@@ -87,7 +87,7 @@ app.use('/api/ealb', ealbRoutes);
 
 
 
-let port = 3100;
+let port = 2100;
 
 app.listen(port, () => {
     console.log(makeLine(5));
