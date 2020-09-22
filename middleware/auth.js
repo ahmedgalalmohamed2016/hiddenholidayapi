@@ -38,12 +38,12 @@ exports.useAsAdminAuth = async function(req, res, next) {
 
         if (req.userData.role == 'merchantAdmin') {
             if (!req.body.merchantId) {
-                return res.status(401).send("You dont have authority to access this page");
+                return res.status(401).send({statusCode:401,message:"You dont have authority to access this page"});
             }
 
             let _user = await UserModel.findOne({ merchant: req.body.merchantId });
             if (_.isNil(_user))
-                return res.status(401).send("Token is not valid");
+                return res.status(401).send({statusCode:401,message:"Token is not valid"});
 
             req.userData = _user;
             return next()
@@ -52,7 +52,7 @@ exports.useAsAdminAuth = async function(req, res, next) {
         }
 
     } catch (err) {
-        return res.status(401).send("You need to login to access this page");
+        return res.status(401).send({statusCode:401,message:"You need to login to access this page"});
     }
 
 

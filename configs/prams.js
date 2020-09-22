@@ -128,7 +128,8 @@ module.exports.params = {
     },
     "merchants_me_merchantsById": {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "merchantId": true
     },
     "merchants_me": {
         "mauth": true,
@@ -164,7 +165,21 @@ module.exports.params = {
     },
     "merchants_create": {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "address": true,
+        "category": true,
+        "categoryId": true,
+        "clean_name": true,
+        "country": true,
+        "emails": true,
+        "firstName": true,
+        "lastName": true,
+        "main_phone_number": true,
+        "mauth": true,
+        "mobileNumber": true,
+        "name": true,
+        "password": true,
+        "userDevice": true,
     },
     "merchants_admin_update": {
         "mauth": true,
@@ -354,7 +369,8 @@ module.exports.params = {
     },
     'api_deals_admin_deal': {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "merchantId": true
     },
     'api_deals_merchants_me_active': {
         "mauth": true,
@@ -362,7 +378,8 @@ module.exports.params = {
     },
     'api_deals_merchants_me_delivery': {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "merchantId": true
     },
     'api_deals_user_me': {
         "mauth": true,
@@ -536,216 +553,218 @@ module.exports.params = {
 
     // ---------------------------------------------------------------
 
-    //api/categories routs ---------------------------------------------
+    //api_categories routs ---------------------------------------------
 
-    'api_categories/list': {
+    'api_categories_list': {
         "mauth": true,
         "userDevice": true
     },
-    'api_categories/upload': {
+    'api_categories_upload': {
         "mauth": true,
         "userDevice": true
     },
-    'api_categories/admin/create': {
+    'api_categories_admin_create': {
         "mauth": true,
         "userDevice": true
     },
-    'api_categories/admin/list': {
+    'api_categories_admin_list': {
         "mauth": true,
         "userDevice": true
     },
-    'api_categories/admin/category': {
+    'api_categories_admin_category': {
         "mauth": true,
         "userDevice": true
     },
-    'api_categories/admin/update': {
+    'api_categories_admin_update': {
         "mauth": true,
         "userDevice": true
     },
     // ---------------------------------------------------------------
 
-    //api/categories routs ---------------------------------------------
-    'api_transactions/admin/list': {
+    //api_categories routs ---------------------------------------------
+    'api_transactions_admin_list': {
         "mauth": true,
         "userDevice": true
     },
-    'api_transactions/merchant/me': {
+    'api_transactions_merchant_me': {
         "mauth": true,
         "userDevice": true
     },
-    'api_transactions/admin/merchant': {
+    'api_transactions_admin_merchant': {
         "mauth": true,
         "userDevice": true
     },
-    'api_transactions/details': {
+    'api_transactions_details': {
         "mauth": true,
         "userDevice": true
     },
-    'api_transactions/user/me': {
+    'api_transactions_user_me': {
         "mauth": true,
         "userDevice": true
     },
-    'api_transactions/main': {
+    'api_transactions_main': {
         "mauth": true,
         "userDevice": true
     },
-    'api_transactions/user': {
+    'api_transactions_user': {
         "mauth": true,
         "userDevice": true
     },
-    'api_transactions/merchant/balance': {
+    'api_transactions_merchant_balance': {
         "mauth": true,
         "userDevice": true
     },
-    'api_transactions/user/bill/request': {
+    'api_transactions_user_bill_request': {
         "mauth": true,
         "userDevice": true
     },
-    'api_transactions/merchant/bill': {
+    'api_transactions_merchant_bill': {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "merchantId": false,
+        "status": false
     },
-    'api_transactions/merchant/bill/update': {
-        "mauth": true,
-        "userDevice": true
-    },
-    // ---------------------------------------------------------------
-
-
-    //api/cards routs ------------------------------------------------
-    'api_cards/user/add': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api_cards/merchant/add': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api_cards/user/get': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api_cards/user/remove': {
-        "mauth": true,
-        "userDevice": true
-    },
-    // ---------------------------------------------------------------
-
-    //api/wallet routs ------------------------------------------------
-    'api_wallet/user/cashin': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api_wallet/merchant/cashin': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api_wallet/admin/merchant/balance': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api_wallet/main/balance': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api_wallet/merchant/balance': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api_wallet/merchant/summary': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api_wallet/main/subwallets': {
-        "mauth": true,
-        "userDevice": true
-    },
-    // ---------------------------------------------------------------
-
-    //api/bids routs ------------------------------------------------
-    'api_bids/admin/create': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api_bids/admin/update': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api_bids/admin/list': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api_bids/admin/bid': {
-        "mauth": true,
-        "userDevice": true
-    }, 'api_bids/': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api_bids/admin/merchant': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api_bids/usebid': {
-        "mauth": true,
-        "userDevice": true
-    },
-    // ---------------------------------------------------------------
-
-    //api/merchantAdmin routs ----------------------------------------
-    'api/merchantAdmin/changePassword': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api/merchantAdmin/users': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api/merchantAdmin/create': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api/merchantAdmin/getUser': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api/merchantAdmin/getmerchants': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api/merchantAdmin/update': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api/merchantAdmin/create/user': {
-        "mauth": true,
-        "userDevice": true
-    },
-    'api/merchantAdmin/list/user': {
+    'api_transactions_merchant_bill_update': {
         "mauth": true,
         "userDevice": true
     },
     // ---------------------------------------------------------------
 
 
-    //api/ealb -------------------------------------------------------
-    'api/ealb/changePassword': {
+    //api_cards routs ------------------------------------------------
+    'api_cards_user_add': {
         "mauth": true,
         "userDevice": true
     },
-    'api/ealb/users': {
+    'api_cards_merchant_add': {
         "mauth": true,
         "userDevice": true
     },
-    'api/ealb/create': {
+    'api_cards_user_get': {
         "mauth": true,
         "userDevice": true
     },
-    'api/ealb/getUser': {
+    'api_cards_user_remove': {
         "mauth": true,
         "userDevice": true
     },
-    'api/ealb/update': {
+    // ---------------------------------------------------------------
+
+    //api_wallet routs ------------------------------------------------
+    'api_wallet_user_cashin': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_wallet_merchant_cashin': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_wallet_admin_merchant_balance': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_wallet_main_balance': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_wallet_merchant_balance': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_wallet_merchant_summary': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_wallet_main_subwallets': {
+        "mauth": true,
+        "userDevice": true
+    },
+    // ---------------------------------------------------------------
+
+    //api_bids routs ------------------------------------------------
+    'api_bids_admin_create': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_bids_admin_update': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_bids_admin_list': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_bids_admin_bid': {
+        "mauth": true,
+        "userDevice": true
+    }, 'api_bids_': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_bids_admin_merchant': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_bids_usebid': {
+        "mauth": true,
+        "userDevice": true
+    },
+    // ---------------------------------------------------------------
+
+    //api_merchantAdmin routs ----------------------------------------
+    'api_merchantAdmin_changePassword': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_merchantAdmin_users': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_merchantAdmin_create': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_merchantAdmin_getUser': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_merchantAdmin_getmerchants': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_merchantAdmin_update': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_merchantAdmin_create_user': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_merchantAdmin_list_user': {
+        "mauth": true,
+        "userDevice": true
+    },
+    // ---------------------------------------------------------------
+
+
+    //api_ealb -------------------------------------------------------
+    'api_ealb_changePassword': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_ealb_users': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_ealb_create': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_ealb_getUser': {
+        "mauth": true,
+        "userDevice": true
+    },
+    'api_ealb_update': {
         "mauth": true,
         "userDevice": true
     }

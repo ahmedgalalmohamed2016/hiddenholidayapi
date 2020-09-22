@@ -56,16 +56,16 @@ app.use(bodyParser.urlencoded({ extended: true })); // for encoded bodies
 app.use(async function(req, res, next) {
   await httpService._handleHeader(res);
   await httpService._logSystem(req, res);
-  await httpService._checkValidation(req, async function (err, result) {
-    if (!!err) {
-        var results = ({
-            statusCode: 404,
-            message: err
-        });
+  // await httpService._checkValidation(req, async function (err, result) {
+  //   if (!!err) {
+  //       var results = ({
+  //           statusCode: 404,
+  //           message: err
+  //       });
         await httpService._logSystem(req, res);
-        return res.status(404).send(results);
-    } 
-  })
+    //     return res.status(404).send(results);
+    // } 
+  // })
   next();
 });
 

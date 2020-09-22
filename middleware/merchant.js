@@ -4,10 +4,9 @@ const UserModel = require('../models/user.model');
 const tokenService = require('../services/tokenService');
 
 exports.merchantAuth = async function(req, res, next) {
-
     if (req.userData.role != 'admin' && req.userData.role != 'merchantAdmin' && req.userData.role != 'superAdmin' && req.userData.role != 'merchant' &&
         req.userData.role != 'merchantUser') {
-        return res.status(401).send("You dont have authority to access this page");
+        return res.status(401).send({statusCode:401,message:"You dont have authority to access this page"});
     }
 
     console.log(req.userData.role);
