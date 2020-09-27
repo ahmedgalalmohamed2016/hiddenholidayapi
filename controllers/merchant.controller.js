@@ -318,12 +318,11 @@ exports.adminUpdate = async (req, res) => {
 
 exports.checkPassword = async (req, res) => {
     try {
-        console.log(req.body.password);
         if (!req.body.password) {
             return res.status(404).send({ statusCode: 404, message: "Please enter valid password" });
         }
         const password = await passwordService.comparePassword(req.body.password, req.userData.password, req.userData._id);
-        console.log(password);
+        
         if (_.isNil(password) || password != true)
             return res.status(404).send({ statusCode: 404, message: "Please enter valid password" });
         res.status(200).send({ statusCode: 200,message:"Success",data:true});
@@ -401,7 +400,6 @@ exports.registerMerchant = async (req, res) => {
             return res.status(404).send({ statusCode: 404, message: "error Happened" });
         await sendSmsService.sendActivationAccountsms(req, saveData.mobileNumber, verificationCode);
         user._verificationCode = verificationCode;
-        console.log(verificationCode);
         return res.status(200).send({ statusCode: 200, message: "Success", data: user });
     } catch (err) {
         return res.status(404).send({ statusCode: 404, message: "error" });
@@ -438,14 +436,12 @@ exports.listMerchantById = async (req, res) => {
             return res.status(404).send({ statusCode: 404, message:"Please enter valid merchant data"});
         return res.status(200).send({ statusCode: 200, message: "Success", data: _merchants });
     } catch (err) {
-        console.log(err);
         return res.status(404).send({ statusCode: 404, message:err.message});
     }
 };
 
 exports.adminMerchantById = async (req, res) => {
     try {
-        console.log(req.body.id);
         let _merchants = await merchant.find({ _id: req.body.id }).populate('categoryId').populate('countryId').populate('userId');
         if (!_merchants)
             return res.status(404).send({ statusCode: 404, message:"Please enter valid merchant data"});
@@ -608,13 +604,9 @@ exports.merchants = async (req, res) => {
 
         if (req.query.country)
             _query.country = req.query.country;
-
-        console.log(_query);
-
         if (req.query.page)
             _skip = req.query.page * 10;
         let _merchants = await merchant.find(_query, null, { sort: { clean_name: 1 } }).populate('categoryId').limit(10).skip(_skip);
-        console.log(_merchants);
         if (!_merchants)
             return res.status(404).send({ statusCode: 404,message:'Error Happened'});
         return res.status(200).send({ statusCode: 200,message:"Success",data:_merchants});
@@ -643,8 +635,6 @@ exports.merchants_favourites = async (req, res) => {
             return res.status(404).send({ statusCode: 404, message:"Please enter valid favourites data"});
 
         let data = [];
-        console.log(typeof req.body);
-        console.log(typeof req.body.merchants);
         // return res.send(req.body);
         for (let x = 0; x <= req.body.merchants.length; x++) {
             let d = mongoose.Types.ObjectId(req.body.merchants[x]);

@@ -51,7 +51,7 @@ exports.merchantUpdateBill = async (req, res) => {
   try {
     if (!req.body.status || !req.body.transactionId)
       return res.status(404).send({ statusCode: 404, message:"Please choose required status to update"});
-    console.log(req.body.status);
+
     if (req.body.status != "approved" && req.body.status != "decline")
       return res.status(404).send({ statusCode: 404, message:"Please choose valid status to update"});
 
@@ -297,7 +297,6 @@ exports.notSettledTransaction = async (req, res) => {
       return responses(res,"No Transaction found for this merchant in our system");
     return responses(res,null,transactions);
   } catch (error) {
-    console.log(error);
     return responses("somthing went wrong, please try again..",null,res);
   }
 };
@@ -321,7 +320,6 @@ exports.settledTransaction = async (req, res) => {
       return responses(res,"No Transaction found for this merchant in our system");
     return responses(res,null,transactions);
   } catch (error) {
-    console.log(error);
     return responses("somthing went wrong, please try again..",null,res);
   }
 };
@@ -370,7 +368,6 @@ exports.transactionTypeSattlement = async(req,res)=>{
       return responses(res,"No Transaction found in our system");
     return responses(res,null,transactions);
   } catch (error) {
-    console.log(error);
     return responses("somthing went wrong, please try again..",null,res);
   }
 }

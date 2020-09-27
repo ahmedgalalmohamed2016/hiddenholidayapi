@@ -92,7 +92,6 @@ exports.merchantCreateDeal = async(req, res) => {
 
         return res.status(200).send({ statusCode: 200,message:"Deal Created Success."});
     } catch (err) {
-        console.log(err);
         return res.status(404).send({ statusCode: 404,message:"Please Try in another time", data:err});
     }
 }
@@ -462,7 +461,6 @@ exports.requestDeal = async(req, res) => {
             requests.push(_requestData);
         }
 
-        console.log(requests);
         let requestData = RequestModel.create(requests);
 
         if (!requestData)
@@ -677,8 +675,6 @@ exports.UserDealRequests = async(req, res) => {
         .populate('dealId')
         .populate('merchantId')
         .sort('-creationDate').skip(pageNumber).limit(10).populate('userId')
-        console.log(_checkDeal);
-
         if (!_checkDeal)
             return res.status(404).send({ statusCode: 404,message:"We doesnot found any deals"});
         return res.status(200).send({ statusCode: 200,message:"Success",data:_checkDeal});
@@ -716,8 +712,6 @@ exports.UserDealRequestsUser = async(req, res) => {
         .populate('dealId')
         .populate('merchantId')
         .sort('-creationDate').skip(pageNumber).limit(10).populate('userId')
-        console.log(_checkDeal);
-
         if (!_checkDeal)
             return res.status(404).send({ statusCode: 404,message:"We doesnot found any deals"});
         return res.status(404).send({ statusCode: 404,message:"Success",data:_checkDeal});

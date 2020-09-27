@@ -91,7 +91,6 @@ exports.adminUpdateUser = async (req, res) => {
     )
       return res.status(404).send({ statusCode: 404, message:"Please enter required fields."});
 
-    console.log(req.body);
     let data = {};
     data.firstName = req.body.firstName;
     data.lastName = req.body.lastName;
@@ -533,7 +532,7 @@ exports.forgetPassword = async (req, res) => {
       req.body.mobileNumber,
       verificationCode
     );
-    return res.status(404).send({ statusCode: 404, message:"message send success to your mobile phone"});
+    return res.status(200).send({ statusCode: 200, message:"message send success to your mobile phone"});
   } catch (error) {
     return res.status(404).send({ statusCode: 404, message:error.message});
   }
@@ -548,7 +547,6 @@ exports.getUserData = async (req, res) => {
 
 exports.profileEdite = async (req, res) => {
   try {
-    console.log(req.userData);
     req.userData.firstName = req.body.firstName || req.userData.firstName;
     req.userData.lastName = req.body.lastName || req.userData.lastName;
     req.userData.emailName = req.body.emailName || req.userData.emailName;
@@ -590,7 +588,6 @@ exports.login = async (req, res) => {
     const usersNamedFinn = await UserModel.find({
       mobileNumber: req.body.username,
     });
-    console.log(req.body);
     if (usersNamedFinn.length < 1)
       return res
         .status(405)

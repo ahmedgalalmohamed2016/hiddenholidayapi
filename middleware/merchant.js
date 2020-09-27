@@ -8,14 +8,11 @@ exports.merchantAuth = async function(req, res, next) {
         req.userData.role != 'merchantUser') {
         return res.status(401).send({statusCode:401,message:"You dont have authority to access this page"});
     }
-
-    console.log(req.userData.role);
     if (req.userData.role != 'merchant' && req.userData.role != 'merchantUser') {
         if (!req.body.merchantId) {
             return res.status(405).send("Please enter valid merchant data");
         } else {
             req.userData.merchant = req.body.merchantId;
-            console.log("--------------admin");
         }
     }
 

@@ -379,7 +379,6 @@ exports.userCashin = async (req, res) => {
       return res.status(404).send({ statusCode: 404, message:"error Happened while create transaction"});
     return res.status(200).send({ statusCode: 200, message:"Success",data:transactionResult});
   } catch (err) {
-    console.log(err);
     return res.res.status(404).send({ statusCode: 404, message:"error Happened while create transaction"});
   }
 };
@@ -482,7 +481,6 @@ exports.merchantSummary = async (req, res) => {
     summary.currency = req.merchantData.countryId.currency;
     return res.status(200).send({ statusCode: 200, message:"Success",data:summary});
   } catch (err) {
-    console.log(err);
     return res.status(404).send({ statusCode: 404, message:"error Happened while find summary"});
   }
 };

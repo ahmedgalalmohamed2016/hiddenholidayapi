@@ -113,7 +113,6 @@ exports.adminCreateMerchantUser = async(req, res) => {
 
 exports.merchantUsers = async(req, res) => {
     try {
-        console.log("Yyyyyyyyy")
         let _users = await UserModel.find({ merchant: req.merchantData.id });
         if (!_users)
             return res.status(404).send({ statusCode: 404, message:"Please enter valid merchant data"});
