@@ -275,12 +275,8 @@ module.exports.params = {
         "userDevice": true
     },
     'user_forgetPassword': {
-        "mauth": true,
-        "userDevice": true
     },
     'user_verifyForgetPassword': {
-        "mauth": true,
-        "userDevice": true
     },
     'user_changePassword': {
         "mauth": true,
