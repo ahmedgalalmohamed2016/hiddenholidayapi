@@ -69,7 +69,7 @@ exports.adminGetCategories = async(req, res) => {
         return res.status(200).send({ statusCode: 200,message:"Success",data:categoriesData});
 
     } catch (err) {
-        return res.status(404).send({ statusCode: 200,message:err || "Try in another time." });
+        return res.status(200).send({ statusCode: 200,message:err || "Try in another time." });
     }
 }
 

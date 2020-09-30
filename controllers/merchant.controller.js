@@ -409,7 +409,7 @@ exports.registerMerchant = async (req, res) => {
 exports.maps = async (req, res) => {
     try {
         let result = await merchant.find({}, 'clean_name cat_name location_long location_lat _id');
-        return res.status(404).send({ statusCode: 404, message: "Success", data: result });
+        return res.status(200).send({ statusCode: 200, message: "Success", data: result });
     } catch (err) {
         return res.status(404).send({ statusCode: 404, message: err.message });
     }

@@ -118,7 +118,7 @@ exports.adminGetUserById = async(req, res) => {
         if (!req.body.id)
             return res.status(404).send({ statusCode: 404,message:"No user valid with this data"});
         let _user = await UserModel.findOne({ _id: req.body.id, role: 'ealb' }, '-password -userToken');
-        return res.status(404).send({ statusCode: 404,message:"Success",data:_user});
+        return res.status(200).send({ statusCode: 200,message:"Success",data:_user});
     } catch (err) {
         return res.status(404).send({ statusCode: 404,message:"Error", data:err});
     }

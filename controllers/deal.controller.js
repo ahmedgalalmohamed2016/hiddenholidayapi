@@ -192,7 +192,7 @@ exports.deals = async(req, res) => {
 
         if (!dealsData)
             return res.status(404).send({ statusCode: 404,message:"Please enter data"});
-        res.status(404).send({ statusCode: 404,message:"Success",data:dealsData});
+        res.status(200).send({ statusCode: 200,message:"Success",data:dealsData});
     } catch (err) {
         return res.status(404).send({ statusCode: 404,message:"Error",data:err});
     }
@@ -483,7 +483,7 @@ exports.DealData = async(req, res) => {
 
         if (!_deal)
             return res.status(404).send({ statusCode: 404,message:"Please enter valid deal data"});
-        return res.status(404).send({ statusCode: 404,message:"Success",data:_deal});
+        return res.status(200).send({ statusCode: 200,message:"Success",data:_deal});
     } catch (err) {
         return res.status(404).send({ statusCode: 404,message:"Error Happened"});
     }
@@ -610,7 +610,7 @@ exports.ActiveDealRequests = async(req, res) => {
 
         if (!_checkDeal)
             return res.status(200).send({ statusCode: 200,message:"Success",data:[]});
-        return res.status(404).send({ statusCode: 404,message:"Success",data:_checkDeal})
+        return res.status(200).send({ statusCode: 200,message:"Success",data:_checkDeal})
     } catch (err) {
         return res.status(404).send({ statusCode: 404,message:"Error Happened"});
     }
@@ -714,7 +714,7 @@ exports.UserDealRequestsUser = async(req, res) => {
         .sort('-creationDate').skip(pageNumber).limit(10).populate('userId')
         if (!_checkDeal)
             return res.status(404).send({ statusCode: 404,message:"We doesnot found any deals"});
-        return res.status(404).send({ statusCode: 404,message:"Success",data:_checkDeal});
+        return res.status(200).send({ statusCode: 200,message:"Success",data:_checkDeal});
     } catch (err) {
         return res.status(404).send({ statusCode: 404,message:"Error Happened"});
     }

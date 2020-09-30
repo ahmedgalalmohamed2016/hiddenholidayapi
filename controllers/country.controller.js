@@ -56,7 +56,7 @@ exports.getCountry = async(req, res) => {
     try {
 
         let countries = await country.findById({ _id: req.body.id }, '-encExRate');
-        return res.status(404).send({ statusCode: 404,message:"Success", data: countries});
+        return res.status(200).send({ statusCode: 200,message:"Success", data: countries});
 
     } catch (err) {
         return res.status(404).send({ statusCode: 404,message:"Error", data: err ||  "No country find with this data." });
