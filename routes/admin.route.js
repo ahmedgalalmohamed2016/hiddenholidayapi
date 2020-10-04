@@ -11,6 +11,7 @@ const deal_controller = require('../controllers/deal.controller');
 const adminController = require('../controllers/admin.controller');
 const TransactionController = require('../controllers/transaction.controller');
 const BanckAcount = require('../controllers/bankAccount.controller');
+const LogSystem = require('../controllers/logSystem.controller');
 
 router.post('/merchants', middleware.mainAuth, adminMiddleware.adminAuth, merchantController.merchants);
 router.post('/deals', middleware.mainAuth, adminMiddleware.adminAuth, merchantController.deals);
@@ -40,5 +41,6 @@ router.post('/transactions/settlement', middleware.mainAuth, adminMiddleware.adm
 
 
 router.post('/merchant/banckAcount', middleware.mainAuth, adminMiddleware.adminAuth, BanckAcount.allBanckAcounts);
+router.post('/log', middleware.mainAuth, adminMiddleware.adminAuth, LogSystem.getLog);
 
 module.exports = router;

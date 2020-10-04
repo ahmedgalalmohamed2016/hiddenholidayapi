@@ -381,7 +381,7 @@ exports.resendSms = async (req, res) => {
       req.userData.mobileNumber,
       verificationCode
     );
-    return res.status(404).send({ statusCode: 404, message:"message send success to your mobile phone"});
+    return res.status(200).send({ statusCode: 200, message:"message send success to your mobile phone"});
   } catch (err) {
     return res.status(404).send({ statusCode: 404, message:err});
   }
@@ -436,9 +436,7 @@ exports.verifyForgetPassword = async (req, res) => {
       mobileNumber: req.body.mobileNumber,
     });
     if (usersNamedFinn.length < 1)
-      return res
-      
-        .send({ statusCode: 404, message: "Please enter valid mobile number" });
+      return res.status(404).send({ statusCode: 404, message: "Please enter valid mobile number" });
 
     if (!req.body.code || req.body.code.length != 4)
       return res.status(401).send({ statusCode: 401, message:"Please enter valid code"});

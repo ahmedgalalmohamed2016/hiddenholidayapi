@@ -91,7 +91,7 @@ module.exports = {
             return validationRule(value);
         return new RegExp(validationRule).test(value);
     },
-
+   
     _logSystem: function (req, res) {
         var reqIp = '0.0.0.0';
                 if (req.ip) {
@@ -102,21 +102,48 @@ module.exports = {
                     else
                         reqIp = req.ip;
                 }
-        LogModel.create({
-            "reqId":uuidv4(),
-            "url": req.url,
-            "req": req.toString(),
-            "res": res.toString(),
-            "body": req.body ? req.body.toString() : "false",
-            "query": req.query ? req.query.toString() : "fale",
-            "status": res.statusCode,
-            "fromIp" : reqIp,
-            "method" : req.method
-        },function(err,re){
-          // must send mall
-          // console.log(err);
-          return true
-        })
+                try{
+                    const replacerFunc = () => {
+                        const visited = new WeakSet();
+                        return (key, value) => {
+                          if (typeof value === "object" && value !== null) {
+                            if (visited.has(value)) {
+                              return;
+                            }
+                            visited.add(value);
+                          }
+                          return value;
+                        };
+                      };
+                     
+                    let reqTosave =  JSON.stringify(req, replacerFunc());
+                    let resTosave =  JSON.stringify(res, replacerFunc());
+                    let bodyToSave = JSON.stringify(req.body, replacerFunc());
+                    let queryToSave = JSON.stringify(req.query, replacerFunc());
+
+
+                    console.log(typeof reqTosave);
+
+                    LogModel.create({
+                        "reqId":uuidv4(),
+                        "url": req.url,
+                        "req": reqTosave,
+                        "res": resTosave,
+                        "body": req.body ? bodyToSave : "false",
+                        "query": req.query ? queryToSave : "fale",
+                        "status": res.statusCode,
+                        "fromIp" : reqIp,
+                        "method" : req.method
+                    },function(err,re){
+                      // must send mall
+                      console.log(err);
+                      return true
+                    })
+                }
+                catch(error){
+                    console.log(error);
+                }
+        
     },
 
     _handleHeader: function (res) {
