@@ -17,22 +17,36 @@ const uuidv4 = require('uuid/v4');
 const { filter } = require('lodash');
 
 
-exports.getLog = async(req, res) => {
+exports.getLog = async (req, res) => {
+    let _skip = parseInt(req.body.pageNum);
+
+    // let _users = await LogModel.find({method:"POST"}).select('body url');
+    var _users = await LogModel.find({}).skip(_skip).limit(50);
+    let count = await LogModel.count({});
+    var newLog = [];
     try {
-        let _skip = 0;
-       
-        let _users = await LogModel.find({method:"POST"}).select('body url');
-        let newLog = [];
-        for (var i in _users)
-        {
+        for (var i in _users) {
             newLog.push({
-                url : _users[i].url,
-                bodykeys : await Object.keys(JSON.parse(_users[i].body))});
-            if(i == _users.length -1){
-                return res.status(200).send({ statusCode: 200,message:"success",data:newLog});
-            }
+                body : JSON.parse(_users[i].body),
+                query : JSON.parse(_users[i].query),
+                req : JSON.parse(_users[i].req),
+                res : JSON.parse(_users[i].res),
+                _id: _users[i]._id,
+                reqId: _users[i].reqId,
+                url: _users[i].url,
+                query: _users[i].query,
+                status: _users[i].status,
+                fromIp:_users[i].fromIp,
+                method: _users[i].method,
+                createdAt: _users[i].createdAt,
+                updatedAt: _users[i].updatedAt,
+            })
         }
+        return res.status(200).send({ statusCode: 200, message: "success", data: { pageNum: _skip,count: count, data: newLog } });
+
     } catch (err) {
         return res.status(405).send(err);
     }
+   
+
 }

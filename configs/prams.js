@@ -14,6 +14,11 @@ module.exports.params = {
         "mauth": true,
         "userDevice": true
     },
+    "api_admin_log":{
+        "mauth": true,
+        "userDevice": true,
+        "pageNum" : true
+    },
     "api_admin_deals": {
         "mauth": true,
         "userDevice": true
