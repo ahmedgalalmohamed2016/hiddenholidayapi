@@ -14,10 +14,10 @@ module.exports.params = {
         "mauth": true,
         "userDevice": true
     },
-    "api_admin_log":{
+    "api_admin_log": {
         "mauth": true,
         "userDevice": true,
-        "pageNum" : true
+        "pageNum": true
     },
     "api_admin_deals": {
         "mauth": true,
@@ -119,12 +119,19 @@ module.exports.params = {
         "mauth": true,
         "userDevice": true
     },
+    "madfooatcom":{},
+    "madfooatcom_refrance_detail":{
+        "refranceNum":true
+    },
+
+
     "merchants_merchantsById": {
         "mauth": true,
         "userDevice": true
     },
     "merchants_merchantById": {
         "mauth": true,
+        "id":true,
         "userDevice": true
     },
     "merchants_admin_merchantsById": {
@@ -194,6 +201,11 @@ module.exports.params = {
     // ---------------------------------------------------------------
 
     //merchant routs ---------------------------------------------------
+    "user_verifyForgetPassword": {
+        "code": true,
+        "mobileNumber": true,
+        "newPassword": true
+    },
     'user_register': {
         "country": true,
         "firstName": true,
@@ -206,14 +218,12 @@ module.exports.params = {
         "password": true
     },
     'user_login_admin': {
-        "mauth": false,
-        "userDevice": false
+        "username:": true,
+        "password": true
     },
     'user_logout': {
         "mauth": true,
         "userDevice": true,
-        "username:": true,
-        "password": true
     },
     'user_updatesocket': {
         "mauth": true,
@@ -268,6 +278,7 @@ module.exports.params = {
         "userDevice": true
     },
     'user_verifyPhone': {
+        "code": true,
         "mauth": true,
         "userDevice": true
     },
@@ -280,11 +291,14 @@ module.exports.params = {
         "userDevice": true
     },
     'user_forgetPassword': {
+        "mobileNumber": true
     },
     'user_verifyForgetPassword': {
     },
     'user_changePassword': {
         "mauth": true,
+        "newPassword": true,
+        "password": true,
         "userDevice": true
     },
     // ---------------------------------------------------------------
@@ -346,6 +360,7 @@ module.exports.params = {
     },
     'api_deals_cart': {
         "mauth": true,
+        "ids":true,
         "userDevice": true
     },
     'api_deals_admin_merchant': {
@@ -387,7 +402,10 @@ module.exports.params = {
         "userDevice": true
     },
     'api_deals_UserDealRequests': {
+        "isUsed": true,
         "mauth": true,
+        "pageNumber": true,
+        "type": true,
         "userDevice": true
     },
     'api_deals_merchant_me': {
@@ -396,7 +414,11 @@ module.exports.params = {
     },
     'api_deals_request': {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "cardId": false,
+        "data": true,
+        "paymentMethod": true,
+        "paymentType": true,
     },
     'api_deals_request_details': {
         "mauth": true,
@@ -597,10 +619,12 @@ module.exports.params = {
     },
     'api_transactions_details': {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "id":true
     },
     'api_transactions_user_me': {
         "mauth": true,
+        "pageNumber": true,
         "userDevice": true
     },
     'api_transactions_main': {
@@ -617,7 +641,12 @@ module.exports.params = {
     },
     'api_transactions_user_bill_request': {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "amount": true,
+        "cardId": false,
+        "merchantId": true,
+        "paymentMethod": true,
+        "paymentType": true,
     },
     'api_transactions_merchant_bill': {
         "mauth": true,
@@ -634,6 +663,10 @@ module.exports.params = {
 
     //api_cards routs ------------------------------------------------
     'api_cards_user_add': {
+        "cardNumber": true,
+        "expireMonth": true,
+        "expireYear": true,
+        "holderName": true,
         "mauth": true,
         "userDevice": true
     },
@@ -654,11 +687,19 @@ module.exports.params = {
     //api_wallet routs ------------------------------------------------
     'api_wallet_user_cashin': {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "amount": true,
+        "country": false,
+        "cardId": false,
+        "paymentMethod": true
     },
     'api_wallet_merchant_cashin': {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "amount": true,
+        "country": false,
+        "cardId": false,
+        "paymentMethode": true
     },
     'api_wallet_admin_merchant_balance': {
         "mauth": true,

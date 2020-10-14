@@ -12,6 +12,7 @@ const bankAccountRoutes = require('./routes/bankAccount.route');
 const userRoutes = require('./routes/user.route');
 const dealRoutes = require('./routes/deal.route');
 const merchantUser = require('./routes/merchantUser.route');
+const madfooatcom = require('./routes/madfooatcom.route');
 const adminRoutes = require('./routes/admin.route');
 const countriesRoutes = require('./routes/country.route');
 const packageRoutes = require('./routes/package.route');
@@ -56,19 +57,19 @@ app.use(bodyParser.urlencoded({ extended: true })); // for encoded bodies
 app.use(async function(req, res, next) {
   await httpService._handleHeader(res);
   await httpService._logSystem(req, res);
-  // await httpService._checkValidation(req, async function (err, result) {
-  //   if (!!err) {
-  //       var results = ({
-  //           statusCode: 404,
-  //           message: err
-  //       });
+  await httpService._checkValidation(req, async function (err, result) {
+    if (!!err) {
+        var results = ({
+            statusCode: 404,
+            message: err
+        });
         await httpService._logSystem(req, res);
-    //     return res.status(404).send(results);
-    // } 
-  // })
+        return res.status(404).send(results);
+    } 
+  })
   next();
 });
-
+app.use('/madfooatcom', madfooatcom)
 app.use('/merchants', merchant);
 app.use('/user', userRoutes);
 app.use('/api/bank', bankAccountRoutes);

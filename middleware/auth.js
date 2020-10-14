@@ -10,12 +10,16 @@ exports.mainAuth = async function(req, res, next) {
 
         try {
             let _user = await UserModel.findOne({ userToken: req.body.mauth });
+            
             if (_.isNil(_user))
                 return res.status(401).send({ statusCode: 401,message:"Token is not valid"});
-            if (_user.isLocked)
+            
+         
+            if (_user.isLocked != undefined && _user.isLocked)
                 return res.status(401).send({ statusCode: 401,message:"user Account Is Locked"});
 
             let _token = await tokenService.verifyLoginToken(req.body.userDevice, _user._id, req.body.mauth);
+               
             if (_.isNil(_token))
                 return res.status(401).send({ statusCode: 401,message:"You need to login to access this page"});
 
@@ -35,10 +39,10 @@ exports.mainAuth = async function(req, res, next) {
 
 exports.useAsAdminAuth = async function(req, res, next) {
     try {
-
         if (req.userData.role == 'merchantAdmin') {
             if (!req.body.merchantId) {
-                return res.status(401).send({statusCode:401,message:"You dont have authority to access this page"});
+                req.body.merchantId = req.userData._id
+                // return res.status(401).send({statusCode:401,message:"You dont have authority to access this page"});
             }
 
             let _user = await UserModel.findOne({ merchant: req.body.merchantId });

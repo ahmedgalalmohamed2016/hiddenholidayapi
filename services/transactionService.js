@@ -7,6 +7,7 @@ const secretKey =
     'asjhut^tg*(2@EASFQ!_+"?]>,nvgfQMIZK#$,Zx[]iwQUsjJ~+-o+ujlcH^^%h(oWs';
 const _ = require("lodash");
 const TransactionModel = require("../models/transaction.model");
+const transactionRefrance = require("../models/transactionRefrance.model");
 const RequestModel = require("../models/request.model");
 const merchant = require("../models/merchant.model");
 const BankAcountModel = require("../models/bankAccount.model");
@@ -17,8 +18,18 @@ module.exports = {
         if (_.isNil(_transaction)) return false;
         return _transaction;
     },
+
     getTransaction: function (data) { },
+
+
     updateTransaction: function (userId) { },
+
+    deleteTransaction: function (transactionId) {
+        const _transaction = TransactionModel.deleteOne({_id:transactionId});
+        if (_.isNil(_transaction)) return false;
+        return _transaction;
+     },
+
     getUserBalance: async function (userId) {
         let cTransactions = await TransactionModel.find(
             { sourceType: "cashIn", fromUserId: userId },
@@ -45,7 +56,6 @@ module.exports = {
             const page = filter.page;
             _skip = page * 10;
             delete filter.page;
-            console.log(filter);
             let transactions = await TransactionModel.find(filter)
                 .populate("fromUserId")
                 .populate("toUserId")
@@ -76,7 +86,6 @@ module.exports = {
 
                 filter.merchantId = { $in: ids };
             } catch (err) {
-                console.log(err);
             }
 
         let resultData = {
@@ -127,7 +136,6 @@ module.exports = {
                     },
                 },
             ]);
-            console.log(allData);
             for (let i in allData) {
                 allMerchants.push(mongoose.Types.ObjectId(allData[i]._id.merchantId));
             }
@@ -155,7 +163,7 @@ module.exports = {
                                     _id: {
                                         merchantId: "$merchantId",
                                         currency: "$currency",
-                                        fromUserId:"$fromUserId"
+                                        fromUserId: "$fromUserId"
                                     },
                                     merchantAmount: { $sum: "$merchantAmount" },
                                     netAmount: { $sum: "$netAmount" },
@@ -172,43 +180,86 @@ module.exports = {
                             satteledAccount: elm._id
                         });
                         if (_.isNil(updateTransaction))
-                            return res.status(404).send({ statusCode: 404,message:"error Happened while create user account"});
-                            let transactionData = {}
-                            transactionData.fromUserId = totalAmount[0]._id.fromUserId;
-                            transactionData.toUserId = totalAmount[0]._id.merchantId;
-                            transactionData.grossAmount = totalAmount[0].grossAmount;
-                            transactionData.netAmount = totalAmount[0].netAmount;
-                            transactionData.merchantAmount = totalAmount[0].merchantAmount;
-                            transactionData.currency = totalAmount[0]._id.currency;
-                            transactionData.status = "pending";
-                            transactionData.sourceType = "settlement";
-                            transactionData.comment = "This is free init balance.";
-                            transactionData.paymentMethod = "settlement";
-                            transactionData.code = makeUserCode(10);
-                            transactionData.creationDate = new Date();
-                            transactionData.sharePercentage = '0';
-                            //sourceData {senderName , recieverName  }
-                            transactionData.sourceData = {};
-                            transactionData.sourceData.senderName = "";
-                            transactionData.sourceData.receiverName = "";
-                            transactionData.paymentId = null;
-                      
+                            return res.status(404).send({ statusCode: 404, message: "error Happened while create user account" });
+                        let transactionData = {}
+                        transactionData.fromUserId = totalAmount[0]._id.fromUserId;
+                        transactionData.toUserId = totalAmount[0]._id.merchantId;
+                        transactionData.grossAmount = totalAmount[0].grossAmount;
+                        transactionData.netAmount = totalAmount[0].netAmount;
+                        transactionData.merchantAmount = totalAmount[0].merchantAmount;
+                        transactionData.currency = totalAmount[0]._id.currency;
+                        transactionData.status = "pending";
+                        transactionData.sourceType = "settlement";
+                        transactionData.comment = "This is free init balance.";
+                        transactionData.paymentMethod = "settlement";
+                        transactionData.code = makeUserCode(10);
+                        transactionData.creationDate = new Date();
+                        transactionData.sharePercentage = '0';
+                        //sourceData {senderName , recieverName  }
+                        transactionData.sourceData = {};
+                        transactionData.sourceData.senderName = "";
+                        transactionData.sourceData.receiverName = "";
+                        transactionData.paymentId = null;
+
                         const creation = await TransactionModel.create(transactionData);
                     }
                 })
             }
 
             if (notSetDefault.length > 0)
-                return res.status(404).send({ statusCode: 404,message:"this merchants cannot settled, must set default banck account ",
-                data:{
-                    merchantIds: notSetDefault
-                }})
+                return res.status(404).send({
+                    statusCode: 404, message: "this merchants cannot settled, must set default banck account ",
+                    data: {
+                        merchantIds: notSetDefault
+                    }
+                })
             else
                 return {};
         } catch (err) {
             return err;
         }
     },
+    madfooatcom: async () => {
+        let refNumbe = Math.floor((Math.random() * 999999));
+        let found = await transactionRefrance.find(
+            { RefNum: refNumbe, status: "pending" }
+        );
+        while (found.indexOf(refNumbe) > 0) {
+            refNumbe = Math.floor((Math.random() * 999999));
+        }
+        let refrance = await transactionRefrance.create({
+            refranceNum: refNumbe,
+            paymentMethod: "madfooatcom",
+            status: "pending",
+        })
+        if (!refrance._id)
+            return false
+
+        return refrance
+    },
+    madfooatcomFind: async (data) => {
+        let found = await transactionRefrance.findOne(data);
+        return found
+    },
+    madfooatcomFindDetail: async (data) => {
+        let found = await transactionRefrance.findOne(data).populate('transactionId');
+        return found
+    },
+    madfooatcomUpdate: async (data,newData) => {
+       
+        let updatedDtata = await transactionRefrance.update(
+            data,
+            newData);
+        if (!updatedDtata)
+            return false
+
+        return updatedDtata
+    },
+    deleteTransactionRef: function (refId) {
+    const _transaction = transactionRefrance.deleteOne({_id:refId});
+    if (_.isNil(_transaction)) return false;
+    return _transaction;
+ },
 };
 
 

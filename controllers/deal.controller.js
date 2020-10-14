@@ -16,6 +16,8 @@ const request = require("superagent");
 const fs = require("fs");
 const mongoose = require('mongoose');
 const uuidv4 = require('uuid/v4');
+const { config } = require('process');
+const configration = require("../configs/main");
 
 
 
@@ -313,18 +315,14 @@ exports.MerchantBids = async(req, res) => {
 
 exports.requestDeal = async(req, res) => {
     try {
-        if (!req.body.paymentType || !req.body.data)
-            return res.status(401).send({ statusCode: 401,message:"paymentType and data is required"});
-
-        if (req.body.paymentType != "card" && req.body.paymentType != "balance")
-            return res.status(401).send({ statusCode: 401,message:"Please enter valid payment method"});
-
         if (req.body.paymentType == "card" && !req.body.cardId)
             return res.status(401).send({ statusCode: 401,message:"cardId is required"});
-        let _ids = [];
+        
+            let _ids = [];
 
         if (typeof req.body.data == "string")
             req.body.data = JSON.parse(req.body.data);
+
         for (let x = 0; x < req.body.data.length; x++) {
             let valu = new mongoose.Types.ObjectId(req.body.data[x].id);
             _ids.push(valu);
@@ -368,20 +366,27 @@ exports.requestDeal = async(req, res) => {
 
         if (req.body.paymentType == "card") {
             let cardData = await CardModel.findOne({ _id: req.body.cardId, userId: req.userData.id });
+            req.body.paymentId = req.body.cardId
             if (!cardData)
                 return res.status(401).send({ statusCode: 401,message:"error Happened to find card Data"});
         } else if (req.body.paymentType == "balance") {
             let _uBalance = await TransactionService.getUserBalance(req.userData.id);
             _uBalance = _uBalance / countryData.exRate;
+            req.body.paymentId = configration.balance
             if (totalGrossAmount < _uBalance)
                 return res.status(404).send({ statusCode: 404,message:"You does not have enough balance to purchase"});
+        }else if(req.body.paymentMethod == "madfooatcom")
+        {
+
+        var refranceData = await TransactionService.madfooatcom();
+          req.body.paymentId = refranceData._id
         }
 
         let transactionData = {};
         const transactionTo = await UserModel.findOne({ role: "superAdmin" });
         if (!transactionTo._id)
             return res.status(401).send({ statusCode: 401,message:"Error Happened try in another time"});
-        transactionData.paymentId = req.body.cardId;
+        transactionData.paymentId = req.body.paymentId;
         transactionData.fromUserId = req.userData._id;
         transactionData.toUserId = transactionTo._id;
         transactionData.grossAmount = totalGrossAmount;
@@ -389,7 +394,7 @@ exports.requestDeal = async(req, res) => {
         transactionData.merchantAmount = totalMerchantAmount;
         transactionData.currency = countryData.currency;
 
-        transactionData.status = "approved";
+        transactionData.status = "pinding";
         transactionData.sourceType = "purchase";
         transactionData.comment = req.body.comment || "";
         transactionData.paymentMethod = req.body.paymentType;
@@ -407,7 +412,18 @@ exports.requestDeal = async(req, res) => {
         if (!transactionResult)
             return res.status(401).send({ statusCode: 401,message:"error Happened while create transaction"});
         // create Deals Requests
-
+        if(req.body.paymentMethod == "madfooatcom")
+        {
+          let updateMadfooatcom = await TransactionService.madfooatcomUpdate(
+            {_id:req.body.paymentId },
+            {transactionId:transactionResult._id});
+  
+          if(!updateMadfooatcom){
+            let revertTransaction = await TransactionService.deleteTransaction(transactionData._id);
+            return res.status(500).send({ statusCode: 500, message: "Error Happend, please try again" });
+      
+          }
+        }
 
         // transactionSource: { type: String }, // if refund must insert source transaction id
         // bankAccount: { type: String },
@@ -456,7 +472,7 @@ exports.requestDeal = async(req, res) => {
                 _requestData.merchantAmount = _requestData.grossAmount - _requestData.netAmount;
             }
             _requestData.sharePercentage = dealsData[z].sharePercentage;
-            _requestData.status = "approved";
+            _requestData.status = "pending";
             _requestData.categoryId = dealsData[z].categoryId._id;
             requests.push(_requestData);
         }
@@ -465,7 +481,7 @@ exports.requestDeal = async(req, res) => {
 
         if (!requestData)
             return res.status(401).send({ statusCode: 401,message:"error Happened while create requests"});
-        return res.status(200).send({ statusCode: 200,message:"Requests Created Success"});
+        return res.status(200).send({ statusCode: 200,message:"Requests Created Success",data:{refNum: refranceData.refranceNum ? refranceData.refranceNum : false}});
 
     } catch (err) {
         return res.status(404).send({ statusCode: 404,message:"Errror",data: err});

@@ -28,9 +28,10 @@ module.exports = {
     },
 
     _removeExtraKeys: function (param, body) {
-        Object.keys(body).forEach(function (p) {            
-            if (!param.hasOwnProperty(p))
+        Object.keys(body).forEach(function (p) {   
+            if (!param.hasOwnProperty(p)){  
                 delete body[p];//   param[p];
+            }
         });
         return body
     },
@@ -120,10 +121,6 @@ module.exports = {
                     let resTosave =  JSON.stringify(res, replacerFunc());
                     let bodyToSave = JSON.stringify(req.body, replacerFunc());
                     let queryToSave = JSON.stringify(req.query, replacerFunc());
-
-
-                    console.log(typeof reqTosave);
-
                     LogModel.create({
                         "reqId":uuidv4(),
                         "url": req.url,
@@ -136,12 +133,12 @@ module.exports = {
                         "method" : req.method
                     },function(err,re){
                       // must send mall
-                      console.log(err);
+                    //   console.log(err);
                       return true
                     })
                 }
                 catch(error){
-                    console.log(error);
+                    // console.log(error);
                 }
         
     },
