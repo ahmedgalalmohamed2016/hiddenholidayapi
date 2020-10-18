@@ -397,15 +397,19 @@ exports.userCashin = async (req, res) => {
         let updateMadfooatcom = await TransactionService.madfooatcomUpdate(
           {_id:req.body.paymentId },
           {transactionId:transactionResult._id});
-          console.log(transactionResult);
         if(!updateMadfooatcom){
-          console.log("revert");
           let revertTransaction = await TransactionService.deleteTransaction(transactionData._id);
           return res.status(500).send({ statusCode: 500, message: "Error Happend, please try again" });
     
         }
       }
-    return res.status(200).send({ statusCode: 200, message: "Success", data: {refNum : refranceData.refranceNum ? refranceData.refranceNum : false} });
+      var data = {};
+      if(refranceData)
+          data = {
+              validTo:refranceData.validTo,
+              refNum: refranceData.refranceNum
+          }
+    return res.status(200).send({ statusCode: 200, message: "Success", data: data });
   } catch (err) {
     return res.status(404).send({ statusCode: 404, message: "error Happened while create transaction" });
   }

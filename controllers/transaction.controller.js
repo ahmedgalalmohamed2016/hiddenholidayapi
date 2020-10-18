@@ -268,7 +268,17 @@ exports.details = async (req, res) => {
     if (data.transactions.paymentMethod == "madfooatcom") {
       data.refrance = {};
       let refrance = await TransactionService.madfooatcomFind({ transactionId: mongoose.Types.ObjectId(req.body.id) })
+      if(transactions.status !== 'declined' && (!refrance.validTo || new Date(refrance.validTo) < new Date())){
+        transactions = await TransactionModel.update({ _id: mongoose.Types.ObjectId(req.body.id) },
+        {status:"declined"})
+        .populate("fromUserId")
+        .populate("toUserId");
+        refrance = await TransactionService.madfooatcomUpdate({ refranceNum: refrance.refranceNum }, {status:"declined"})
+      
+      }
+      data.transactions = transactions;
       data.refrance = refrance;
+      
     }
 
 

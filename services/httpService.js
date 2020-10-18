@@ -5,10 +5,10 @@ const params = require("../configs/prams").params
 module.exports = {
     _checkValidation: function (req, callback) {
         var apiParam = this._getApiParam(req.url);
-        if (!apiParam)
-            return callback(req.url + " is not a valid api");
         if (req.method != 'POST')
             return callback(null);
+        if (!apiParam)
+            return callback(req.url + " is not a valid api");
         req.body = this._removeExtraKeys(apiParam, req.body);
         req.body = this._removeEmptyParam(req.body);
 

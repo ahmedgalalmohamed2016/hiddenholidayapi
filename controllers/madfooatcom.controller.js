@@ -12,7 +12,6 @@ exports.wellcom = async(req, res) => {
      return res.status(200).send({ statusCode: 200,message:"Wellcom Madfooatcom"});
 }
 exports.detail = async(req, res) => {
-    console.log(req.body);
     let refranceData = await transactionService.madfooatcomFindDetail({refranceNum:req.body.refranceNum})
      return res.status(200).send({ statusCode: 200,message:"Wellcom Madfooatcom",data:refranceData});
 }

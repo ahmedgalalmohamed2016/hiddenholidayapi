@@ -124,14 +124,10 @@ module.exports.params = {
         "refranceNum":true
     },
 
-
-    "merchants_merchantsById": {
-        "mauth": true,
-        "userDevice": true
-    },
     "merchants_merchantById": {
         "mauth": true,
         "id":true,
+        "merchantId":false,
         "userDevice": true
     },
     "merchants_admin_merchantsById": {
@@ -145,6 +141,7 @@ module.exports.params = {
     },
     "merchants_me": {
         "mauth": true,
+        "merchantId":false,
         "userDevice": true
     },
     "merchants_balance": {
@@ -153,10 +150,12 @@ module.exports.params = {
     },
     "merchants_me_totalDeals": {
         "mauth": true,
+        "merchantId":false,
         "userDevice": true
     },
     "merchants_me_update": {
         "mauth": true,
+        "merchantId":false,
         "userDevice": true
     },
     "merchants": {
@@ -169,7 +168,9 @@ module.exports.params = {
     },
     "merchants_merchantsById_list": {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "id": true,
+        "merchantId": true
     },
     "merchants_admin_create": {
         "mauth": true,
@@ -388,12 +389,15 @@ module.exports.params = {
         "userDevice": true,
         "merchantId": true
     },
+    'merchants':{},
     'api_deals_merchants_me_active': {
+        "merchantId":true,
         "mauth": true,
         "userDevice": true
     },
     'api_deals_merchants_me_delivery': {
         "mauth": true,
+        "merchantId":false,
         "userDevice": true,
         "merchantId": true
     },
@@ -410,6 +414,7 @@ module.exports.params = {
     },
     'api_deals_merchant_me': {
         "mauth": true,
+        "merchantId":true,
         "userDevice": true
     },
     'api_deals_request': {
@@ -611,6 +616,7 @@ module.exports.params = {
     },
     'api_transactions_merchant_me': {
         "mauth": true,
+        "merchantId":false,
         "userDevice": true
     },
     'api_transactions_admin_merchant': {
@@ -784,6 +790,7 @@ module.exports.params = {
     },
     'api_merchantAdmin_list_user': {
         "mauth": true,
+        "merchantId":true,
         "userDevice": true
     },
     // ---------------------------------------------------------------

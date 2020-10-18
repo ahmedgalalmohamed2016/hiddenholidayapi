@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const merchantModel = require('../models/merchant.model');
 const UserModel = require('../models/user.model');
 const tokenService = require('../services/tokenService');
 
@@ -10,7 +11,6 @@ exports.mainAuth = async function(req, res, next) {
 
         try {
             let _user = await UserModel.findOne({ userToken: req.body.mauth });
-            
             if (_.isNil(_user))
                 return res.status(401).send({ statusCode: 401,message:"Token is not valid"});
             
@@ -39,18 +39,20 @@ exports.mainAuth = async function(req, res, next) {
 
 exports.useAsAdminAuth = async function(req, res, next) {
     try {
+        let _user;
+        let _merchant;
         if (req.userData.role == 'merchantAdmin') {
-            if (!req.body.merchantId) {
-                req.body.merchantId = req.userData._id
+            if (!req.userData.mainMerchantId) {
+                _merchant = await merchantModel.findOne({ "userId": req.userData._id});
+                req.body.merchantId = _merchant._id
                 // return res.status(401).send({statusCode:401,message:"You dont have authority to access this page"});
             }
-
-            let _user = await UserModel.findOne({ merchant: req.body.merchantId });
+            _user = await UserModel.findOne({ merchant: req.body.merchantId });
             if (_.isNil(_user))
-                return res.status(401).send({statusCode:401,message:"Token is not valid"});
-
-            req.userData = _user;
-            return next()
+                    return res.status(401).send({statusCode:401,message:"Token is not valid"});
+    
+           req.userData = _user;
+           return next()
         } else {
             return next();
         }

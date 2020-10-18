@@ -227,10 +227,12 @@ module.exports = {
         while (found.indexOf(refNumbe) > 0) {
             refNumbe = Math.floor((Math.random() * 999999));
         }
+        var date = new Date();
         let refrance = await transactionRefrance.create({
             refranceNum: refNumbe,
             paymentMethod: "madfooatcom",
             status: "pending",
+            validTo:date.addDays(2),
         })
         if (!refrance._id)
             return false
@@ -271,4 +273,10 @@ function makeUserCode(length) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+}
+
+Date.prototype.addDays = function(days) {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
 }

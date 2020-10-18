@@ -10,7 +10,7 @@ exports.merchantAuth = async function(req, res, next) {
     }
     if (req.userData.role != 'merchant' && req.userData.role != 'merchantUser') {
         if (!req.body.merchantId) {
-            return res.status(405).send("Please enter valid merchant data");
+            return res.status(405).send({statusCode:405,message:"Please enter valid merchant data"});
         } else {
             req.userData.merchant = req.body.merchantId;
         }
@@ -18,7 +18,7 @@ exports.merchantAuth = async function(req, res, next) {
 
     let _merchant = await merchant.findById({ _id: req.userData.merchant }).populate('countryId');
     if (!_merchant)
-        return res.status(405).send("Please enter valid merchant data");
+        return res.status(405).send({statusCode:405,message:"Please enter valid merchant data"});
 
     req.merchantData = _merchant;
 

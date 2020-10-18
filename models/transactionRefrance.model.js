@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 let TransactionSchema = new Schema({
     creationDate: { type: Date, required: true, default: Date.now },
+    validTo: { type: Date, required: true},
     refranceNum: { type: String, required: true },
     paymentMethod: { type: String, required: true }, // virtual cash credit
     transactionId: {  type: mongoose.Schema.Types.ObjectId, ref: 'Transaction', required: false }, // virtual cash credit

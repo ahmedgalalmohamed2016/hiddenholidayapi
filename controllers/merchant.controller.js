@@ -126,7 +126,7 @@ exports.adminCreate = async (req, res) => {
 
         let transactionResult = await TransactionService.createTransaction(transactionData);
         if (transactionResult == false)
-            return res.status(401).send("error Happened while create transaction");
+            return res.status(404).send({statusCode:404,message:"error Happened while create transaction"});
 
         // Verification Number
         let verificationData = {};
@@ -266,7 +266,7 @@ exports.create = async (req, res) => {
 
         let transactionResult = await TransactionService.createTransaction(transactionData);
         if (transactionResult == false)
-            return res.status(401).send({ statusCode: 401, message: "error Happened while create transaction" });
+            return res.status(404).send({ statusCode: 404, message: "error Happened while create transaction" });
 
         // Verification Number
         let verificationData = {};
@@ -601,10 +601,12 @@ exports.merchants = async (req, res) => {
 
         if (req.query.category)
             _query.categoryId = req.query.category;
-
-        if (req.query.country)
+        if (req.query.country && req.query.country != 'null')
             _query.country = req.query.country;
-        if (req.query.page)
+        else
+            return res.status(404).send({ statusCode: 407,message:'Please choose you cuntry first'});
+        
+            if (req.query.page)
             _skip = req.query.page * 10;
         let _merchants = await merchant.find(_query, null, { sort: { clean_name: 1 } }).populate('categoryId').limit(10).skip(_skip);
         if (!_merchants)
