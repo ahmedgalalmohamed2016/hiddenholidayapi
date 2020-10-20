@@ -53,6 +53,7 @@ module.exports.params = {
     },
     "api_admin_getUser": {
         "mauth": true,
+        "id":true,
         "userDevice": true
     },
     "api_admin_update": {
@@ -132,7 +133,8 @@ module.exports.params = {
     },
     "merchants_admin_merchantsById": {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "id":true,
     },
     "merchants_me_merchantsById": {
         "mauth": true,
@@ -174,7 +176,21 @@ module.exports.params = {
     },
     "merchants_admin_create": {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "address": true,
+"cat_name": true,
+'category': true,
+"categoryId": true,
+"clean_name": true,
+"country": true,
+"emails": true,
+"firstName": true,
+"lastName": true,
+"main_phone_number": true,
+"mobileNumber": true,
+"name": true,
+"password":true,
+"userId": true,
     },
     "merchants_create": {
         "mauth": true,
@@ -219,8 +235,8 @@ module.exports.params = {
         "password": true
     },
     'user_login_admin': {
-        "username:": true,
-        "password": true
+        password: true,
+        username: true
     },
     'user_logout': {
         "mauth": true,
@@ -264,6 +280,7 @@ module.exports.params = {
     },
     'user_admin_getUser': {
         "mauth": true,
+        "id":true,
         "userDevice": true
     },
     'user_admin_update': {
@@ -366,7 +383,9 @@ module.exports.params = {
     },
     'api_deals_admin_merchant': {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "id":true,
+        "merchantId":true
     },
     'api_deals_public_merchant': {
         "mauth": true,
@@ -383,6 +402,12 @@ module.exports.params = {
     'api_deals_merchant_deal': {
         "mauth": true,
         "userDevice": true
+    },
+
+    'deals_admin_deal': {
+        "mauth": true,
+        "userDevice": true,
+        "id":true,
     },
     'api_deals_admin_deal': {
         "mauth": true,
@@ -480,7 +505,13 @@ module.exports.params = {
     },
     'api_admin_create': {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "country": true,
+"firstName": true,
+"lastName": true,
+"mobileNumber": true,
+"password": true,
+"userDevice": true,
     },
     'api_admin_getUser': {
         "mauth": true,
@@ -517,6 +548,12 @@ module.exports.params = {
     'api_admin_merchant_banckAcount': {
         "mauth": true,
         "userDevice": true
+    },
+    'api_admin_merchant_banckAcount_delete': {
+        "mauth": true,
+        "userDevice": true,
+        "id":true,
+        "isDeleted":true
     },
 
     // ---------------------------------------------------------------
@@ -564,7 +601,15 @@ module.exports.params = {
     },
     'api_packages_admin_create': {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "arDescription": true,
+"arName": true,
+"enDescription": true,
+"enName": true,
+"isActive": true,
+"maxBidRequests": true,
+"maxBids": true,
+"maxDealRequests": true,
     },
     'api_packages_admin_list': {
         "mauth": true,
@@ -601,6 +646,7 @@ module.exports.params = {
     },
     'api_categories_admin_category': {
         "mauth": true,
+        "id":true,
         "userDevice": true
     },
     'api_categories_admin_update': {
@@ -709,7 +755,9 @@ module.exports.params = {
     },
     'api_wallet_admin_merchant_balance': {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "id":true,
+        "merchantId":true
     },
     'api_wallet_main_balance': {
         "mauth": true,
@@ -751,7 +799,9 @@ module.exports.params = {
     },
     'api_bids_admin_merchant': {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "id":true,
+        "merchantId":true
     },
     'api_bids_usebid': {
         "mauth": true,
@@ -774,10 +824,12 @@ module.exports.params = {
     },
     'api_merchantAdmin_getUser': {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "id":true
     },
     'api_merchantAdmin_getmerchants': {
         "mauth": true,
+        "id":true,
         "userDevice": true
     },
     'api_merchantAdmin_update': {
@@ -799,7 +851,9 @@ module.exports.params = {
     //api_ealb -------------------------------------------------------
     'api_ealb_changePassword': {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "id": true,
+        "password": true,
     },
     'api_ealb_users': {
         "mauth": true,
@@ -815,7 +869,14 @@ module.exports.params = {
     },
     'api_ealb_update': {
         "mauth": true,
-        "userDevice": true
+        "userDevice": true,
+        "country": true,
+"email": true,
+"firstName": true,
+"id": true,
+"isLockedOut": true,
+"lastName": true,
+"mobileNumber": true
     }
     // ---------------------------------------------------------------
 };

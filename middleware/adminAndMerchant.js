@@ -1,7 +1,6 @@
 const merchant = require('../models/merchant.model');
 
 exports.adminAuth = async function(req, res, next) {
-
     if (req.userData.role == 'admin' || req.userData.role == 'superAdmin') {
         return next()
 

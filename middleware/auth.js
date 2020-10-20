@@ -25,6 +25,7 @@ exports.mainAuth = async function(req, res, next) {
 
             if (_token.userId != _user._id)
                 return res.status(401).send({ statusCode: 401,message:"You need to login to access this page"});
+            
             req.userData = _user;
             return next()
 

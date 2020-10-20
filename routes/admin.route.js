@@ -41,6 +41,7 @@ router.post('/transactions/settlement', middleware.mainAuth, adminMiddleware.adm
 
 
 router.post('/merchant/banckAcount', middleware.mainAuth, adminMiddleware.adminAuth, BanckAcount.allBanckAcounts);
+router.post('/merchant/banckAcount/delete', middleware.mainAuth, adminMiddleware.adminAuth, BanckAcount.banckAcountDelete);
 router.post('/log', middleware.mainAuth, adminMiddleware.adminAuth, LogSystem.getLog);
 
 module.exports = router;

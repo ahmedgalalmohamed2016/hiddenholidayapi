@@ -304,11 +304,12 @@ exports.MerchantBids = async(req, res) => {
         let _skip = 0;
         if (req.query.page)
             _skip = req.query.page * 10;
-        let dealsData = await DealModel.find({ merchantId: req.body.merchantId, type: 'bid' }).populate('categoryId').limit(10).skip(_skip).orFail((err) => Error(err));
+        let dealsData = await DealModel.find({ merchantId: req.body.merchantId, type: 'bid' }).populate('categoryId').limit(10).skip(_skip);
         if (!dealsData)
             return res.status(404).send({ statusCode: 404,message:"Please enter valid data"});
         res.status(200).send({ statusCode: 200,message:"Success",data:dealsData});
     } catch (err) {
+        console.log(err);
         return res.status(404).send({ statusCode: 404,message:"Error",data:err});
     }
 }
@@ -568,6 +569,7 @@ exports.useDeal = async(req, res) => {
 
 exports.AdminDealData = async(req, res) => {
     try {
+        console.log(req.body);
         if (!req.body.id)
             res.status(404).send({ statusCode: 404,message:"please enter valid data"});
 

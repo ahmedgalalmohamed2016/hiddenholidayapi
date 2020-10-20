@@ -672,6 +672,7 @@ exports.loginAdmin = async (req, res) => {
     const usersNamedFinn = await UserModel.find({
       mobileNumber: req.body.username,
     });
+    console.log(usersNamedFinn.length < 1);
     if (usersNamedFinn.length < 1)
       return res.status(404)
         .send({ statusCode: 404, message: "Please enter valid username and password" });
@@ -680,7 +681,6 @@ exports.loginAdmin = async (req, res) => {
       usersNamedFinn[0].password,
       usersNamedFinn[0]._id
     );
-
     if (_.isNil(password) || password != true)
       return res.status(404)
         .send({ statusCode: 404, message: "Please enter valid username and password" });
