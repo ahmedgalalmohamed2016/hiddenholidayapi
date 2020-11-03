@@ -25,10 +25,10 @@ module.exports = {
     updateTransaction: function (userId) { },
 
     deleteTransaction: function (transactionId) {
-        const _transaction = TransactionModel.deleteOne({_id:transactionId});
+        const _transaction = TransactionModel.deleteOne({ _id: transactionId });
         if (_.isNil(_transaction)) return false;
         return _transaction;
-     },
+    },
 
     getUserBalance: async function (userId) {
         let cTransactions = await TransactionModel.find(
@@ -232,7 +232,7 @@ module.exports = {
             refranceNum: refNumbe,
             paymentMethod: "madfooatcom",
             status: "pending",
-            validTo:date.addDays(2),
+            validTo: date.addDays(2),
         })
         if (!refrance._id)
             return false
@@ -247,8 +247,8 @@ module.exports = {
         let found = await transactionRefrance.findOne(data).populate('transactionId');
         return found
     },
-    madfooatcomUpdate: async (data,newData) => {
-       
+    madfooatcomUpdate: async (data, newData) => {
+
         let updatedDtata = await transactionRefrance.update(
             data,
             newData);
@@ -257,11 +257,35 @@ module.exports = {
 
         return updatedDtata
     },
+    madfooatcomchangeStatus: async (data, newData) => {
+        data.status = 'pending'
+      
+        let updatedDtata = await transactionRefrance.findOneAndUpdate(
+            data,
+            newData);
+        if (!updatedDtata){
+            updatedDtata = await transactionRefrance.findOneAndUpdate(
+                data,
+                {status:'pending'});
+            return false
+        }
+
+        let transactionUpdate = await TransactionModel.findOneAndUpdate({ _id: updatedDtata.transactionId }, newData)
+        if (!transactionUpdate){
+            updatedDtata = await transactionRefrance.findOneAndUpdate(
+                data,
+                {status:'pending'});
+            transactionUpdate = await TransactionModel.findOneAndUpdate({ _id: updatedDtata.transactionId }, {status:'pending'})
+            return false
+        }
+
+        return true
+    },
     deleteTransactionRef: function (refId) {
-    const _transaction = transactionRefrance.deleteOne({_id:refId});
-    if (_.isNil(_transaction)) return false;
-    return _transaction;
- },
+        const _transaction = transactionRefrance.deleteOne({ _id: refId });
+        if (_.isNil(_transaction)) return false;
+        return _transaction;
+    },
 };
 
 
@@ -275,7 +299,7 @@ function makeUserCode(length) {
     return result;
 }
 
-Date.prototype.addDays = function(days) {
+Date.prototype.addDays = function (days) {
     var date = new Date(this.valueOf());
     date.setDate(date.getDate() + days);
     return date;

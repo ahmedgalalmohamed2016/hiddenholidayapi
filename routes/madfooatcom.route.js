@@ -11,5 +11,6 @@ const adminMiddleware = require('../middleware/admin');
 
 router.get('/', madfooatcomController.wellcom);
 router.post('/refrance/detail', madfooatcomController.detail);
+router.post('/refrance/status', madfooatcomController.status);
 
 module.exports = router;

@@ -124,7 +124,10 @@ module.exports.params = {
     "madfooatcom_refrance_detail":{
         "refranceNum":true
     },
-
+    "madfooatcom_refrance_status":{
+        "refranceNum":true,
+        "status":true
+    },
     "merchants_merchantById": {
         "mauth": true,
         "id":true,
