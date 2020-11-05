@@ -13,6 +13,8 @@ exports.wellcom = async (req, res) => {
 }
 exports.detail = async (req, res) => {
      let refranceData = await transactionService.madfooatcomFindDetail({ refranceNum: req.body.refranceNum })
+     if(!refranceData)
+          return res.status(404).send({ statusCode: 404, message: "cannot find this refrance number"});
      return res.status(200).send({ statusCode: 200, message: "Wellcom Madfooatcom", data: refranceData });
 }
 exports.status = async (req, res) => {
