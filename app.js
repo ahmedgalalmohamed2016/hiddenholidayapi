@@ -28,7 +28,8 @@ const httpService = require("./services/httpService");
 const app = express();
 // Set up mongoose connection
 const mongoose = require('mongoose');
-let dev_db_url = 'mongodb://drizzleup:neejde5m2KnkhPYu@ds137498.mlab.com:37498/drizzleup';
+// let dev_db_url = 'mongodb://drizzleup:neejde5m2KnkhPYu@ds137498.mlab.com:37498/drizzleup';
+let dev_db_url = 'mongodb+srv://drizzleupadmin:Drizzleup13579@drizzleup.uva5k.mongodb.net/drizzleup';
 
 app.use('/static', express.static('public'))
 app.use('/', express.static(path.join(__dirname, 'public/admin')));
@@ -63,7 +64,8 @@ app.use(async function(req, res, next) {
   await httpService._handleHeader(res);
   await httpService._logSystem(req, res);
   await httpService._checkValidation(req, async function (err, result) {
-    if (!!err) {
+   try{
+     if (!!err) {
         var results = ({
             statusCode: 404,
             message: err
@@ -71,6 +73,9 @@ app.use(async function(req, res, next) {
         await httpService._logSystem(req, res);
         return res.status(404).send(results);
     } 
+   }catch(err){
+
+   }
   })
   next();
 });
