@@ -400,10 +400,12 @@ module.exports.params = {
     },
     'api_deals_me_deal': {
         "mauth": true,
+        "id":true,
         "userDevice": true
     },
     'api_deals_merchant_deal': {
         "mauth": true,
+        "id":true,
         "userDevice": true
     },
 

@@ -499,7 +499,7 @@ exports.requestDeal = async(req, res) => {
 exports.DealData = async(req, res) => {
     try {
         if (!req.body.id)
-            res.status(404).send({ statusCode: 404,message:"please enter valid data"});
+            res.status(404).send({ statusCode: 404,message:"please enter valid Deal Id"});
 
         let _deal = await DealModel.findById({ _id: req.body.id, isArchived: false })
             .populate('categoryId');
