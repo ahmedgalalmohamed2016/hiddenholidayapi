@@ -3,31 +3,32 @@ const validation = require("../configs/validation").validation;
 const uuidv4 = require('uuid/v4');
 const params = require("../configs/prams").params
 module.exports = {
-    _checkValidation: function (req, callback) {
-        var apiParam = this._getApiParam(req.url);
+    _checkValidation: async function (req, callback) {
+        var apiParam = await this._getApiParam(req.url);
         if (req.method != 'POST')
             return callback(null);
         if (!apiParam)
             return callback(req.url + " is not a valid api");
-        req.body = this._removeExtraKeys(apiParam, req.body);
-        req.body = this._removeEmptyParam(req.body);
+        console.log("pass");
+        req.body = await this._removeExtraKeys(apiParam, req.body);
+        req.body = await this._removeEmptyParam(req.body);
 
 
-        var invalidInput = this._checkForInput(apiParam, req.body);
+        var invalidInput = await this._checkForInput(apiParam, req.body);
         if (invalidInput)
             return callback('please Enter Vaild ' + invalidInput);
         return callback(null);
     },
 
-    _getApiParam: function (url) {
+    _getApiParam: async function (url) {
         if (url == '/')
             return params['_'];
 
-        var paramsKeys = url.replace(/\//g, "_").replace("_", "").split('?')[0];
+        var paramsKeys = await url.replace(/\//g, "_").replace("_", "").split('?')[0];
         return params[paramsKeys];
     },
 
-    _removeExtraKeys: function (param, body) {
+    _removeExtraKeys: async function (param, body) {
         Object.keys(body).forEach(function (p) {   
             if (!param.hasOwnProperty(p)){  
                 delete body[p];//   param[p];
@@ -36,7 +37,7 @@ module.exports = {
         return body
     },
 
-    _removeEmptyParam: function (body) {
+    _removeEmptyParam: async function (body) {
 
         Object.keys(body).forEach(function (b) {
             if (body[b] == null || body[b] == undefined || body[b].length == 0)
@@ -45,42 +46,42 @@ module.exports = {
         return body;
     },
     
-    _checkForInput: function (param, body) {
+    _checkForInput: async function (param, body) {
 
-        var invalidMandatory = this._checkForMandatory(param, body);
+        var invalidMandatory = await this._checkForMandatory(param, body);
 
         if (invalidMandatory)
             return invalidMandatory;
 
 
-        var invalidInput = this._checkForValidInputs(body);
+        var invalidInput = await this._checkForValidInputs(body);
         if (invalidInput)
             return invalidInput;
 
         return false;
     },
-    _checkForMandatory: function (param, body) {
+    _checkForMandatory: async function (param, body) {
         
         var manParamKeys = Object.keys(param).filter(function (p) {
             return param[p];
         });
 
-        var missing = manParamKeys.filter(function (p) {
+        var missing = await manParamKeys.filter(function (p) {
             return !body.hasOwnProperty(p); //!body[p];
         });
 
         return missing.length == 0 ? false : missing[0];
     },
-    _checkForValidInputs: function (body) {
+    _checkForValidInputs: async function (body) {
 
         for (var i in body) {
-            if (!this._isValidInput(i, body[i]))
+            if (!await this._isValidInput(i, body[i]))
                 return i;
         }
         return false;
     },
 
-    _isValidInput: function (key, value) {
+    _isValidInput: async function (key, value) {
         var validationRule = validation[key];
 
         var validationRuleType = typeof validationRule;
@@ -89,11 +90,11 @@ module.exports = {
             return true;
 
         if (typeof validationRule == 'function')
-            return validationRule(value);
+            return await validationRule(value);
         return new RegExp(validationRule).test(value);
     },
    
-    _logSystem: function (req, res) {
+    _logSystem: async function (req, res) {
         var reqIp = '0.0.0.0';
                 if (req.ip) {
                     reqIp = req.ip.split("::ffff:");
@@ -104,7 +105,7 @@ module.exports = {
                         reqIp = req.ip;
                 }
                 try{
-                    const replacerFunc = () => {
+                    const replacerFunc = async () => {
                         const visited = new WeakSet();
                         return (key, value) => {
                           if (typeof value === "object" && value !== null) {
@@ -143,17 +144,18 @@ module.exports = {
         
     },
 
-    _handleHeader: function (res) {
+    _handleHeader: async function (res) {
         try {
             res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         
             res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-            res.setHeader('Access-Control-Allow-Credentials', false);
-        
+            res.header('Access-Control-Allow-Credentials', false);
+            // res.end();
         } catch (err) {
             return false;
         }
+        return res;
     }
 
 }

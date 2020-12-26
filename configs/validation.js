@@ -16,7 +16,7 @@ url = /^((https?:\/\/)?(www\.)?([\da-zA-Z-]+)\.([a-z]{2,6})\.?([\da-z]{2,6})?([\
     percent = /^[0-9]{0,2}(\.[0-9]{1,2}){0,1}$/,
     Validator = require('validator-json'),
     age = /^[1-9][0-9]{1,1}$/,
-    adminPassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,35}$/,
+    adminPassword = /^(?=.*paymentMethod\d)(?=.*[a-z])(?=.*[A-Z]).{8,35}$/,
     faxRegex = /^\+?[0-9]{6,}$/,
 
     allCharsWithRange = function (min, max) {
@@ -415,6 +415,7 @@ module.exports.validation = {
     mobileNotify: boolean,
     currency: /^[a-z]{3}$/i,
     username: /^.{2,128}$/,
+    merchants: /^.{4,9999999}$/,
     password: /^.{6,512}$/,
     accessCode: /^[0-9a-fA-F]{8,16}$/,
     hashSecret: /^[\S]{1,256}$/,

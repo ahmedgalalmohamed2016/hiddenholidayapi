@@ -61,10 +61,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // for encoded bodies
 
 app.use(async function(req, res, next) {
-  await httpService._handleHeader(res);
-  await httpService._logSystem(req, res);
+  // await httpService._handleHeader(res);
+  res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  res.setHeader('Access-Control-Allow-Credentials', true);
   await httpService._checkValidation(req, async function (err, result) {
    try{
+     console.log(err);
      if (!!err) {
         var results = ({
             statusCode: 404,
@@ -72,12 +77,14 @@ app.use(async function(req, res, next) {
         });
         await httpService._logSystem(req, res);
         return res.status(404).send(results);
-    } 
+    } else{
+      next();
+    }
    }catch(err){
-
+     console.log("----------------- validation Error ----------------");
+     console.log(err);
    }
   })
-  next();
 });
 app.use('/madfooatcom', madfooatcom)
 app.use('/merchants', merchant);

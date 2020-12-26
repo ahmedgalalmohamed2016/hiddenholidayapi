@@ -168,8 +168,9 @@ module.exports.params = {
         "userDevice": true
     },
     "merchants_favourites": {
-        "mauth": true,
-        "userDevice": true
+        merchants:true
+        // "mauth": true,
+        // "userDevice": true
     },
     "merchants_merchantsById_list": {
         "mauth": true,
@@ -436,7 +437,7 @@ module.exports.params = {
         "userDevice": true
     },
     'api_deals_UserDealRequests': {
-        "isUsed": true,
+        "isUsed": false,
         "mauth": true,
         "pageNumber": true,
         "type": true,
