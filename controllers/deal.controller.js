@@ -371,7 +371,6 @@ exports.requestDeal = async (req, res) => {
             if (!cardData)
                 return res.status(404).send({ statusCode: 404, message: "error Happened to find card Data" });
         } else if (req.body.paymentType == "balance") {
-            console.log("in");
             let _uBalance = await TransactionService.getUserBalance(req.userData.id);
             _uBalance = _uBalance / countryData.exRate;
             req.body.paymentId = configration.balanceId
@@ -568,7 +567,6 @@ exports.useDeal = async (req, res) => {
 
 exports.AdminDealData = async (req, res) => {
     try {
-        console.log(req.body);
         if (!req.body.id)
             res.status(404).send({ statusCode: 404, message: "please enter valid data" });
 

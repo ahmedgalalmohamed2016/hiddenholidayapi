@@ -672,7 +672,6 @@ exports.loginAdmin = async (req, res) => {
     const usersNamedFinn = await UserModel.find({
       mobileNumber: req.body.username,
     });
-    console.log(usersNamedFinn.length < 1);
     if (usersNamedFinn.length < 1)
       return res.status(404)
         .send({ statusCode: 404, message: "Please enter valid username and password" });

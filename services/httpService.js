@@ -9,7 +9,6 @@ module.exports = {
             return callback(null);
         if (!apiParam)
             return callback(req.url + " is not a valid api");
-        console.log("pass");
         req.body = await this._removeExtraKeys(apiParam, req.body);
         req.body = await this._removeEmptyParam(req.body);
 
